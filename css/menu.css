@@ -1,0 +1,401 @@
+/* =====================================================
+   THE HUMAN ARCHIVE — MAIN MENU / ARCHIVE MAP
+   A scrollable, cinematic archive atlas for young explorers.
+===================================================== */
+
+.tha-menu-screen {
+    --menu-green: #a9efba;
+    --menu-bright: #e2ffe8;
+    --menu-muted: #789d80;
+    --menu-line: rgba(131, 224, 151, .23);
+    position: fixed;
+    isolation: isolate;
+    z-index: 30;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100vh;
+    height: 100svh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(128, 221, 150, .46) rgba(2, 8, 4, .8);
+    color: var(--menu-green);
+    background:
+        radial-gradient(ellipse at 50% 31%, rgba(33, 93, 47, .27), transparent 44%),
+        radial-gradient(ellipse at 8% 68%, rgba(32, 92, 49, .15), transparent 32%),
+        radial-gradient(ellipse at 91% 75%, rgba(16, 62, 30, .20), transparent 36%),
+        linear-gradient(145deg, #050e08 0%, #020704 53%, #010302 100%);
+    font-family: "Fira Code", "Cascadia Code", Consolas, monospace;
+    letter-spacing: .025em;
+    animation: thaMenuSceneArrival .72s ease both;
+}
+
+.tha-menu-screen::-webkit-scrollbar { width: 8px; }
+.tha-menu-screen::-webkit-scrollbar-track { background: rgba(2, 8, 4, .72); }
+.tha-menu-screen::-webkit-scrollbar-thumb { background: rgba(128, 221, 150, .32); border: 2px solid rgba(2, 8, 4, .8); }
+.tha-menu-screen::-webkit-scrollbar-thumb:hover { background: rgba(156, 244, 174, .58); }
+
+.tha-menu-screen *,
+.tha-menu-screen *::before,
+.tha-menu-screen *::after { box-sizing: border-box; }
+
+.tha-menu-stars,
+.tha-menu-nebula,
+.tha-menu-rings,
+.tha-menu-glass {
+    position: absolute;
+    inset: 0;
+    z-index: -3;
+    pointer-events: none;
+}
+
+.tha-menu-stars {
+    opacity: .42;
+    background-image:
+        radial-gradient(circle, rgba(226,255,232,.8) .7px, transparent 1.3px),
+        radial-gradient(circle, rgba(115,220,142,.65) .7px, transparent 1.2px),
+        radial-gradient(circle, rgba(210,255,223,.36) .8px, transparent 1.5px);
+    background-size: 79px 79px, 127px 127px, 181px 181px;
+    background-position: 14px 17px, 53px 41px, 91px 73px;
+    animation: thaMenuStarDrift 85s linear infinite;
+}
+
+.tha-menu-nebula {
+    z-index: -2;
+    opacity: .8;
+    background:
+        radial-gradient(ellipse at 10% 38%, rgba(31,95,47,.22), transparent 27%),
+        radial-gradient(ellipse at 91% 48%, rgba(35,106,52,.18), transparent 28%),
+        radial-gradient(ellipse at 55% 88%, rgba(35,91,56,.12), transparent 30%);
+    filter: blur(13px);
+    animation: thaMenuNebulaDrift 24s ease-in-out infinite alternate;
+}
+
+.tha-menu-rings {
+    z-index: -1;
+    inset: auto auto 8% 50%;
+    width: min(110vw, 1240px);
+    height: min(54vw, 520px);
+    border: 1px solid rgba(128,225,148,.11);
+    border-radius: 50%;
+    transform: translateX(-50%) rotate(-15deg);
+    box-shadow: 0 0 0 38px rgba(128,225,148,.02), 0 0 0 83px rgba(128,225,148,.014), 0 0 0 142px rgba(128,225,148,.009);
+}
+
+.tha-menu-glass {
+    z-index: 8;
+    opacity: .14;
+    background: linear-gradient(112deg, transparent 5%, rgba(255,255,255,.025) 28%, transparent 43%, transparent 74%, rgba(166,255,187,.018) 87%, transparent 94%);
+    mix-blend-mode: screen;
+}
+
+/* Keep a slim station header visible while the archive menu scrolls. */
+.tha-menu-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    flex: 0 0 auto;
+    min-height: 59px;
+    padding: 10px clamp(16px, 4vw, 54px);
+    border-bottom: 1px solid rgba(131,224,151,.15);
+    color: #9bbca2;
+    background: rgba(3, 10, 5, .84);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 8px 24px rgba(0,0,0,.12);
+    font-size: .62rem;
+    letter-spacing: .12em;
+}
+
+.tha-menu-brand { display: flex; align-items: center; gap: 11px; min-width: 0; }
+.tha-menu-brand-copy { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.tha-menu-brand-copy strong { color: #d7ffe0; font-weight: 500; font-size: .65rem; letter-spacing: .14em; }
+.tha-menu-brand-copy small { color: #64876c; font-size: .49rem; letter-spacing: .13em; }
+.tha-menu-brand-mark {
+    display: grid;
+    place-items: center;
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    border: 1px solid rgba(160,244,177,.54);
+    color: #ddffe4;
+    font-size: .65rem;
+    letter-spacing: .03em;
+    box-shadow: inset 0 0 16px rgba(86,208,117,.08), 0 0 16px rgba(86,208,117,.04);
+}
+
+.tha-menu-system { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; color: #759b7d; font-size: .55rem; letter-spacing: .12em; }
+.tha-menu-system i,
+.tha-menu-scan-state i {
+    width: 6px;
+    height: 6px;
+    flex: 0 0 6px;
+    border-radius: 50%;
+    background: #a6f3b6;
+    box-shadow: 0 0 10px rgba(142,255,166,.62);
+    animation: thaMenuPulse 2.3s steps(2, end) infinite;
+}
+
+.tha-menu-main {
+    position: relative;
+    z-index: 1;
+    flex: 0 0 auto;
+    width: min(100%, 1040px);
+    margin: 0 auto;
+    padding: clamp(93px, 10vh, 112px) clamp(14px, 3vw, 30px) 42px;
+}
+
+.tha-menu-heading { margin: 0 auto 25px; text-align: center; }
+.tha-menu-eyebrow {
+    margin: 0 0 12px;
+    color: #83b08e;
+    font-size: .62rem;
+    letter-spacing: .2em;
+    line-height: 1.7;
+}
+.tha-menu-eyebrow span { padding: 0 7px; color: #45694e; }
+.tha-menu-heading h1 {
+    margin: 0;
+    color: #f0fff3;
+    font-family: "Orbitron", "Fira Code", Consolas, monospace;
+    font-size: clamp(2rem, 5vw, 3.75rem);
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: .065em;
+    text-shadow: 0 0 32px rgba(128,244,151,.14);
+}
+.tha-menu-heading h1 span { display: block; margin-top: 6px; color: #a9efba; }
+.tha-menu-rule { display: flex; align-items: center; justify-content: center; gap: 9px; width: 195px; max-width: 54%; margin: 17px auto 0; }
+.tha-menu-rule span { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(145,230,160,.62), transparent); }
+.tha-menu-rule i { width: 5px; height: 5px; background: #c5ffcf; transform: rotate(45deg); box-shadow: 0 0 9px rgba(157,255,177,.42); }
+.tha-menu-intro { margin: 15px 0 0; color: #769c80; font-size: .57rem; letter-spacing: .19em; }
+
+.tha-menu-map-panel {
+    position: relative;
+    padding: clamp(14px, 2.6vw, 25px);
+    border: 1px solid rgba(115,207,135,.29);
+    background: linear-gradient(145deg, rgba(6,22,11,.9), rgba(2,8,4,.93));
+    box-shadow: 0 22px 70px rgba(0,0,0,.28), inset 0 0 42px rgba(72,177,96,.035), 0 0 0 5px rgba(92,174,110,.025);
+    overflow: hidden;
+}
+.tha-menu-map-panel::before {
+    content: "";
+    position: absolute;
+    inset: 7px;
+    border: 1px solid rgba(131,224,151,.06);
+    pointer-events: none;
+}
+
+.tha-menu-panel-top {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-bottom: 13px;
+    border-bottom: 1px solid rgba(131,224,151,.15);
+    color: #85a88b;
+    font-size: .58rem;
+    letter-spacing: .15em;
+}
+.tha-menu-panel-top b { margin-left: 7px; color: #b4e9bf; font-weight: 500; }
+.tha-menu-scan-state { display: inline-flex; align-items: center; gap: 8px; color: #a0c9a8; font-size: .52rem; letter-spacing: .09em; }
+
+/* The schematic makes this screen read as an archive map, not a generic menu. */
+.tha-menu-schematic {
+    position: relative;
+    margin: 8px 0 3px;
+    padding: 3px 4px 0;
+    border-bottom: 1px solid rgba(115,207,135,.12);
+    background: radial-gradient(ellipse at 50% 52%, rgba(27,74,43,.16), transparent 70%);
+}
+.tha-menu-schematic svg { display: block; width: 100%; height: auto; overflow: visible; }
+.tha-menu-schematic svg text { fill: #719b7b; font: 10px "Fira Code", Consolas, monospace; letter-spacing: 1px; }
+.schematic-orbit { fill: none; stroke: rgba(129,220,148,.20); stroke-width: 1; stroke-dasharray: 2 6; }
+.schematic-orbit-alt { stroke: rgba(145,218,231,.14); stroke-dasharray: 1 8; }
+.schematic-route { fill: none; stroke: url(#thaMenuRouteLine); stroke-width: 1.3; stroke-dasharray: 4 6; animation: thaMenuRouteFlow 16s linear infinite; }
+.schematic-route-faint { stroke: rgba(125,190,210,.22); stroke-dasharray: 2 9; animation-direction: reverse; }
+.schematic-earth { fill: #214f3a; stroke: #a2e6b7; stroke-width: 1.2; }
+.schematic-earth-lines { fill: none; stroke: rgba(178,255,202,.7); stroke-width: 1; stroke-linecap: round; }
+.schematic-node { stroke-width: 1.2; }
+.schematic-node-moon { fill: #9fb5a3; stroke: #d8f0dd; }
+.schematic-moon-crater { fill: #57725f; }
+.schematic-node-mars { fill: #bd7059; stroke: #f0ad8c; }
+.schematic-mars-crater { fill: none; stroke: #773f3a; stroke-width: 1.5; stroke-linecap: round; }
+.schematic-node-deep { fill: #d8f4ff; stroke: #d8f4ff; }
+.schematic-ping { fill: none; stroke: rgba(168,231,255,.56); stroke-width: 1; animation: thaMenuPing 3.2s ease-out infinite; transform-origin: 793px 71px; }
+.tha-menu-map-note { display: block; padding: 0 0 9px; color: #476f52; text-align: right; font-size: .46rem; letter-spacing: .12em; }
+.tha-menu-map-legend { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 20px; padding: 0 0 16px; color: #779a80; font-size: .5rem; letter-spacing: .11em; }
+.tha-menu-map-legend span { display: inline-flex; align-items: center; gap: 7px; }
+.tha-menu-map-legend i { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #9ee7b1; box-shadow: 0 0 8px rgba(158,231,177,.4); }
+.tha-menu-map-legend span:nth-child(2) i { background: #b5c6b9; }
+.tha-menu-map-legend span:nth-child(3) i { background: #d18469; }
+.tha-menu-map-legend span:nth-child(4) i { background: #bfeaff; }
+
+.tha-menu-cards { display: grid; gap: 10px; padding-top: 18px; }
+.tha-menu-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr) auto 22px;
+    align-items: center;
+    gap: 13px;
+    width: 100%;
+    min-height: 72px;
+    padding: 12px 15px;
+    border: 1px solid rgba(116,195,133,.23);
+    border-radius: 2px;
+    color: #c7f4d0;
+    background: linear-gradient(105deg, rgba(7,22,11,.93), rgba(3,10,5,.82));
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+    opacity: 0;
+    animation: thaMenuCardArrival .62s cubic-bezier(.18,.7,.22,1) both;
+    animation-delay: calc(var(--card-index, 0) * 70ms + 100ms);
+    transition: border-color .22s ease, background .22s ease, transform .22s ease, opacity .22s ease, box-shadow .22s ease;
+}
+.tha-menu-card::before { content: ""; position: absolute; top: 8px; bottom: 8px; left: 0; width: 2px; background: transparent; transition: background .2s ease; }
+.tha-menu-card.is-unlocked { border-left: 2px solid rgba(143,236,161,.62); }
+.tha-menu-card.is-active { border-color: rgba(162,255,179,.62); background: linear-gradient(92deg, rgba(39,102,52,.32), rgba(5,17,8,.86) 68%); box-shadow: inset 0 0 28px rgba(83,192,107,.04), 0 0 20px rgba(72,192,99,.025); }
+.tha-menu-card.is-active::before { background: #a7f2b6; box-shadow: 0 0 12px rgba(151,255,173,.55); }
+.tha-menu-card.is-locked { color: #68836e; background: rgba(3,10,5,.58); cursor: not-allowed; opacity: .78; }
+.tha-menu-card.is-personal { border-style: dashed; }
+.tha-menu-card:not(:disabled):hover { border-color: rgba(183,255,195,.78); background: linear-gradient(92deg, rgba(24,67,33,.52), rgba(5,17,8,.88) 72%); transform: translateX(3px); box-shadow: 0 0 22px rgba(76,202,105,.06); }
+.tha-menu-card.is-selected { transform: scale(.995); }
+.tha-menu-card:focus-visible { outline: 2px solid #c7ffd1; outline-offset: 3px; }
+
+.tha-menu-card-icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid rgba(117,191,133,.25);
+    background: radial-gradient(circle, rgba(52,112,62,.17), rgba(5,16,8,.3));
+    font-family: sans-serif;
+    font-size: 1.35rem;
+    filter: saturate(.86);
+}
+.tha-menu-card.is-locked .tha-menu-card-icon { filter: grayscale(.7); opacity: .76; }
+.tha-menu-card-main { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+.tha-menu-card-title { color: #d7ffe0; font-size: clamp(.67rem, 1.4vw, .84rem); letter-spacing: .115em; overflow-wrap: anywhere; }
+.tha-menu-card-status { color: #668f70; font-size: .52rem; letter-spacing: .095em; line-height: 1.55; overflow-wrap: anywhere; }
+.tha-menu-card.is-active .tha-menu-card-status { color: #a0e9ae; }
+.tha-menu-card-count { color: #b8eac2; font-size: clamp(.63rem, 1.3vw, .79rem); white-space: nowrap; letter-spacing: .07em; }
+.tha-menu-card.is-locked .tha-menu-card-count { color: #55745d; font-size: .57rem; }
+.tha-menu-card-arrow { color: #7cb789; font-size: 1.05rem; text-align: center; }
+.tha-menu-card.is-locked .tha-menu-card-arrow { color: #4f6e56; }
+
+.tha-menu-notice { display: none; margin: 13px 0 0; padding: 10px 12px; border-left: 2px solid #d9ba79; color: #e4d7ad; background: rgba(99,73,24,.14); font-size: .61rem; line-height: 1.6; overflow-wrap: anywhere; }
+.tha-menu-notice.is-visible { display: block; }
+
+.tha-menu-footer { display: flex; align-items: center; justify-content: center; gap: 18px; margin: 24px auto 0; padding: 7px 0; }
+.tha-menu-footer p { margin: 0; color: #b8e7c2; text-align: center; font-size: clamp(.59rem, 1.4vw, .74rem); letter-spacing: .17em; white-space: nowrap; }
+.tha-menu-footer p span { color: #ebfff0; padding: 0 3px; }
+.tha-menu-footer-line { width: min(10vw, 75px); height: 1px; background: linear-gradient(90deg, transparent, rgba(136,216,151,.55)); }
+.tha-menu-footer-line:last-child { transform: scaleX(-1); }
+
+.tha-menu-bottom-meta {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 9px 18px;
+    flex: 0 0 auto;
+    margin-top: auto;
+    padding: 15px clamp(16px, 4vw, 54px) 18px;
+    border-top: 1px solid rgba(131,224,151,.12);
+    color: #54735b;
+    background: rgba(2, 7, 3, .45);
+    font-size: .48rem;
+    letter-spacing: .12em;
+}
+
+/* The shared badge stays in the upper-right, just below the station header. */
+.tha-global-identity-badge {
+    top: clamp(65px, 7vh, 82px) !important;
+    right: clamp(14px, 3.5vw, 40px) !important;
+    z-index: 500 !important;
+}
+.tha-global-identity-badge.is-post-mission { animation: thaMenuBadgeArrival .55s ease both; }
+
+@keyframes thaMenuStarDrift { from { background-position: 14px 17px, 53px 41px, 91px 73px; } to { background-position: 93px 96px, 180px 168px, 272px 254px; } }
+@keyframes thaMenuPulse { 0%, 45% { opacity: 1; } 46%, 100% { opacity: .35; } }
+@keyframes thaMenuNebulaDrift { from { transform: translate3d(-.8%, 0, 0) scale(1); } to { transform: translate3d(.8%, -1%, 0) scale(1.04); } }
+@keyframes thaMenuRouteFlow { to { stroke-dashoffset: -140; } }
+@keyframes thaMenuPing { 0% { opacity: .8; transform: scale(.65); } 75%, 100% { opacity: 0; transform: scale(1.75); } }
+@keyframes thaMenuCardArrival { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes thaMenuSceneArrival { from { opacity: 0; filter: brightness(1.3); } to { opacity: 1; filter: brightness(1); } }
+@keyframes thaMenuBadgeArrival { from { opacity: .25; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 700px) {
+    .tha-menu-topbar { min-height: 54px; padding: 8px 12px; font-size: .5rem; letter-spacing: .07em; }
+    .tha-menu-brand { gap: 8px; }
+    .tha-menu-brand-mark { flex-basis: 29px; width: 29px; height: 29px; }
+    .tha-menu-brand-copy strong { font-size: .53rem; letter-spacing: .08em; }
+    .tha-menu-brand-copy small { font-size: .42rem; letter-spacing: .07em; }
+    .tha-menu-system { font-size: .43rem; white-space: normal; max-width: 96px; justify-content: flex-end; text-align: right; line-height: 1.45; }
+    .tha-menu-main { padding: 83px 11px 34px; }
+    .tha-menu-heading { margin-bottom: 19px; }
+    .tha-menu-eyebrow { font-size: .52rem; letter-spacing: .11em; }
+    .tha-menu-heading h1 { font-size: clamp(1.7rem, 8.2vw, 2.65rem); }
+    .tha-menu-intro { font-size: .48rem; letter-spacing: .12em; }
+    .tha-menu-map-panel { padding: 12px 10px 14px; }
+    .tha-menu-panel-top { font-size: .47rem; letter-spacing: .08em; }
+    .tha-menu-panel-top b { margin-left: 4px; }
+    .tha-menu-scan-state { font-size: .42rem; letter-spacing: .025em; }
+    .tha-menu-schematic { margin-top: 7px; }
+    .tha-menu-schematic svg text { display: none; }
+    .tha-menu-map-note { font-size: .39rem; }
+    .tha-menu-map-legend { justify-content: space-between; gap: 8px 12px; padding-bottom: 12px; font-size: .43rem; letter-spacing: .065em; }
+    .tha-menu-cards { gap: 8px; padding-top: 12px; }
+    .tha-menu-card { grid-template-columns: 35px minmax(0, 1fr) auto 14px; gap: 9px; min-height: 66px; padding: 9px 8px; }
+    .tha-menu-card-icon { width: 33px; height: 35px; font-size: 1.05rem; }
+    .tha-menu-card-title { font-size: .60rem; letter-spacing: .06em; }
+    .tha-menu-card-status { font-size: .44rem; letter-spacing: .025em; }
+    .tha-menu-card-count { font-size: .56rem; letter-spacing: 0; }
+    .tha-menu-card.is-locked .tha-menu-card-count { font-size: .46rem; }
+    .tha-menu-card-arrow { font-size: .83rem; }
+    .tha-menu-footer { gap: 8px; margin-top: 17px; }
+    .tha-menu-footer p { font-size: .5rem; letter-spacing: .08em; }
+    .tha-menu-footer-line { width: 18px; }
+    .tha-menu-bottom-meta { justify-content: center; text-align: center; font-size: .41rem; }
+    .tha-global-identity-badge { top: 60px !important; right: 10px !important; max-width: min(290px, calc(100% - 20px)); }
+}
+
+@media (max-width: 380px) {
+    .tha-menu-system { max-width: 76px; }
+    .tha-menu-card { grid-template-columns: 30px minmax(0, 1fr) auto 10px; gap: 7px; padding-inline: 6px; }
+    .tha-menu-card-icon { width: 29px; height: 31px; font-size: .95rem; }
+    .tha-menu-card-title { font-size: .55rem; }
+    .tha-menu-card-status { font-size: .4rem; }
+    .tha-menu-card-count { font-size: .5rem; }
+}
+
+@media (max-height: 730px) and (min-width: 701px) {
+    .tha-menu-main { padding-top: 88px; }
+    .tha-menu-heading { margin-bottom: 18px; }
+    .tha-menu-heading h1 { font-size: clamp(1.8rem, 4.2vw, 3rem); }
+    .tha-menu-schematic { margin-top: 4px; }
+    .tha-menu-card { min-height: 61px; padding-top: 8px; padding-bottom: 8px; }
+    .tha-menu-card-icon { width: 37px; height: 37px; }
+    .tha-menu-cards { gap: 7px; padding-top: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tha-menu-screen *, .tha-menu-screen *::before, .tha-menu-screen *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

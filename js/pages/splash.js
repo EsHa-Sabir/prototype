@@ -1,50 +1,139 @@
-// js/pages/splash.js
-// Chapter 1: Silence - Year 2126 Station Opening
+// =====================================================
+// THE HUMAN ARCHIVE — CINEMATIC SPLASH
+// This screen is only the visual opening. Story text and
+// the YEAR: 2126 typewriter sequence belong to Terminal.
+// =====================================================
+
+let splashTransitioning = false;
+let splashMouseMoveHandler = null;
 
 function renderSplash() {
-    const container = document.createElement('div');
-    container.className = 'splash-container';
+    const app = document.getElementById("app");
 
-    container.innerHTML = `
-        <div class="terminal-card">
-            <p class="terminal-header-line" style="color: var(--text-muted);">YEAR: 2126</p>
-            <div class="terminal-divider"></div>
-            
-            <div class="typewriter-text">
-                <p>Humanity went to the Moon.</p>
-                <p>It went to Mars.</p>
-                <p>It sent signals into the distance.</p>
-                <p style="color: var(--electric-cyan); margin-top: 10px;">
-                    And then, some of the traces it left behind were forgotten.
-                </p>
+    if (!app) {
+        console.error("The #app container was not found.");
+        return;
+    }
+
+    // Splash is the pre-mission intro. A badge restored from localStorage must
+    // never overlay this screen; it is revealed after ACCEPT THE MISSION.
+    const savedIdentityBadge = document.getElementById("thaGlobalIdentityBadge");
+    if (savedIdentityBadge) savedIdentityBadge.hidden = true;
+    document.querySelectorAll(".terminal-identity-badge").forEach((badge) => {
+        badge.hidden = true;
+    });
+
+    // Ensure a previous Splash instance cannot leave sound running.
+    stopSplashAudio();
+    splashTransitioning = false;
+
+    document.documentElement.classList.add("splash-no-scroll");
+    document.body.classList.add("splash-no-scroll");
+
+    app.innerHTML = `
+        <section class="splash-screen" id="splashScreen" aria-labelledby="splashTitle">
+            <div class="splash-stars" aria-hidden="true"></div>
+            <div class="splash-nebula" aria-hidden="true"></div>
+            <div class="splash-radar-sweep" aria-hidden="true"></div>
+            <div class="splash-orbit-lines" aria-hidden="true"></div>
+
+            <!-- CSS-built planetary silhouettes keep the opening lightweight. -->
+            <div class="splash-earth" aria-hidden="true">
+                <span class="earth-atmosphere"></span>
+                <span class="earth-clouds"></span>
+            </div>
+            <div class="splash-moon" aria-hidden="true">
+                <span class="moon-craters"></span>
+            </div>
+            <div class="splash-mars" aria-hidden="true">
+                <span class="mars-craters"></span>
             </div>
 
-            <div class="terminal-divider"></div>
-            
-            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 25px;">
-                Years passed. One day, inside an abandoned station, a terminal that had not been opened for years was discovered...
-            </p>
+            <!-- A distant, inactive-looking station sets the story location. -->
+            <div class="splash-station" aria-hidden="true">
+                <span class="station-panel station-panel-left"></span>
+                <span class="station-arm"></span>
+                <span class="station-core"></span>
+                <span class="station-panel station-panel-right"></span>
+                <span class="station-light"></span>
+                <span class="station-antenna"></span>
+            </div>
 
-            <button id="open-terminal-btn" class="glow-btn pulse-button" style="width: 100%;">
-                [ OPEN TERMINAL ]
-            </button>
-        </div>
+            <main class="splash-content">
+                <p class="splash-eyebrow">EARTH ORBIT // DEEP-SPACE ARCHIVE</p>
+
+                <div class="splash-emblem" aria-hidden="true">
+                    <span class="splash-orbit orbit-one"></span>
+                    <span class="splash-orbit orbit-two"></span>
+                    <span class="splash-orbit orbit-three"></span>
+                    <span class="splash-core"></span>
+                </div>
+
+                <h1 class="splash-title" id="splashTitle">
+                    THE HUMAN
+                    <span>ARCHIVE</span>
+                </h1>
+
+                <div class="splash-divider" aria-hidden="true">
+                    <span></span><i></i><span></span>
+                </div>
+
+                <p class="splash-description">
+                    A forgotten station in Earth orbit.<br>
+                    Humanity's traces on the Moon, Mars, and beyond are waiting to be remembered.
+                </p>
+
+                <button type="button" id="beginArchive" class="splash-enter-button">
+                    <span>ENTER THE STATION</span>
+                    <span aria-hidden="true" class="enter-arrow">↗</span>
+                </button>
+
+                </main>
+
+            <footer class="splash-footer">ABANDONED ≠ FORGOTTEN</footer>
+        </section>
     `;
 
-    setTimeout(() => {
-        const btn = container.querySelector('#open-terminal-btn');
-        if (btn) {
-            btn.addEventListener('click', () => {
-                // Play opening ambient hum
-                const ambientAudio = new Audio('assets/audio/ambient_hum.mp3');
-                ambientAudio.volume = 0.4;
-                ambientAudio.loop = true;
-                ambientAudio.play().catch(e => console.log('Audio autoplay prevented:', e));
+    const splashScreen = document.getElementById("splashScreen");
+    const enterButton = document.getElementById("beginArchive");
 
-                router.navigateTo('terminal');
-            });
+    // Keep the requested mouse-movement trigger. It is a fallback, not a
+    // guaranteed browser autoplay permission; some browsers only accept clicks/taps.
+    splashMouseMoveHandler = async () => {
+        if (splashTransitioning) return;
+
+        const started = await startSplashAudio(true);
+        if (started) {
+            splashScreen.removeEventListener("mousemove", splashMouseMoveHandler);
         }
-    }, 100);
+    };
+    splashScreen.addEventListener("mousemove", splashMouseMoveHandler, { passive: true });
 
-    return container;
+    // Try as soon as Splash appears. The mousemove listener above retries if blocked.
+    startSplashAudio().then((started) => {
+        if (started) {
+            splashScreen.removeEventListener("mousemove", splashMouseMoveHandler);
+        }
+    });
+
+    enterButton.addEventListener("click", () => {
+        if (splashTransitioning) return;
+
+        splashTransitioning = true;
+        enterButton.disabled = true;
+        enterButton.querySelector("span").textContent = "ENTERING THE STATION";
+
+        // Stop this screen's ambience before Terminal or its audio is initialized.
+        if (splashMouseMoveHandler) {
+            splashScreen.removeEventListener("mousemove", splashMouseMoveHandler);
+            splashMouseMoveHandler = null;
+        }
+        stopSplashAudio();
+
+        document.documentElement.classList.remove("splash-no-scroll");
+        document.body.classList.remove("splash-no-scroll");
+
+        // Preserve the router API already used in this project.
+        router.navigateTo("terminal");
+    });
 }

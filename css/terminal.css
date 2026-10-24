@@ -1,0 +1,748 @@
+/* =============================================================
+   THE HUMAN ARCHIVE — TERMINAL
+   An old orbital-station CRT, not a floating web card.
+   Story text remains inside the glass; all setting text is visual-only.
+============================================================= */
+
+.terminal-screen {
+    --crt-ink: #061008;
+    --crt-green: #c4f4ce;
+    --crt-soft: #a5dcb0;
+    --crt-dim: #648b6c;
+    --crt-bright: #e2ffe8;
+    position: fixed;
+    z-index: 20;
+    isolation: isolate;
+    box-sizing: border-box;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    width: 100%;
+    height: 100vh;
+    height: 100svh;
+    padding: 0;
+    color: var(--crt-green);
+    background:
+        radial-gradient(ellipse at 50% 40%, rgba(42, 92, 53, .22), transparent 48%),
+        linear-gradient(135deg, #080d09 0%, #111913 30%, #050906 68%, #020403 100%);
+    font-family: "Fira Code", "Cascadia Code", Consolas, monospace;
+    letter-spacing: .012em;
+}
+
+.terminal-screen *,
+.terminal-screen *::before,
+.terminal-screen *::after { box-sizing: border-box; }
+
+.terminal-screen[hidden],
+.terminal-screen [hidden] { display: none !important; }
+
+/* The abandoned orbital station is a quiet environment around the monitor. */
+.terminal-room,
+.terminal-room::before,
+.terminal-room::after,
+.terminal-wall-seams,
+.terminal-room-haze,
+.terminal-floor-grille,
+.terminal-dust,
+.terminal-room-shadow {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.terminal-room { z-index: -1; overflow: hidden; }
+.terminal-room::before {
+    content: "";
+    opacity: .52;
+    background:
+        linear-gradient(90deg, transparent 0 6%, rgba(172, 205, 173, .035) 6.1%, transparent 6.5% 18%, rgba(0,0,0,.2) 18.2%, transparent 18.5% 83%, rgba(191,211,188,.025) 83.1%, transparent 83.4%),
+        repeating-linear-gradient(90deg, transparent 0 19.5%, rgba(177,207,178,.022) 19.7%, transparent 20% 39.7%),
+        linear-gradient(180deg, rgba(135,162,138,.055), transparent 35%, rgba(0,0,0,.16));
+}
+.terminal-room::after {
+    content: "";
+    opacity: .32;
+    background: repeating-linear-gradient(0deg, transparent 0 78px, rgba(174,201,174,.028) 79px, transparent 81px 158px);
+}
+
+.terminal-observation-port {
+    position: absolute;
+    top: 5%;
+    right: 3.2%;
+    width: clamp(150px, 25vw, 330px);
+    aspect-ratio: 1;
+    overflow: hidden;
+    border: clamp(9px, 1.4vw, 18px) solid #1b251d;
+    border-radius: 50%;
+    opacity: .46;
+    background: #020603;
+    box-shadow:
+        0 0 0 2px rgba(150, 176, 152, .13),
+        0 0 0 12px rgba(0,0,0,.35),
+        inset 0 0 30px rgba(0,0,0,.8),
+        0 18px 42px rgba(0,0,0,.5);
+}
+.terminal-observation-port::before {
+    content: "";
+    position: absolute;
+    inset: -5%;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 32% 31%, rgba(216,246,224,.9) 0 1px, transparent 2px),
+        radial-gradient(circle at 60% 22%, rgba(216,246,224,.7) 0 1px, transparent 2px),
+        radial-gradient(circle at 75% 57%, rgba(216,246,224,.55) 0 1px, transparent 2px),
+        radial-gradient(circle at 46% 70%, rgba(216,246,224,.6) 0 1px, transparent 2px),
+        radial-gradient(ellipse at 64% 73%, rgba(91,153,118,.18), transparent 45%),
+        #010502;
+}
+.terminal-earth-horizon {
+    position: absolute;
+    left: 3%;
+    bottom: -40%;
+    width: 115%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background:
+        radial-gradient(ellipse at 35% 7%, rgba(163,231,179,.26), transparent 5%),
+        radial-gradient(ellipse at 35% 7%, #244c35 0%, #14281d 46%, #060b07 69%);
+    box-shadow: 0 -5px 22px rgba(119,208,143,.2), inset 0 9px 18px rgba(151,235,168,.07);
+}
+.terminal-wall-seams {
+    opacity: .4;
+    background:
+        linear-gradient(90deg, transparent 0 2.8%, rgba(0,0,0,.32) 2.9% 3.1%, transparent 3.2% 97%, rgba(0,0,0,.35) 97.1% 97.3%, transparent 97.4%),
+        linear-gradient(180deg, transparent 0 13%, rgba(0,0,0,.28) 13.2% 13.4%, transparent 13.6% 87%, rgba(0,0,0,.3) 87.2% 87.4%, transparent 87.6%);
+}
+.terminal-room-haze {
+    opacity: .6;
+    background: radial-gradient(ellipse at 50% 46%, rgba(76,124,81,.12), transparent 53%);
+    animation: thaRoomBreath 11s ease-in-out infinite alternate;
+}
+.terminal-floor-grille {
+    inset: auto -10% -19%;
+    height: 36%;
+    opacity: .24;
+    transform: perspective(270px) rotateX(59deg);
+    transform-origin: center top;
+    background:
+        repeating-linear-gradient(90deg, rgba(148,171,148,.10) 0 1px, transparent 1px 54px),
+        repeating-linear-gradient(0deg, rgba(148,171,148,.08) 0 1px, transparent 1px 28px),
+        linear-gradient(180deg, rgba(0,0,0,.05), #020403 88%);
+    mask-image: linear-gradient(to bottom, #000 4%, transparent 96%);
+}
+.terminal-dust {
+    opacity: .23;
+    background-image:
+        radial-gradient(circle, rgba(219,243,220,.45) .6px, transparent 1.2px),
+        radial-gradient(circle, rgba(153,189,157,.3) .6px, transparent 1.1px);
+    background-size: 107px 111px, 173px 167px;
+    background-position: 9px 18px, 63px 79px;
+    animation: thaDustDrift 32s linear infinite;
+}
+.terminal-room-shadow {
+    z-index: 1;
+    background: radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,.28) 78%, rgba(0,0,0,.57) 100%);
+}
+
+/* Heavy housing, beveled steel and tiny mechanical details. */
+.terminal-monitor-frame {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-rows: clamp(25px, 3.6vh, 35px) minmax(0, 1fr) clamp(26px, 3.8vh, 38px);
+    width: min(1120px, calc(100vw - 30px));
+    height: min(820px, calc(100svh - 30px));
+    min-height: 420px;
+    padding: clamp(7px, 1.05vw, 13px);
+    border: 1px solid #4a554c;
+    border-radius: clamp(10px, 1.6vw, 18px);
+    background:
+        repeating-linear-gradient(117deg, rgba(255,255,255,.018) 0 1px, transparent 1px 5px),
+        linear-gradient(145deg, #515b52 0%, #303a31 7%, #1b241d 24%, #101811 52%, #283229 81%, #101710 100%);
+    box-shadow:
+        0 34px 86px rgba(0,0,0,.72),
+        0 9px 20px rgba(0,0,0,.5),
+        inset 0 2px 2px rgba(234,255,235,.11),
+        inset 0 -3px 8px rgba(0,0,0,.7),
+        0 0 0 1px rgba(0,0,0,.9);
+    animation: thaMonitorArrive .95s cubic-bezier(.18,.72,.2,1) both;
+}
+.terminal-monitor-frame::before,
+.terminal-monitor-frame::after {
+    content: "";
+    position: absolute;
+    z-index: 4;
+    top: 9%;
+    bottom: 9%;
+    width: 3px;
+    border-radius: 3px;
+    background: linear-gradient(180deg, transparent, rgba(198,223,198,.13) 18%, rgba(0,0,0,.28) 52%, rgba(183,211,185,.08) 80%, transparent);
+    pointer-events: none;
+}
+.terminal-monitor-frame::before { left: 4px; }
+.terminal-monitor-frame::after { right: 4px; }
+
+.terminal-monitor-bezel {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 0;
+    padding: 0 clamp(8px, 1.5vw, 19px);
+    color: #87958a;
+}
+.terminal-monitor-bezel-top { border-radius: 7px 7px 0 0; }
+.terminal-monitor-bezel-bottom { border-radius: 0 0 7px 7px; }
+.terminal-frame-screw {
+    position: absolute;
+    top: 50%;
+    width: 7px;
+    height: 7px;
+    border: 1px solid #6b756b;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #7c877c, #172019 73%);
+    box-shadow: inset 0 1px 1px rgba(255,255,255,.16), 0 1px 2px rgba(0,0,0,.6);
+    transform: translateY(-50%);
+}
+.terminal-frame-screw::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 1px;
+    width: 3px;
+    height: 1px;
+    background: #1a211b;
+    transform: rotate(-32deg);
+}
+.screw-left { left: 8px; }
+.screw-right { right: 8px; }
+.terminal-hardware-ports { display: flex; align-items: center; gap: 4px; margin-left: 14px; }
+.terminal-hardware-ports i { width: clamp(9px, 1.2vw, 15px); height: 3px; border-radius: 4px; background: #111912; box-shadow: inset 0 1px 1px rgba(0,0,0,.9), 0 1px 0 rgba(223,244,224,.07); }
+.terminal-power-cluster { display: flex; gap: 6px; align-items: center; margin-right: 13px; }
+.power-led { width: 4px; height: 4px; border-radius: 50%; background: #7bc58b; box-shadow: 0 0 7px rgba(118,221,139,.6); }
+.power-led-dim { background: #304634; box-shadow: none; }
+.terminal-vent-group { display: flex; align-items: center; gap: 3px; margin-left: 13px; }
+.terminal-vent-group i { display: block; width: 3px; height: 10px; border-radius: 2px; background: #111812; box-shadow: inset 0 1px 2px rgba(0,0,0,.9), 0 1px 0 rgba(226,249,228,.06); }
+.terminal-bezel-mark { position: absolute; left: 50%; color: #8b978d; font-size: .52rem; letter-spacing: .32em; text-shadow: 0 1px #000; transform: translateX(-50%); }
+.terminal-control-group { display: flex; align-items: center; gap: 6px; margin-right: 14px; }
+.terminal-control-group i { width: 5px; height: 5px; border: 1px solid #7e887f; border-radius: 50%; background: #202921; }
+.terminal-control-group b { display: block; width: 12px; height: 6px; border: 1px solid #758176; border-radius: 5px; background: #202921; }
+
+/* The CRT glass is deliberately darker at the edges and softly glowing at its centre. */
+.terminal-glass {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    border: 1px solid rgba(119,160,127,.45);
+    border-radius: 5px;
+    isolation: isolate;
+    background:
+        radial-gradient(ellipse at 48% 43%, rgba(25,70,35,.28), transparent 64%),
+        linear-gradient(145deg, #071209 0%, #020703 57%, #010301 100%);
+    box-shadow:
+        inset 0 1px 3px rgba(0,0,0,.95),
+        inset 0 0 55px rgba(0,0,0,.94),
+        0 0 0 2px rgba(0,0,0,.65);
+    transition: border-color 500ms ease, background 500ms ease, box-shadow 500ms ease;
+}
+.terminal-glass::before {
+    content: "";
+    position: absolute;
+    z-index: 5;
+    inset: 0;
+    pointer-events: none;
+    opacity: .14;
+    background: repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0,0,0,.58) 3px, transparent 4px 5px);
+    mix-blend-mode: multiply;
+}
+.terminal-glass::after {
+    content: "";
+    position: absolute;
+    z-index: 6;
+    inset: 0;
+    pointer-events: none;
+    opacity: .52;
+    background:
+        linear-gradient(118deg, rgba(224,255,228,.055) 0%, transparent 20% 62%, rgba(177,236,187,.018) 73%, transparent 90%),
+        radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,.42) 100%);
+}
+.terminal-glass-glow {
+    position: absolute;
+    z-index: 0;
+    inset: -20%;
+    pointer-events: none;
+    opacity: .52;
+    background: radial-gradient(ellipse at 49% 47%, rgba(89,195,108,.09), transparent 50%);
+    filter: blur(18px);
+    transition: opacity .6s ease;
+}
+.terminal-glass-reflection {
+    position: absolute;
+    z-index: 4;
+    inset: 0;
+    pointer-events: none;
+    opacity: .32;
+    background: linear-gradient(126deg, rgba(221,255,226,.055) 0 8%, transparent 8.5% 35%, rgba(222,255,227,.015) 43%, transparent 50% 100%);
+    mix-blend-mode: screen;
+}
+
+.terminal-stage {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    min-height: 0;
+    min-width: 0;
+    margin: 0;
+    padding: clamp(18px, 2.8vh, 30px) clamp(18px, 3.5vw, 48px) 12px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    text-align: left;
+}
+.terminal-console {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: min(760px, 100%);
+    max-width: 100%;
+    min-width: 0;
+    min-height: 0;
+    margin: 0 auto;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    transition: opacity .7s ease, filter .7s ease, transform .7s ease;
+}
+.terminal-output {
+    flex: 0 1 auto;
+    min-width: 0;
+    min-height: 0;
+    max-height: min(66svh, 690px);
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(99,159,109,.36) rgba(0,0,0,.2);
+    padding: 0 6px 2px 0;
+    color: var(--crt-soft);
+    font-size: clamp(.78rem, 1.14vw, .97rem);
+    line-height: 1.72;
+    letter-spacing: .012em;
+    overflow-wrap: anywhere;
+    text-shadow: 0 0 7px rgba(152,255,171,.09), 0 0 1px rgba(219,255,226,.16);
+    transition: opacity .76s ease, filter .76s ease, transform .76s ease;
+}
+.terminal-output::-webkit-scrollbar { width: 4px; }
+.terminal-output::-webkit-scrollbar-track { background: rgba(0,0,0,.22); }
+.terminal-output::-webkit-scrollbar-thumb { background: rgba(99,159,109,.36); border-radius: 4px; }
+.terminal-output > div { min-height: 1.45em; animation: thaTerminalLineIn .3s ease-out both; }
+.terminal-line-text { white-space: pre-wrap; }
+.terminal-line-spacer { min-height: .68em !important; }
+.terminal-year-line {
+    margin: 0 0 8px;
+    color: var(--crt-bright);
+    font-size: clamp(1.35rem, 2.4vw, 2.02rem);
+    font-weight: 500;
+    letter-spacing: .13em;
+    line-height: 1.35;
+    text-shadow: 0 0 18px rgba(154,255,173,.3), 0 0 2px rgba(228,255,233,.3);
+}
+.terminal-story-line { color: #b6e9c0; }
+.terminal-final-story-line { color: #e2ffe8; text-shadow: 0 0 13px rgba(154,255,173,.25); }
+.terminal-recovery-line { color: #c0ebc9; }
+.terminal-years-line { color: #d6f7dd; font-size: clamp(1.06rem, 1.8vw, 1.35rem); letter-spacing: .035em; }
+.terminal-discovered-line { color: #e7ffeb; text-shadow: 0 0 16px rgba(164,255,178,.2); }
+
+.terminal-inline-caret {
+    display: inline-block;
+    width: .48em;
+    height: 1.02em;
+    margin-left: 2px;
+    vertical-align: -.14em;
+    background: #adf6bb;
+    box-shadow: 0 0 9px rgba(153,255,171,.35);
+    animation: thaTerminalCursor .95s steps(2, end) infinite;
+}
+
+/* Archive layout mirrors the terminal's monospaced source script. */
+.archive-divider-line {
+    color: #4e865a;
+    white-space: pre;
+    overflow: hidden;
+    line-height: 1.55 !important;
+    font-size: clamp(.59rem, 1vw, .78rem);
+    text-shadow: 0 0 8px rgba(97,192,112,.1);
+}
+.archive-title-line {
+    color: #e4ffe9;
+    font-size: clamp(1.06rem, 1.85vw, 1.42rem);
+    font-weight: 600;
+    letter-spacing: .11em;
+    text-shadow: 0 0 21px rgba(147,255,169,.24);
+}
+.archive-status-line { color: #dbffe2; font-weight: 600; }
+.archive-data-line { color: #afdcb8; white-space: pre-wrap; }
+.archive-question-line { margin-top: 2px; color: #dcf6e1; font-size: clamp(.84rem, 1.3vw, 1.02rem); }
+.archive-warning-line { color: #bdf0c7; font-weight: 600; letter-spacing: .055em; }
+.archive-call-line { color: #e1ffe7; font-weight: 600; letter-spacing: .025em; }
+
+.terminal-mission-area {
+    flex: 0 0 auto;
+    margin-top: 1px;
+    padding-top: 1px;
+    text-align: left;
+    animation: thaMissionArrival .72s ease-out both;
+}
+.terminal-mission-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(9px, 1.7vw, 18px);
+    min-height: 46px;
+    max-width: 100%;
+    margin: 0;
+    padding: 8px 12px;
+    border: 1px solid rgba(149,239,165,.55);
+    border-radius: 2px;
+    color: #e3ffe8;
+    background: linear-gradient(180deg, rgba(33,79,42,.34), rgba(4,20,8,.42));
+    font: inherit;
+    font-size: clamp(.74rem, 1.1vw, .89rem);
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-shadow: 0 0 10px rgba(181,255,194,.13);
+    cursor: pointer;
+    box-shadow: inset 0 0 16px rgba(110,222,130,.035), 0 0 0 rgba(119,255,147,0);
+    animation: thaMissionPulse 3s ease-in-out infinite;
+    transition: background .22s ease, border-color .22s ease, box-shadow .22s ease, transform .22s ease;
+}
+.terminal-mission-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    border-color: #c6ffd0;
+    background: rgba(38,99,49,.48);
+    box-shadow: 0 0 22px rgba(119,255,147,.13), inset 0 0 17px rgba(110,222,130,.08);
+}
+.terminal-mission-button:focus-visible { outline: 2px solid #c6ffd0; outline-offset: 4px; }
+.terminal-mission-button:disabled { opacity: .58; cursor: wait; animation: none; }
+.mission-bracket { color: #6dad7a; }
+.terminal-mission-divider { color: #4e865a; font-size: clamp(.59rem, 1vw, .78rem); line-height: 1.55; white-space: nowrap; overflow: hidden; }
+
+/* Deliberate blank screen, not a page transition. The room remains visible. */
+.terminal-screen.is-silent .terminal-glass {
+    border-color: rgba(73,99,77,.28);
+    background: #010201;
+    box-shadow: inset 0 0 95px rgba(0,0,0,.98), 0 0 0 2px rgba(0,0,0,.8);
+}
+.terminal-screen.is-silent .terminal-glass-glow { opacity: .04; }
+.terminal-screen.is-silent .terminal-glass-reflection { opacity: .13; }
+.terminal-screen.is-silent .power-led { background: #344838; box-shadow: none; }
+.terminal-screen.is-silent .terminal-monitor-frame { filter: brightness(.74); }
+
+/* A calm hold, phosphor dissolve, short CRT relay, and slow re-wake prevent
+   the archive from popping in abruptly after “was discovered.” */
+.terminal-output.is-dissolving { opacity: 0; filter: blur(4px) brightness(1.7); transform: translateY(-2px) scale(.995); }
+.terminal-screen.is-recovery-wake .terminal-glass { animation: thaRecoveryWake .42s ease-out both; }
+.terminal-screen.is-recovery-wake .terminal-glass-glow { animation: thaCRTGlowWake .42s ease-out both; }
+.terminal-screen.is-chapter-transition .terminal-glass { animation: thaCRTRelay .76s steps(1, end) both; }
+.terminal-screen.is-chapter-transition .terminal-glass::before { animation: thaStaticPulse .76s steps(2, end) both; }
+.terminal-screen.is-archive-wake .terminal-glass { animation: thaCRTReboot .61s ease-out both; }
+.terminal-screen.is-archive-wake .terminal-glass-glow { animation: thaCRTGlowWake .61s ease-out both; }
+.terminal-screen.is-archive-wake .terminal-monitor-frame { animation: thaHousingSettle .61s ease-out both; }
+
+/* Acceptance transition: white flash, then a spare dark assignment screen. */
+.terminal-transition {
+    position: absolute;
+    z-index: 30;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    padding: 24px;
+    background:
+        radial-gradient(ellipse at 50% 47%, rgba(18,50,25,.32), transparent 49%),
+        linear-gradient(145deg, #020503 0%, #000 60%, #040905 100%);
+}
+.terminal-transition[hidden] { display: none !important; }
+.terminal-transition::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: .16;
+    pointer-events: none;
+    background: repeating-linear-gradient(to bottom, transparent 0 3px, rgba(0,0,0,.48) 4px 5px);
+}
+.terminal-flash { position: absolute; z-index: 5; inset: 0; opacity: 0; background: #f2fff5; pointer-events: none; }
+.terminal-transition.is-flashing .terminal-flash { animation: thaTerminalWhiteFlash .3s ease-out both; }
+.terminal-assignment-orbit {
+    position: absolute;
+    width: min(64vw, 590px);
+    aspect-ratio: 1;
+    border: 1px solid rgba(131,226,151,.07);
+    border-radius: 50%;
+    box-shadow: 0 0 0 35px rgba(131,226,151,.018), 0 0 0 92px rgba(131,226,151,.012), inset 0 0 50px rgba(92,191,111,.025);
+    animation: thaIdentityOrbit 28s linear infinite;
+}
+.terminal-assignment-orbit::before,
+.terminal-assignment-orbit::after {
+    content: "";
+    position: absolute;
+    inset: 12%;
+    border: 1px solid rgba(131,226,151,.07);
+    border-radius: 50%;
+}
+.terminal-assignment-orbit::after { inset: 29%; border-color: rgba(131,226,151,.06); }
+.terminal-assignment-orbit i,
+.terminal-assignment-orbit b { position: absolute; top: 10%; left: 50%; width: 4px; height: 4px; border-radius: 50%; background: #9de9ad; box-shadow: 0 0 12px rgba(126,255,153,.5); }
+.terminal-assignment-orbit b { top: auto; left: 14%; bottom: 27%; width: 3px; height: 3px; opacity: .6; }
+.terminal-assignment-card {
+    position: relative;
+    z-index: 2;
+    width: min(100%, 690px);
+    padding: clamp(24px, 5vw, 58px) 18px;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(10px);
+}
+.terminal-assignment-card.is-revealed { animation: thaIdentityReveal .82s cubic-bezier(.2,.8,.2,1) forwards; }
+.assignment-overline { margin: 0 0 18px; color: #779f80; font-size: clamp(.57rem, .9vw, .67rem); letter-spacing: .23em; }
+.terminal-assignment-card h1 {
+    margin: 0;
+    color: #e2ffe8;
+    font-family: "Orbitron", "Fira Code", Consolas, monospace;
+    font-size: clamp(1.6rem, 4.7vw, 3.35rem);
+    font-weight: 500;
+    letter-spacing: .07em;
+    line-height: 1.3;
+    text-shadow: 0 0 28px rgba(127,241,151,.2), 0 0 2px rgba(235,255,239,.2);
+    overflow-wrap: anywhere;
+}
+.assignment-status { margin: 14px 0 0; color: #a0eab0; font-size: clamp(.77rem, 1.45vw, .98rem); letter-spacing: .25em; }
+.assignment-divider { display: flex; align-items: center; justify-content: center; gap: 10px; width: min(230px, 58%); margin: 27px auto; }
+.assignment-divider span { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(149,229,164,.44), transparent); }
+.assignment-divider i { width: 5px; height: 5px; background: #a6edb4; transform: rotate(45deg); box-shadow: 0 0 9px rgba(128,255,156,.25); }
+.assignment-rec { display: inline-flex; align-items: center; gap: 9px; padding: 8px 13px; border: 1px solid rgba(126,206,143,.28); color: #c7f7d0; font-size: .71rem; letter-spacing: .23em; }
+.assignment-rec-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #c4ffd0; box-shadow: 0 0 10px rgba(156,248,174,.7); animation: thaRECIndicator 1.4s steps(2,end) infinite; }
+.terminal-transition.route-error .assignment-overline { color: #ffd1a3; }
+
+/* The badge is attached to body by JS and only revealed after mission acceptance. */
+.tha-global-identity-badge {
+    position: fixed;
+    z-index: 500;
+    top: clamp(55px, 6.5vh, 76px);
+    right: clamp(14px, 3.2vw, 38px);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: min(330px, calc(100% - 28px));
+    padding: 9px 12px;
+    border: 1px solid rgba(140,230,158,.48);
+    color: #c9f8d2;
+    background: rgba(5,17,8,.95);
+    box-shadow: 0 8px 27px rgba(0,0,0,.35), 0 0 21px rgba(72,192,99,.08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    animation: thaIdentityReveal .45s ease both;
+}
+.tha-global-identity-badge[hidden] { display: none !important; }
+.tha-global-badge-icon { display: grid; place-items: center; flex: 0 0 33px; width: 33px; height: 33px; border: 1px solid rgba(155,244,173,.53); }
+.tha-global-badge-icon svg { display: block; width: 28px; height: 28px; }
+.tha-global-badge-copy { display: flex; flex-direction: column; gap: 4px; min-width: 0; font-size: .56rem; letter-spacing: .09em; }
+.tha-global-badge-copy strong { font-weight: 600; }
+.tha-global-badge-copy small { color: #638d6e; font-size: .84em; letter-spacing: .12em; }
+
+@keyframes thaTerminalCursor { 0%, 48% { opacity: 1; } 49%, 100% { opacity: 0; } }
+@keyframes thaTerminalLineIn { from { opacity: .58; transform: translateY(2px); } to { opacity: 1; transform: translateY(0); } }
+.terminal-screen.is-booting .terminal-glass {
+    transform-origin: center;
+    animation: thaCRTWake .72s steps(1, end) both;
+}
+.terminal-screen.is-booting .terminal-glass-glow { animation: thaCRTGlowWake .72s ease-out both; }
+
+@keyframes thaMonitorArrive { from { opacity: 0; transform: translateY(13px) scale(.986); filter: brightness(.72); } to { opacity: 1; transform: translateY(0) scale(1); filter: brightness(1); } }
+@keyframes thaRecoveryWake { 0% { opacity: .38; filter: brightness(.42); } 30% { opacity: .94; filter: brightness(1.55); } 46% { opacity: .66; filter: brightness(.78); } 100% { opacity: 1; filter: brightness(1); } }
+@keyframes thaCRTWake { 0% { transform: scaleY(.008); filter: brightness(3); opacity: .3; } 18% { transform: scaleY(.02); filter: brightness(2.7); opacity: 1; } 35% { transform: scaleY(1); filter: brightness(1.8); } 51% { filter: brightness(.72); } 70% { filter: brightness(1.24); } 100% { transform: scaleY(1); filter: brightness(1); opacity: 1; } }
+@keyframes thaCRTRelay { 0%, 17%, 23%, 54%, 61%, 100% { filter: brightness(1); opacity: 1; } 18%, 22%, 55%, 60% { filter: brightness(1.8); opacity: .72; } 42% { filter: brightness(.16); opacity: .4; } 48% { filter: brightness(.72); opacity: .78; } }
+@keyframes thaStaticPulse { 0%, 100% { opacity: .14; } 20%, 58% { opacity: .28; } 44% { opacity: .45; } 49% { opacity: .08; } }
+@keyframes thaCRTReboot { 0% { opacity: .25; filter: brightness(1.8); transform: scaleY(.99); } 18% { opacity: .65; filter: brightness(2.2); } 33% { opacity: .45; filter: brightness(.62); } 51% { opacity: .96; filter: brightness(1.35); } 72% { opacity: .88; filter: brightness(.92); } 100% { opacity: 1; filter: brightness(1); transform: scaleY(1); } }
+@keyframes thaCRTGlowWake { 0% { opacity: .08; } 42% { opacity: .18; } 65% { opacity: .7; } 100% { opacity: .52; } }
+@keyframes thaHousingSettle { 0%, 33% { filter: brightness(.75); } 48% { filter: brightness(1.05); } 100% { filter: brightness(1); } }
+@keyframes thaRoomBreath { from { opacity: .28; } to { opacity: .64; } }
+@keyframes thaDustDrift { from { background-position: 9px 18px, 63px 79px; } to { background-position: 116px 129px, 236px 246px; } }
+@keyframes thaMissionArrival { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes thaMissionPulse { 0%, 100% { box-shadow: inset 0 0 16px rgba(110,222,130,.035), 0 0 0 rgba(119,255,147,0); } 50% { box-shadow: inset 0 0 18px rgba(110,222,130,.08), 0 0 21px rgba(119,255,147,.08); } }
+@keyframes thaTerminalWhiteFlash { 0% { opacity: 0; } 23% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes thaIdentityReveal { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes thaIdentityOrbit { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+@keyframes thaRECIndicator { 0%, 45% { opacity: 1; } 46%, 100% { opacity: .38; } }
+
+@media (max-width: 700px) {
+    .terminal-screen { padding: 0; }
+    .terminal-monitor-frame {
+        width: calc(100vw - 12px);
+        height: calc(100svh - 12px);
+        min-height: 0;
+        grid-template-rows: 25px minmax(0, 1fr) 28px;
+        padding: 6px;
+        border-radius: 11px;
+    }
+    .terminal-observation-port { top: 2%; right: -15%; opacity: .24; }
+    .terminal-monitor-bezel { padding-inline: 9px; }
+    .terminal-stage { padding: 14px 12px; }
+    .terminal-output { max-height: 100%; font-size: clamp(.70rem, 2.65vw, .8rem); line-height: 1.52; }
+    .terminal-year-line { font-size: clamp(1.2rem, 6.3vw, 1.55rem); }
+    .terminal-years-line { font-size: 1rem; }
+    .archive-divider-line, .terminal-mission-divider { font-size: clamp(.45rem, 1.65vw, .58rem); }
+    .terminal-mission-button { min-height: 43px; padding: 7px 8px; gap: 8px; font-size: .66rem; letter-spacing: .07em; }
+    .terminal-power-cluster { gap: 4px; margin-right: 6px; }
+    .terminal-hardware-ports { gap: 3px; }
+    .terminal-vent-group i { height: 8px; }
+    .terminal-bezel-mark { font-size: .45rem; }
+    .terminal-control-group { gap: 4px; margin-right: 6px; }
+    .terminal-assignment-orbit { width: 92vw; }
+    .terminal-assignment-card { padding-inline: 10px; }
+    .assignment-overline { font-size: .53rem; letter-spacing: .14em; }
+    .terminal-assignment-card h1 { font-size: clamp(1.35rem, 7vw, 2.1rem); }
+    .assignment-status { font-size: .7rem; letter-spacing: .16em; }
+    .tha-global-identity-badge { top: 57px; right: 8px; gap: 6px; max-width: min(285px, calc(100% - 16px)); padding: 6px 8px; }
+    .tha-global-badge-icon { flex-basis: 27px; width: 27px; height: 27px; }
+    .tha-global-badge-icon svg { width: 23px; height: 23px; }
+    .tha-global-badge-copy { font-size: .48rem; }
+}
+
+@media (max-width: 380px) {
+    .terminal-stage { padding: 11px 8px; }
+    .terminal-output { font-size: .67rem; line-height: 1.48; }
+    .archive-divider-line, .terminal-mission-divider { font-size: .42rem; }
+    .terminal-mission-button { font-size: .59rem; gap: 6px; }
+    .terminal-hardware-ports i { width: 7px; }
+}
+
+@media (max-height: 620px) and (min-width: 701px) {
+    .terminal-monitor-frame { height: calc(100svh - 16px); min-height: 0; grid-template-rows: 25px minmax(0, 1fr) 28px; }
+    .terminal-stage { padding-block: 8px; }
+    .terminal-output { font-size: .75rem; line-height: 1.48; }
+    .terminal-monitor-bezel { padding-block: 2px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .terminal-screen *, .terminal-screen *::before, .terminal-screen *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+
+/* =============================================================
+   FULL-VIEWPORT / GLOBAL-STYLE GUARD
+   Some site-wide body/main/#app rules can leak into the Terminal and create
+   white gutters, generic centered cards, or unwanted top spacing. These rules
+   are active only while the Terminal route is mounted.
+============================================================= */
+html.tha-terminal-active,
+body.tha-terminal-active {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: #020403 !important;
+}
+
+body.tha-terminal-active #app {
+    position: fixed !important;
+    inset: 0 !important;
+    display: block !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #020403 !important;
+    box-shadow: none !important;
+}
+
+body.tha-terminal-active #app > .terminal-screen {
+    position: fixed !important;
+    inset: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    width: 100vw !important;
+    max-width: none !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    min-height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    overflow: hidden !important;
+    background-color: #020403 !important;
+    box-shadow: none !important;
+}
+
+body.tha-terminal-active #app .terminal-stage,
+body.tha-terminal-active #app main.terminal-stage {
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: clamp(16px, 2.5vh, 28px) clamp(18px, 3.5vw, 48px) 12px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    text-align: left !important;
+    float: none !important;
+}
+
+body.tha-terminal-active #app .terminal-console {
+    width: min(760px, 100%) !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    text-align: left !important;
+}
+
+body.tha-terminal-active #app .terminal-output,
+body.tha-terminal-active #app .terminal-output > div {
+    text-align: left !important;
+}
+
+@media (max-width: 700px) {
+    body.tha-terminal-active #app .terminal-stage,
+    body.tha-terminal-active #app main.terminal-stage {
+        padding: 12px 12px 8px !important;
+    }
+    body.tha-terminal-active #app .terminal-console {
+        width: min(100%, 760px) !important;
+    }
+}

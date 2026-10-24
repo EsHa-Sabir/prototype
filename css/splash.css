@@ -1,0 +1,499 @@
+/* =====================================================
+   THE HUMAN ARCHIVE — CINEMATIC SPLASH
+   All selectors here are Splash-specific. Keep Terminal styling in terminal.css.
+===================================================== */
+
+/* The page should not scroll while this full-screen scene is active. */
+html.splash-no-scroll,
+body.splash-no-scroll {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden !important;
+}
+
+body.splash-no-scroll #app {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.splash-screen {
+    position: fixed;
+    isolation: isolate;
+    z-index: 100;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100vh;
+    height: 100svh;
+    box-sizing: border-box;
+    overflow: hidden;
+    padding: 24px 20px 46px;
+    color: #eaf7ed;
+    font-family: "Fira Code", Consolas, monospace;
+    background:
+        radial-gradient(ellipse at 50% 48%, rgba(24, 76, 43, .35), transparent 41%),
+        radial-gradient(ellipse at 80% 18%, rgba(31, 74, 43, .23), transparent 35%),
+        linear-gradient(145deg, #020904 0%, #06120a 45%, #02040b 100%);
+}
+
+.splash-screen *,
+.splash-screen *::before,
+.splash-screen *::after {
+    box-sizing: border-box;
+}
+
+/* Layered pinpoints suggest deep space while remaining lightweight. */
+.splash-stars {
+    position: absolute;
+    z-index: -5;
+    inset: -12%;
+    pointer-events: none;
+    opacity: .72;
+    background-image:
+        radial-gradient(circle, #fff 1px, transparent 1.5px),
+        radial-gradient(circle, #9bd6ac .8px, transparent 1.4px),
+        radial-gradient(circle, #b9efc8 .7px, transparent 1.3px);
+    background-size: 91px 91px, 137px 137px, 59px 59px;
+    background-position: 0 0, 34px 52px, 17px 9px;
+    animation: splashStarDrift 90s linear infinite;
+}
+
+.splash-nebula {
+    position: absolute;
+    z-index: -4;
+    inset: -18%;
+    pointer-events: none;
+    filter: blur(11px);
+    background:
+        radial-gradient(ellipse at 14% 30%, rgba(36, 108, 57, .27), transparent 25%),
+        radial-gradient(ellipse at 78% 62%, rgba(44, 111, 57, .23), transparent 28%),
+        radial-gradient(ellipse at 58% 17%, rgba(43, 132, 74, .14), transparent 23%),
+        radial-gradient(ellipse at 35% 79%, rgba(27, 82, 43, .20), transparent 27%);
+    animation: splashNebulaFloat 28s ease-in-out infinite alternate;
+}
+
+.splash-radar-sweep {
+    position: absolute;
+    z-index: -3;
+    inset: 0;
+    pointer-events: none;
+    opacity: .20;
+    background: conic-gradient(from 220deg at 68% 36%, transparent 0deg, rgba(142, 255, 174, .09) 26deg, transparent 65deg, transparent 360deg);
+    animation: splashRadarSweep 24s linear infinite;
+}
+
+.splash-orbit-lines {
+    position: absolute;
+    z-index: -3;
+    width: min(92vw, 1000px);
+    height: min(48vw, 470px);
+    left: 50%;
+    top: 52%;
+    border: 1px solid rgba(126, 235, 153, .16);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) rotate(-19deg);
+    box-shadow: 0 0 0 38px rgba(122, 222, 145, .022), 0 0 0 85px rgba(122, 222, 145, .018);
+    pointer-events: none;
+}
+
+/* Earth: blue atmosphere with its night side fading into the background. */
+.splash-earth {
+    position: absolute;
+    z-index: -2;
+    left: -10%;
+    bottom: -39%;
+    width: clamp(290px, 49vw, 660px);
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 50%;
+    opacity: .92;
+    background:
+        radial-gradient(ellipse at 29% 24%, rgba(175, 255, 197, .88), transparent 5%),
+        radial-gradient(ellipse at 30% 31%, #4b9562 0%, #1b4b2b 34%, #0a1d0f 62%, #030804 74%);
+    box-shadow:
+        inset -42px -26px 82px rgba(0, 0, 0, .93),
+        inset 12px 6px 32px rgba(119, 235, 147, .20),
+        0 -8px 36px rgba(83, 220, 119, .18);
+}
+
+.earth-atmosphere {
+    position: absolute;
+    inset: -2%;
+    border: 2px solid rgba(115, 242, 151, .46);
+    border-radius: 50%;
+    box-shadow: 0 -4px 20px rgba(89, 235, 132, .30);
+}
+
+.earth-clouds {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    opacity: .65;
+    background:
+        radial-gradient(ellipse at 27% 37%, transparent 0 7%, rgba(225, 255, 231, .27) 7.4% 8.4%, transparent 9%),
+        radial-gradient(ellipse at 44% 57%, transparent 0 9%, rgba(225, 255, 231, .18) 9.4% 10.2%, transparent 11%),
+        radial-gradient(ellipse at 55% 31%, transparent 0 6%, rgba(225, 255, 231, .17) 6.4% 7.3%, transparent 8%);
+}
+
+/* Distant Moon. */
+.splash-moon {
+    position: absolute;
+    z-index: -2;
+    top: 12%;
+    left: 13%;
+    width: clamp(44px, 6vw, 79px);
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 26%, #d7e8d9, #778b7a 46%, #26372a 77%);
+    box-shadow: inset -8px -6px 14px rgba(0, 0, 0, .68), 0 0 22px rgba(173, 236, 184, .13);
+    opacity: .88;
+    animation: splashMoonFloat 13s ease-in-out infinite;
+}
+
+.moon-craters {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background-image:
+        radial-gradient(circle at 28% 35%, rgba(35, 52, 38, .40) 0 5px, rgba(222, 242, 225, .18) 5.5px 7px, transparent 7.5px),
+        radial-gradient(circle at 66% 25%, rgba(35, 52, 38, .36) 0 3px, rgba(222, 242, 225, .14) 3.5px 5px, transparent 5.5px),
+        radial-gradient(circle at 60% 65%, rgba(35, 52, 38, .38) 0 7px, rgba(222, 242, 225, .12) 7.5px 9px, transparent 9.5px);
+}
+
+/* Distant Mars, with a warm rust-red surface. */
+.splash-mars {
+    position: absolute;
+    z-index: -2;
+    top: 11%;
+    right: 10%;
+    width: clamp(48px, 7vw, 93px);
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 26%, #f2b08e, #b95f4a 39%, #6e2c2c 69%, #1e1019 86%);
+    box-shadow: inset -13px -7px 22px rgba(0, 0, 0, .72), 0 0 26px rgba(208, 100, 72, .13);
+    opacity: .90;
+    animation: splashMarsFloat 16s ease-in-out infinite;
+}
+
+.mars-craters {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    opacity: .65;
+    background:
+        radial-gradient(ellipse at 62% 34%, rgba(65, 25, 26, .42) 0 5px, transparent 5.7px),
+        radial-gradient(ellipse at 35% 63%, rgba(65, 25, 26, .33) 0 3px, transparent 3.8px),
+        radial-gradient(ellipse at 70% 73%, rgba(65, 25, 26, .42) 0 4px, transparent 4.8px);
+}
+
+/* Abandoned orbital-station silhouette: lower-right, well below Mars, with gentle floating. */
+.splash-station {
+    position: absolute;
+    z-index: -1;
+    top: 58%;
+    right: 7%;
+    left: auto;
+    width: clamp(145px, 21vw, 245px);
+    height: 92px;
+    opacity: .70;
+    transform: rotate(-14deg);
+    filter: drop-shadow(0 0 12px rgba(108, 235, 145, .15));
+    animation: splashStationFloat 10s ease-in-out infinite;
+}
+
+.station-arm {
+    position: absolute;
+    left: 2%;
+    top: 46%;
+    width: 96%;
+    height: 2px;
+    background: #91b49a;
+    opacity: .78;
+}
+
+.station-core {
+    position: absolute;
+    left: 38%;
+    top: 35%;
+    width: 25%;
+    height: 28%;
+    border: 1px solid #8cae94;
+    background: linear-gradient(135deg, #718d78, #1d3925 66%);
+    transform: skew(-13deg);
+}
+
+.station-panel {
+    position: absolute;
+    top: 22%;
+    width: 23%;
+    height: 54%;
+    border: 1px solid rgba(140, 220, 157, .72);
+    background: repeating-linear-gradient(90deg, #0d2917 0 8px, #477b51 8px 9px);
+}
+
+.station-panel-left { left: 0; }
+.station-panel-right { right: 0; }
+
+.station-light {
+    position: absolute;
+    left: 49%;
+    top: 26%;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #a9ffc0;
+    box-shadow: 0 0 11px #a9ffc0;
+    animation: splashBeaconPulse 2.7s ease-in-out infinite;
+}
+
+.station-antenna {
+    position: absolute;
+    left: 56%;
+    top: 12%;
+    width: 1px;
+    height: 17px;
+    background: #8cae94;
+    transform: rotate(21deg);
+    transform-origin: bottom;
+}
+
+/* Central emblem and title. No Terminal status or story text appears here. */
+.splash-content {
+    position: relative;
+    z-index: 2;
+    width: min(100%, 760px);
+    padding: 12px 10px 18px;
+    text-align: center;
+    animation: splashContentArrival 1.3s ease both;
+}
+
+.splash-eyebrow {
+    margin: 0 0 17px;
+    color: #9ec9a7;
+    font-size: clamp(.55rem, 1.2vw, .67rem);
+    letter-spacing: .19em;
+    line-height: 1.7;
+}
+
+.splash-emblem {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 62px;
+    height: 62px;
+    margin: 0 auto 16px;
+    filter: drop-shadow(0 0 18px rgba(108, 244, 148, .17));
+}
+
+.splash-core {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #d9ffe2;
+    box-shadow: 0 0 12px #9effb4, 0 0 32px rgba(106, 255, 151, .42);
+}
+
+.splash-orbit {
+    position: absolute;
+    width: 100%;
+    height: 37%;
+    border: 1px solid rgba(142, 255, 174, .68);
+    border-radius: 50%;
+}
+
+.orbit-one { transform: rotate(0deg); }
+.orbit-two { transform: rotate(60deg); }
+.orbit-three { transform: rotate(-60deg); }
+
+.splash-title {
+    margin: 0;
+    color: #f1fff3;
+    font-family: "Orbitron", "Fira Code", Consolas, monospace;
+    font-size: clamp(2.15rem, 6.3vw, 5rem);
+    font-weight: 500;
+    line-height: 1.12;
+    letter-spacing: .055em;
+    text-shadow: 0 0 34px rgba(114, 245, 145, .13);
+}
+
+.splash-title span {
+    display: block;
+    color: #a9edba;
+    text-shadow: 0 0 35px rgba(95, 241, 132, .24);
+}
+
+.splash-divider {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    width: min(210px, 58%);
+    margin: 17px auto;
+}
+
+.splash-divider span {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(139, 232, 158, .68), transparent);
+}
+
+.splash-divider i {
+    flex: 0 0 5px;
+    width: 5px;
+    height: 5px;
+    background: #b9ffca;
+    transform: rotate(45deg);
+    box-shadow: 0 0 8px rgba(142, 255, 174, .53);
+}
+
+.splash-description {
+    max-width: 500px;
+    margin: 0 auto 23px;
+    color: #c9dfcd;
+    font-family: "Fira Code", Consolas, monospace;
+    font-size: clamp(.83rem, 1.7vw, 1rem);
+    line-height: 1.85;
+    text-wrap: balance;
+}
+
+.splash-enter-button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 28px;
+    min-height: 50px;
+    max-width: 100%;
+    padding: 12px 23px;
+    border: 1px solid rgba(145, 239, 166, .88);
+    border-radius: 2px;
+    color: #e0ffe7;
+    background: rgba(27, 83, 40, .27);
+    font-family: "Fira Code", Consolas, monospace;
+    font-size: .70rem;
+    letter-spacing: .10em;
+    cursor: pointer;
+    box-shadow: inset 0 0 18px rgba(76, 221, 105, .06);
+    animation: splashButtonGlow 3.1s ease-in-out infinite;
+    transition: background .2s ease, transform .2s ease, border-color .2s ease;
+}
+
+.splash-enter-button:hover:not(:disabled) {
+    background: rgba(59, 145, 75, .32);
+    border-color: #d6ffe0;
+    transform: translateY(-2px);
+}
+
+.splash-enter-button:focus-visible {
+    outline: 2px solid #d6ffe0;
+    outline-offset: 4px;
+}
+
+.splash-enter-button:disabled {
+    opacity: .72;
+    cursor: progress;
+}
+
+.enter-arrow { font-size: 1rem; }
+
+.splash-footer {
+    position: absolute;
+    z-index: 2;
+    bottom: 16px;
+    left: 12px;
+    right: 12px;
+    text-align: center;
+    color: #88aa8f;
+    font-size: .58rem;
+    letter-spacing: .17em;
+}
+
+@keyframes splashContentArrival {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes splashStarDrift {
+    from { background-position: 0 0, 34px 52px, 17px 9px; }
+    to { background-position: 91px 91px, 171px 189px, 76px 68px; }
+}
+
+@keyframes splashNebulaFloat {
+    from { transform: translate3d(-1%, 0, 0) scale(1); }
+    to { transform: translate3d(2%, -1%, 0) scale(1.06); }
+}
+
+@keyframes splashRadarSweep {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes splashMoonFloat {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    50% { transform: translate3d(3px, -10px, 0) scale(1.015); }
+}
+
+@keyframes splashMarsFloat {
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    50% { transform: translate3d(-5px, 8px, 0); }
+}
+
+@keyframes splashStationFloat {
+    0%, 100% { translate: 0 0; }
+    50% { translate: 10px -8px; }
+}
+
+@keyframes splashBeaconPulse {
+    0%, 100% { opacity: .38; }
+    50% { opacity: 1; }
+}
+
+@keyframes splashButtonGlow {
+    0%, 100% { box-shadow: 0 0 0 rgba(115, 255, 145, 0); }
+    50% { box-shadow: 0 0 20px rgba(115, 255, 145, .14); }
+}
+
+@media (max-width: 700px) {
+    .splash-screen { padding: 20px 14px 43px; }
+    .splash-earth { left: -34%; bottom: -25%; width: 76vw; opacity: .54; }
+    .splash-moon { top: 8%; left: 7%; width: 49px; }
+    .splash-mars { top: 8%; right: 7%; width: 43px; }
+    .splash-station { top: 62%; right: 4%; left: auto; width: 118px; opacity: .48; }
+    .splash-orbit-lines { width: 130vw; height: 70vw; top: 58%; }
+    .splash-content { padding: 8px 4px 12px; }
+    .splash-eyebrow { font-size: .55rem; letter-spacing: .10em; }
+    .splash-emblem { width: 49px; height: 49px; margin-bottom: 12px; }
+    .splash-core { width: 8px; height: 8px; }
+    .splash-title { font-size: clamp(1.9rem, 8.7vw, 3.3rem); }
+    .splash-description { font-size: .81rem; line-height: 1.7; margin-bottom: 18px; }
+    .splash-enter-button { width: min(100%, 325px); min-height: 46px; font-size: .65rem; gap: 18px; }
+    .splash-footer { bottom: 9px; font-size: .49rem; letter-spacing: .10em; }
+}
+
+@media (max-height: 680px) {
+    .splash-screen { padding-top: 8px; padding-bottom: 36px; }
+    .splash-eyebrow { margin-bottom: 7px; }
+    .splash-emblem { width: 43px; height: 43px; margin-bottom: 6px; }
+    .splash-core { width: 8px; height: 8px; }
+    .splash-divider { margin: 10px auto; }
+    .splash-description { margin-bottom: 12px; line-height: 1.55; }
+    .splash-earth { bottom: -47%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .splash-screen *,
+    .splash-screen *::before,
+    .splash-screen *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* A saved identity badge must never overlay the pre-mission Splash screen. */
+body.splash-no-scroll #thaGlobalIdentityBadge,
+body.splash-no-scroll .terminal-identity-badge {
+    display: none !important;
+}
