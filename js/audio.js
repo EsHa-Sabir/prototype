@@ -5,26 +5,25 @@
 // scripts call these shared functions so two Audio objects cannot overlap.
 // Load this script ONCE, before splash.js and terminal.js.
 //
-// Expected assets in assets/audio/:
-//   ambient-hum.mp3       Splash ambience; loops until Splash is left
-//   fan.mp3               Terminal machine fan; loops only while typing
-//   keyboard-typing.mp3   Keyboard texture; loops only while typing
-//   heartbeat.mp3         One heartbeat cue (the recording may contain both pulses)
+// Optional assets in assets/audio/:
+//   ambient-hum.mp3       Splash ambience; reused quietly in the Terminal
+//   fan.mp3               Optional terminal machine-fan bed while text is typed
+//
+// Character-synchronized key clicks and the REC cue use Web Audio. The heartbeat
+// uses a dedicated, rounded double-thump audio asset so it does not sound like beeps.
+// No unrequested CRT power-on/off cues are added.
 // =============================================================
 
 const THA_AUDIO_DIRECTORY = new URL("../assets/audio/", document.currentScript.src);
 const THA_OPENING_AUDIO_PATH = new URL("ambient-hum.mp3", THA_AUDIO_DIRECTORY).href;
 const THA_TERMINAL_FAN_PATH = new URL("fan.mp3", THA_AUDIO_DIRECTORY).href;
-const THA_TERMINAL_KEYBOARD_PATH = new URL("keyboard-typing.mp3", THA_AUDIO_DIRECTORY).href;
-const THA_TERMINAL_HEARTBEAT_PATH = new URL("heartbeat.mp3", THA_AUDIO_DIRECTORY).href;
-
-// The supplied heartbeat file is treated as ONE cue. The script describes its
-// rhythm as “once, twice”; do not replay an entire 8-second file twice.
+const THA_HEARTBEAT_CUE_PATH = new URL("heartbeat.mp3", THA_AUDIO_DIRECTORY).href;
 
 window.THA = window.THA || {};
 window.THA.openingAudio = null;
 window.THA.terminalSounds = null;
 window.THA.archiveHum = null;
+window.THA.heartbeatCueAudio = null;
 window.THA.openingAudioStatus = {
     playing: false,
     attempting: false,
@@ -36,11 +35,13 @@ window.THA.openingAudioStatus = {
 let thaHeartbeatSequenceId = 0;
 let thaHeartbeatCancelPending = null;
 
-// Web Audio provides very quiet key ticks synchronized to visible characters;
-// the recorded keyboard MP3 supplies the fuller mechanical texture underneath.
+// Web Audio provides quiet key ticks synchronized to visible characters, a
+// two-part heartbeat cue, and a short recording-device cue.
 let thaKeyAudioContext = null;
 let thaKeyNoiseBuffer = null;
 let thaArchiveDroneNodes = [];
+let thaHeartbeatNodes = []; // Only used by the asset-failure audio-buffer fallback.
+let thaHeartbeatTimer = null;
 const thaAudioFadeTokens = new WeakMap();
 
 function createTHAAudio(path, options = {}) {
@@ -221,8 +222,8 @@ function startTHALowFrequencyDrone() {
     // A quiet, team-created low-frequency bed adds weight beneath the supplied
     // ambient-hum MP3. This is sound design, not a NASA field recording.
     const tones = [
-        { frequency: 52, gain: 0.009 },
-        { frequency: 104, gain: 0.0025 }
+        { frequency: 52, gain: 0.034 },
+        { frequency: 104, gain: 0.012 }
     ];
 
     try {
@@ -306,12 +307,8 @@ function stopTerminalArchiveAmbient() {
 function getTerminalSounds() {
     if (!window.THA.terminalSounds) {
         window.THA.terminalSounds = {
-            // The fan is an unobtrusive machine-room bed under typing.
-            fan: createTHAAudio(THA_TERMINAL_FAN_PATH, { loop: true, volume: 0.42 }),
-            // The full keyboard recording loops only for the active typewriter phase.
-            keyboard: createTHAAudio(THA_TERMINAL_KEYBOARD_PATH, { loop: true, volume: 0.25 }),
-            // Never use native looping for the heartbeat; the controller sequences it intentionally.
-            heartbeat: createTHAAudio(THA_TERMINAL_HEARTBEAT_PATH, { loop: false, volume: 0.92 })
+            // The fan is an unobtrusive machine-room bed under synchronized key ticks.
+            fan: createTHAAudio(THA_TERMINAL_FAN_PATH, { loop: true, volume: 0.30 })
         };
     }
     return window.THA.terminalSounds;
@@ -330,102 +327,262 @@ async function playTHATrack(audio, restart = true) {
     }
 }
 
-/** Fan and keyboard begin together; their loops are stopped at the exact phase boundary. */
+/**
+ * Create/resume Web Audio immediately from the Splash button's user gesture.
+ * Browsers may block later audio starts if the context was first created after
+ * a long typewriter sequence, so Terminal calls this synchronously on entry.
+ */
+function unlockTHAAudioContext() {
+    const context = getTHAKeyAudioContext();
+    if (context && context.state === "suspended") context.resume().catch(() => {});
+    return context;
+}
+
+/** Fan + character-synchronised keyboard ticks while text is actually typing. */
 async function startTerminalTypingAudio() {
     const sounds = getTerminalSounds();
     sounds.fan.loop = true;
-    sounds.keyboard.loop = true;
-    const results = await Promise.all([
-        playTHATrack(sounds.fan, true),
-        playTHATrack(sounds.keyboard, true)
-    ]);
-    return results.every(Boolean);
+    sounds.fan.volume = 0.30;
+    const fanStarted = await playTHATrack(sounds.fan, true);
+    // A soft synthetic machine hum is the fallback when assets/audio/fan.mp3
+    // is missing or the browser refuses the media file.
+    if (!fanStarted) startTHALowFrequencyDrone();
+    return fanStarted;
 }
 
-/** Stop the two typing beds without touching the heartbeat. */
+/** Stop terminal fan-bed and any fallback drone between scripted sound phases. */
 function stopTerminalTypingAudio() {
     const sounds = window.THA.terminalSounds;
-    if (!sounds) return;
-    stopTHATrack(sounds.fan);
-    stopTHATrack(sounds.keyboard);
+    if (sounds) stopTHATrack(sounds.fan);
+    stopTHALowFrequencyDrone();
 }
 
-/** Wait until the supplied heartbeat recording ends, while allowing cancellation. */
-function playTHAAudioToEnd(audio) {
-    return new Promise((resolve) => {
-        let settled = false;
-
-        const finish = (playedToEnd) => {
-            if (settled) return;
-            settled = true;
-            audio.removeEventListener("ended", onEnded);
-            audio.removeEventListener("error", onError);
-            if (thaHeartbeatCancelPending === cancelWait) {
-                thaHeartbeatCancelPending = null;
-            }
-            resolve(playedToEnd);
-        };
-
-        const onEnded = () => finish(true);
-        const onError = () => finish(false);
-        const cancelWait = () => finish(false);
-
-        thaHeartbeatCancelPending = cancelWait;
-        audio.addEventListener("ended", onEnded);
-        audio.addEventListener("error", onError);
-
-        audio.play().catch((error) => {
-            console.warn("Heartbeat audio was blocked or failed:", error);
-            finish(false);
+/** Get the authored two-thump cue; a single dedicated clip sounds rounder than raw oscillators. */
+function getTerminalHeartbeatCue() {
+    if (!window.THA.heartbeatCueAudio) {
+        window.THA.heartbeatCueAudio = createTHAAudio(THA_HEARTBEAT_CUE_PATH, {
+            loop: false,
+            volume: 0.96
         });
-    });
+    }
+    return window.THA.heartbeatCueAudio;
 }
 
 /**
- * Pair one heartbeat cue with a quiet archive hum, then stop both for silence.
- * The full heartbeat asset is played once; a click can cancel it immediately.
+ * Fallback cue built as a short audio buffer if the WAV asset cannot play.
+ * It uses soft, decaying low-mid thumps (not sustained oscillator beeps).
  */
-async function startTerminalHeartbeat() {
+function createTHAHeartbeatFallbackBuffer(context) {
+    const duration = 2.25;
+    const sampleRate = context.sampleRate;
+    const frameCount = Math.floor(sampleRate * duration);
+    const buffer = context.createBuffer(1, frameCount, sampleRate);
+    const data = buffer.getChannelData(0);
+    const noise = new Float32Array(frameCount);
+    let lowA = 0;
+    let lowB = 0;
+    const alphaA = 1 - Math.exp((-2 * Math.PI * 250) / sampleRate);
+    const alphaB = 1 - Math.exp((-2 * Math.PI * 48) / sampleRate);
+    for (let i = 0; i < frameCount; i += 1) {
+        const raw = Math.random() * 2 - 1;
+        lowA += alphaA * (raw - lowA);
+        lowB += alphaB * (raw - lowB);
+        noise[i] = lowA - lowB;
+    }
+
+    const beats = [
+        { start: 0.075, length: 0.56, strength: 1.0, f0: 76, f1: 43 },
+        { start: 0.615, length: 0.43, strength: 0.78, f0: 88, f1: 48 }
+    ];
+    let peak = 0;
+    for (let i = 0; i < frameCount; i += 1) {
+        const time = i / sampleRate;
+        let value = 0;
+        for (const beat of beats) {
+            const local = time - beat.start;
+            if (local < 0 || local > beat.length) continue;
+            const attack = Math.min(1, local / 0.012);
+            const envelope = attack * (0.74 * Math.exp(-local / 0.115) + 0.26 * Math.exp(-local / 0.29));
+            const phase = 2 * Math.PI * (beat.f0 * local + ((beat.f1 - beat.f0) * local * local) / (2 * beat.length));
+            const body = Math.sin(phase) * 0.68;
+            const body2 = Math.sin(2 * Math.PI * (122 * local - (24 * local * local) / beat.length)) * 0.23;
+            const transient = noise[i] * Math.exp(-local / 0.053) * 0.22;
+            value += (body + body2 + transient) * envelope * beat.strength;
+        }
+        data[i] = value;
+        peak = Math.max(peak, Math.abs(value));
+    }
+    if (peak > 0) {
+        const scale = 0.72 / peak;
+        for (let i = 0; i < frameCount; i += 1) data[i] = Math.tanh(data[i] * scale * 1.18) / Math.tanh(1.18);
+    }
+    return buffer;
+}
+
+function playTHAHeartbeatFallback(context, onStart, onEnded) {
+    if (!context || context.state !== "running") return false;
+    try {
+        const source = context.createBufferSource();
+        const gain = context.createGain();
+        source.buffer = createTHAHeartbeatFallbackBuffer(context);
+        gain.gain.setValueAtTime(0.92, context.currentTime);
+        source.connect(gain);
+        gain.connect(context.destination);
+        source.addEventListener("ended", () => {
+            thaHeartbeatNodes = thaHeartbeatNodes.filter((node) => node !== source);
+            try { source.disconnect(); gain.disconnect(); } catch (_) {}
+            onEnded();
+        }, { once: true });
+        thaHeartbeatNodes.push(source);
+        onStart();
+        source.start();
+        return true;
+    } catch (error) {
+        console.warn("THE HUMAN ARCHIVE: fallback heartbeat could not be created.", error);
+        return false;
+    }
+}
+
+/** Play one complete “lub-dub”, with the button's first pulse starting at audio onset. */
+function playTHASyncedHeartbeat(onStart = () => {}) {
+    return new Promise((resolve) => {
+        let settled = false;
+        let started = false;
+        let usingFallback = false;
+        const heartbeatAudio = getTerminalHeartbeatCue();
+        const context = unlockTHAAudioContext();
+
+        const cleanupListeners = () => {
+            heartbeatAudio.removeEventListener("ended", onAudioEnded);
+        };
+        const finish = (played) => {
+            if (settled) return;
+            settled = true;
+            cleanupListeners();
+            if (thaHeartbeatTimer !== null) {
+                window.clearTimeout(thaHeartbeatTimer);
+                thaHeartbeatTimer = null;
+            }
+            if (thaHeartbeatCancelPending === cancel) thaHeartbeatCancelPending = null;
+            resolve(played);
+        };
+        const onAudioEnded = () => finish(true);
+        const cancel = () => {
+            stopTHATrack(heartbeatAudio);
+            for (const source of thaHeartbeatNodes) {
+                try { source.stop(); } catch (_) {}
+                try { source.disconnect(); } catch (_) {}
+            }
+            thaHeartbeatNodes = [];
+            finish(false);
+        };
+        const markStarted = () => {
+            if (settled || started) return;
+            started = true;
+            onStart();
+            // Safety timeout for browsers that fail to fire `ended` reliably.
+            thaHeartbeatTimer = window.setTimeout(() => finish(true), 2600);
+        };
+        const useFallback = () => {
+            if (settled || usingFallback) return;
+            usingFallback = true;
+            stopTHATrack(heartbeatAudio);
+            const startedFallback = playTHAHeartbeatFallback(context, markStarted, () => finish(true));
+            if (!startedFallback) {
+                // Keep the requested CTA animation and let the hum fade gracefully
+                // if this browser blocks both media playback and Web Audio.
+                markStarted();
+                if (thaHeartbeatTimer !== null) window.clearTimeout(thaHeartbeatTimer);
+                thaHeartbeatTimer = window.setTimeout(() => finish(false), 2250);
+            }
+        };
+
+        thaHeartbeatCancelPending = cancel;
+        heartbeatAudio.loop = false;
+        heartbeatAudio.volume = 0.96;
+        heartbeatAudio.addEventListener("ended", onAudioEnded, { once: true });
+
+        const startPlayback = async () => {
+            if (settled) return;
+            try {
+                rewindTHAAudio(heartbeatAudio);
+                await heartbeatAudio.play();
+                if (settled) {
+                    stopTHATrack(heartbeatAudio);
+                    return;
+                }
+                markStarted();
+            } catch (error) {
+                console.warn("Dedicated heartbeat asset could not play; using the soft synthesized fallback.", error);
+                useFallback();
+            }
+        };
+
+        if (context && context.state === "suspended") {
+            context.resume().then(startPlayback).catch(startPlayback);
+        } else {
+            void startPlayback();
+        }
+    });
+}
+
+/** Hum begins with the mission prompt; one double-beat follows, then both fade to silence. */
+async function startTerminalHeartbeat(onStart = () => {}) {
     stopTerminalTypingAudio();
     stopTerminalHeartbeat();
 
-    const sounds = getTerminalSounds();
-    const audio = sounds.heartbeat;
     const thisSequence = thaHeartbeatSequenceId;
-    audio.loop = false;
-
     await startTerminalArchiveAmbient();
     if (thisSequence !== thaHeartbeatSequenceId) {
         stopTerminalArchiveAmbient();
         return false;
     }
 
-    rewindTHAAudio(audio);
-    const finished = await playTHAAudioToEnd(audio);
+    const finished = await playTHASyncedHeartbeat(() => {
+        if (thisSequence === thaHeartbeatSequenceId) onStart();
+    });
     if (thisSequence !== thaHeartbeatSequenceId) {
         stopTerminalArchiveAmbient();
         return false;
     }
 
-    // Let the ambient bed fade away, then preserve the script's silence.
-    await fadeOutTerminalArchiveAmbient(360);
+    const button = document.getElementById("acceptMission");
+    if (button) button.classList.remove("is-heartbeat-playing");
+
+    // AUDIO AND VISUALS ARE SEPARATE STATES:
+    // The sound controller plays one double-beat, then fades the hum to silence.
+    // It removes only the temporary beat-synchronized animation class. The
+    // independent `is-mission-ready` class keeps a soft visual glow pulsing until
+    // the user clicks ACCEPT THE MISSION.
+    await fadeOutTerminalArchiveAmbient(680);
     return finished;
 }
 
-/** Cancel a heartbeat replay and stop its current playback immediately. */
+/** Cancel heartbeat and clear CTA animation immediately on acceptance or navigation. */
 function stopTerminalHeartbeat() {
     thaHeartbeatSequenceId += 1;
+    stopTHATrack(window.THA.heartbeatCueAudio);
     if (thaHeartbeatCancelPending) {
         const cancel = thaHeartbeatCancelPending;
         thaHeartbeatCancelPending = null;
         cancel();
     }
-
-    const sounds = window.THA.terminalSounds;
-    if (sounds) stopTHATrack(sounds.heartbeat);
+    if (thaHeartbeatTimer !== null) {
+        window.clearTimeout(thaHeartbeatTimer);
+        thaHeartbeatTimer = null;
+    }
+    const context = thaKeyAudioContext;
+    const now = context ? context.currentTime : 0;
+    for (const oscillator of thaHeartbeatNodes) {
+        try { oscillator.stop(now); } catch (_) {}
+        try { oscillator.disconnect(); } catch (_) {}
+    }
+    thaHeartbeatNodes = [];
+    const button = document.getElementById("acceptMission");
+    if (button) button.classList.remove("is-heartbeat-playing", "is-heartbeat-complete", "is-mission-ready");
 }
 
-/** Stop all Terminal audio before white flash, identity or Main Menu navigation. */
+/** Stop every Terminal sound before white flash / identity assignment / navigation. */
 function stopTerminalAudio() {
     stopTerminalTypingAudio();
     stopTerminalHeartbeat();
@@ -434,28 +591,48 @@ function stopTerminalAudio() {
 
 // ----------------------- RECORDING DEVICE CUE -----------------------
 
-/** Play one short, restrained REC confirmation beep, then leave silence. */
+/** A physical record-button click and a short, old-device confirmation tone, then silence. */
 function playTerminalRecCue() {
     const context = getTHAKeyAudioContext();
     if (!context) return false;
 
     try {
         const now = context.currentTime;
-        const oscillator = context.createOscillator();
-        const gain = context.createGain();
 
-        oscillator.type = "sine";
-        oscillator.frequency.setValueAtTime(880, now);
-        oscillator.frequency.exponentialRampToValueAtTime(660, now + 0.085);
+        // Two short filtered noise clicks create a restrained mechanical REC press.
+        const clickTimes = [now, now + 0.055];
+        for (const [index, when] of clickTimes.entries()) {
+            if (!thaKeyNoiseBuffer) break;
+            const source = context.createBufferSource();
+            const filter = context.createBiquadFilter();
+            const gain = context.createGain();
+            source.buffer = thaKeyNoiseBuffer;
+            filter.type = "bandpass";
+            filter.frequency.setValueAtTime(index === 0 ? 1150 : 1850, when);
+            filter.Q.setValueAtTime(0.8, when);
+            gain.gain.setValueAtTime(0.0001, when);
+            gain.gain.exponentialRampToValueAtTime(index === 0 ? 0.07 : 0.035, when + 0.003);
+            gain.gain.exponentialRampToValueAtTime(0.0001, when + 0.045);
+            source.connect(filter);
+            filter.connect(gain);
+            gain.connect(context.destination);
+            source.start(when);
+            source.stop(when + 0.05);
+        }
 
-        gain.gain.setValueAtTime(0.0001, now);
-        gain.gain.exponentialRampToValueAtTime(0.045, now + 0.008);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
-
-        oscillator.connect(gain);
-        gain.connect(context.destination);
-        oscillator.start(now);
-        oscillator.stop(now + 0.125);
+        const beep = context.createOscillator();
+        const beepGain = context.createGain();
+        const beepStart = now + 0.065;
+        beep.type = "sine";
+        beep.frequency.setValueAtTime(920, beepStart);
+        beep.frequency.exponentialRampToValueAtTime(640, beepStart + 0.14);
+        beepGain.gain.setValueAtTime(0.0001, beepStart);
+        beepGain.gain.exponentialRampToValueAtTime(0.045, beepStart + 0.009);
+        beepGain.gain.exponentialRampToValueAtTime(0.0001, beepStart + 0.19);
+        beep.connect(beepGain);
+        beepGain.connect(context.destination);
+        beep.start(beepStart);
+        beep.stop(beepStart + 0.20);
         return true;
     } catch (error) {
         console.warn("Recording-device cue could not play:", error);
@@ -518,6 +695,7 @@ function playTerminalKeyTick(character) {
         source.start(now);
         source.stop(now + 0.032);
     } catch (error) {
-        // If Web Audio is unavailable, the recorded keyboard texture still plays.
+        // If Web Audio is unavailable, leave the quiet fan ambience rather than
+        // starting an unsynchronized keyboard loop.
     }
 }

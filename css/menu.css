@@ -4,10 +4,8 @@
 ===================================================== */
 
 .tha-menu-screen {
-    --menu-green: #a9efba;
-    --menu-bright: #e2ffe8;
-    --menu-muted: #789d80;
-    --menu-line: rgba(131, 224, 151, .23);
+    --menu-green: var(--tha-green);
+    --menu-bright: var(--tha-green-bright);
     position: fixed;
     isolation: isolate;
     z-index: 30;
@@ -16,7 +14,7 @@
     flex-direction: column;
     width: 100%;
     height: 100vh;
-    height: 100svh;
+    height: 100dvh;
     overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior-y: contain;
@@ -30,7 +28,7 @@
         radial-gradient(ellipse at 8% 68%, rgba(32, 92, 49, .15), transparent 32%),
         radial-gradient(ellipse at 91% 75%, rgba(16, 62, 30, .20), transparent 36%),
         linear-gradient(145deg, #050e08 0%, #020704 53%, #010302 100%);
-    font-family: "Fira Code", "Cascadia Code", Consolas, monospace;
+    font-family: var(--tha-font-mono);
     letter-spacing: .025em;
     animation: thaMenuSceneArrival .72s ease both;
 }
@@ -40,10 +38,7 @@
 .tha-menu-screen::-webkit-scrollbar-thumb { background: rgba(128, 221, 150, .32); border: 2px solid rgba(2, 8, 4, .8); }
 .tha-menu-screen::-webkit-scrollbar-thumb:hover { background: rgba(156, 244, 174, .58); }
 
-.tha-menu-screen *,
-.tha-menu-screen *::before,
-.tha-menu-screen *::after { box-sizing: border-box; }
-
+/* Background decorations are absolutely positioned so they never add layout height. */
 .tha-menu-stars,
 .tha-menu-nebula,
 .tha-menu-rings,
@@ -151,7 +146,7 @@
     flex: 0 0 auto;
     width: min(100%, 1040px);
     margin: 0 auto;
-    padding: clamp(93px, 10vh, 112px) clamp(14px, 3vw, 30px) 42px;
+    padding: clamp(30px, 4vh, 48px) clamp(14px, 3vw, 30px) 42px;
 }
 
 .tha-menu-heading { margin: 0 auto 25px; text-align: center; }
@@ -166,7 +161,7 @@
 .tha-menu-heading h1 {
     margin: 0;
     color: #f0fff3;
-    font-family: "Orbitron", "Fira Code", Consolas, monospace;
+    font-family: var(--tha-font-display);
     font-size: clamp(2rem, 5vw, 3.75rem);
     font-weight: 500;
     line-height: 1.1;
@@ -260,7 +255,8 @@
     text-align: left;
     font: inherit;
     cursor: pointer;
-    opacity: 0;
+    /* Never hide a navigation option just because CSS animation is unavailable. */
+    opacity: 1;
     animation: thaMenuCardArrival .62s cubic-bezier(.18,.7,.22,1) both;
     animation-delay: calc(var(--card-index, 0) * 70ms + 100ms);
     transition: border-color .22s ease, background .22s ease, transform .22s ease, opacity .22s ease, box-shadow .22s ease;
@@ -320,69 +316,8 @@
     letter-spacing: .12em;
 }
 
-/* The shared badge stays in the upper-right, just below the station header. */
-.tha-global-identity-badge {
-    top: clamp(65px, 7vh, 82px) !important;
-    right: clamp(14px, 3.5vw, 40px) !important;
-    z-index: 500 !important;
-}
-.tha-global-identity-badge.is-post-mission { animation: thaMenuBadgeArrival .55s ease both; }
-
-@keyframes thaMenuStarDrift { from { background-position: 14px 17px, 53px 41px, 91px 73px; } to { background-position: 93px 96px, 180px 168px, 272px 254px; } }
-@keyframes thaMenuPulse { 0%, 45% { opacity: 1; } 46%, 100% { opacity: .35; } }
-@keyframes thaMenuNebulaDrift { from { transform: translate3d(-.8%, 0, 0) scale(1); } to { transform: translate3d(.8%, -1%, 0) scale(1.04); } }
-@keyframes thaMenuRouteFlow { to { stroke-dashoffset: -140; } }
-@keyframes thaMenuPing { 0% { opacity: .8; transform: scale(.65); } 75%, 100% { opacity: 0; transform: scale(1.75); } }
-@keyframes thaMenuCardArrival { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes thaMenuSceneArrival { from { opacity: 0; filter: brightness(1.3); } to { opacity: 1; filter: brightness(1); } }
-@keyframes thaMenuBadgeArrival { from { opacity: .25; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-
-@media (max-width: 700px) {
-    .tha-menu-topbar { min-height: 54px; padding: 8px 12px; font-size: .5rem; letter-spacing: .07em; }
-    .tha-menu-brand { gap: 8px; }
-    .tha-menu-brand-mark { flex-basis: 29px; width: 29px; height: 29px; }
-    .tha-menu-brand-copy strong { font-size: .53rem; letter-spacing: .08em; }
-    .tha-menu-brand-copy small { font-size: .42rem; letter-spacing: .07em; }
-    .tha-menu-system { font-size: .43rem; white-space: normal; max-width: 96px; justify-content: flex-end; text-align: right; line-height: 1.45; }
-    .tha-menu-main { padding: 83px 11px 34px; }
-    .tha-menu-heading { margin-bottom: 19px; }
-    .tha-menu-eyebrow { font-size: .52rem; letter-spacing: .11em; }
-    .tha-menu-heading h1 { font-size: clamp(1.7rem, 8.2vw, 2.65rem); }
-    .tha-menu-intro { font-size: .48rem; letter-spacing: .12em; }
-    .tha-menu-map-panel { padding: 12px 10px 14px; }
-    .tha-menu-panel-top { font-size: .47rem; letter-spacing: .08em; }
-    .tha-menu-panel-top b { margin-left: 4px; }
-    .tha-menu-scan-state { font-size: .42rem; letter-spacing: .025em; }
-    .tha-menu-schematic { margin-top: 7px; }
-    .tha-menu-schematic svg text { display: none; }
-    .tha-menu-map-note { font-size: .39rem; }
-    .tha-menu-map-legend { justify-content: space-between; gap: 8px 12px; padding-bottom: 12px; font-size: .43rem; letter-spacing: .065em; }
-    .tha-menu-cards { gap: 8px; padding-top: 12px; }
-    .tha-menu-card { grid-template-columns: 35px minmax(0, 1fr) auto 14px; gap: 9px; min-height: 66px; padding: 9px 8px; }
-    .tha-menu-card-icon { width: 33px; height: 35px; font-size: 1.05rem; }
-    .tha-menu-card-title { font-size: .60rem; letter-spacing: .06em; }
-    .tha-menu-card-status { font-size: .44rem; letter-spacing: .025em; }
-    .tha-menu-card-count { font-size: .56rem; letter-spacing: 0; }
-    .tha-menu-card.is-locked .tha-menu-card-count { font-size: .46rem; }
-    .tha-menu-card-arrow { font-size: .83rem; }
-    .tha-menu-footer { gap: 8px; margin-top: 17px; }
-    .tha-menu-footer p { font-size: .5rem; letter-spacing: .08em; }
-    .tha-menu-footer-line { width: 18px; }
-    .tha-menu-bottom-meta { justify-content: center; text-align: center; font-size: .41rem; }
-    .tha-global-identity-badge { top: 60px !important; right: 10px !important; max-width: min(290px, calc(100% - 20px)); }
-}
-
-@media (max-width: 380px) {
-    .tha-menu-system { max-width: 76px; }
-    .tha-menu-card { grid-template-columns: 30px minmax(0, 1fr) auto 10px; gap: 7px; padding-inline: 6px; }
-    .tha-menu-card-icon { width: 29px; height: 31px; font-size: .95rem; }
-    .tha-menu-card-title { font-size: .55rem; }
-    .tha-menu-card-status { font-size: .4rem; }
-    .tha-menu-card-count { font-size: .5rem; }
-}
-
 @media (max-height: 730px) and (min-width: 701px) {
-    .tha-menu-main { padding-top: 88px; }
+    .tha-menu-main { padding-top: 30px; }
     .tha-menu-heading { margin-bottom: 18px; }
     .tha-menu-heading h1 { font-size: clamp(1.8rem, 4.2vw, 3rem); }
     .tha-menu-schematic { margin-top: 4px; }
@@ -391,11 +326,357 @@
     .tha-menu-cards { gap: 7px; padding-top: 12px; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-    .tha-menu-screen *, .tha-menu-screen *::before, .tha-menu-screen *::after {
-        animation-duration: .01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: .01ms !important;
-        scroll-behavior: auto !important;
+
+
+
+/* The identity badge is a normal item inside the sticky menu header. */
+.tha-menu-topbar {
+    flex-wrap: wrap;
+}
+
+.tha-menu-topbar-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: clamp(10px, 1.8vw, 22px);
+    min-width: 0;
+    margin-left: auto;
+}
+
+.tha-menu-identity-slot {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.tha-menu-identity-slot .tha-global-identity-badge {
+    flex: 0 1 auto;
+}
+
+/* Small screens: stack the station header and keep archive cards easy to scan. */
+@media (max-width: 700px) {
+    .tha-menu-topbar {
+        align-items: flex-start;
+        gap: 8px;
+        min-height: 0;
+        padding: 10px 12px 9px;
     }
+
+    .tha-menu-brand {
+        flex: 1 1 100%;
+        gap: 8px;
+    }
+
+    .tha-menu-brand-mark {
+        flex-basis: 30px;
+        width: 30px;
+        height: 30px;
+    }
+
+    .tha-menu-brand-copy { gap: 3px; }
+    .tha-menu-brand-copy strong { font-size: .56rem; letter-spacing: .07em; }
+    .tha-menu-brand-copy small { font-size: .42rem; letter-spacing: .055em; }
+
+    .tha-menu-topbar-actions {
+        flex: 1 1 100%;
+        width: 100%;
+        margin-left: 0;
+        justify-content: flex-end;
+        gap: 0;
+    }
+
+    .tha-menu-system { display: none; }
+    .tha-menu-identity-slot { max-width: 100%; }
+    .tha-menu-identity-slot .tha-global-identity-badge.is-in-menu-header {
+        width: auto;
+        max-width: 100%;
+        gap: 7px;
+        padding: 6px 8px;
+    }
+    .tha-menu-identity-slot .tha-global-badge-icon {
+        flex-basis: 25px;
+        width: 25px;
+        height: 25px;
+    }
+    .tha-menu-identity-slot .tha-global-badge-icon svg { width: 21px; height: 21px; }
+    .tha-menu-identity-slot .tha-global-badge-copy { gap: 3px; font-size: .45rem; }
+    .tha-menu-identity-slot .tha-global-badge-copy small { font-size: .78em; letter-spacing: .07em; }
+
+    .tha-menu-main {
+        width: 100%;
+        padding: 20px 10px 28px;
+    }
+
+    .tha-menu-heading { margin-bottom: 16px; }
+    .tha-menu-eyebrow { margin-bottom: 8px; font-size: .5rem; letter-spacing: .105em; }
+    .tha-menu-heading h1 { font-size: clamp(1.55rem, 7.5vw, 2.5rem); letter-spacing: .045em; }
+    .tha-menu-heading h1 span { margin-top: 3px; }
+    .tha-menu-rule { margin-top: 12px; }
+    .tha-menu-intro { margin-top: 10px; font-size: .47rem; letter-spacing: .09em; line-height: 1.6; }
+
+    .tha-menu-map-panel { padding: 12px 9px 13px; }
+    .tha-menu-panel-top {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 7px;
+        padding-bottom: 10px;
+        font-size: .48rem;
+        letter-spacing: .075em;
+    }
+    .tha-menu-panel-top b { margin-left: 4px; }
+    .tha-menu-scan-state { font-size: .46rem; letter-spacing: .035em; }
+    .tha-menu-schematic { margin: 7px 0 3px; padding: 2px 0 0; }
+    .tha-menu-schematic svg { width: 100%; }
+    .tha-menu-map-note { padding-bottom: 8px; font-size: .4rem; letter-spacing: .07em; }
+
+    .tha-menu-map-legend {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        justify-content: stretch;
+        gap: 9px 10px;
+        padding: 2px 2px 12px;
+        font-size: .47rem;
+        letter-spacing: .055em;
+    }
+    .tha-menu-map-legend span { gap: 6px; min-width: 0; }
+    .tha-menu-map-legend i { flex: 0 0 6px; }
+
+    .tha-menu-cards { gap: 8px; padding-top: 12px; }
+    .tha-menu-card {
+        grid-template-columns: 32px minmax(0, 1fr) auto;
+        gap: 9px;
+        min-height: 66px;
+        padding: 9px 9px;
+    }
+    .tha-menu-card-icon { width: 31px; height: 33px; font-size: 1rem; }
+    .tha-menu-card-main { gap: 5px; }
+    .tha-menu-card-title { font-size: clamp(.6rem, 2.25vw, .72rem); letter-spacing: .045em; line-height: 1.45; }
+    .tha-menu-card-status { font-size: clamp(.43rem, 1.6vw, .51rem); letter-spacing: .025em; line-height: 1.5; }
+    .tha-menu-card-count { min-width: 36px; text-align: right; font-size: .55rem; letter-spacing: 0; }
+    .tha-menu-card.is-locked .tha-menu-card-count { font-size: .48rem; }
+    .tha-menu-card-arrow { display: none; }
+    .tha-menu-card:not(:disabled):hover { transform: none; }
+
+    .tha-menu-notice { font-size: .58rem; }
+    .tha-menu-footer { gap: 8px; margin-top: 17px; }
+    .tha-menu-footer p { font-size: .49rem; letter-spacing: .07em; }
+    .tha-menu-footer-line { width: 18px; }
+
+    .tha-menu-bottom-meta {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        justify-items: center;
+        text-align: center;
+        gap: 8px 10px;
+        padding: 12px 10px 15px;
+        font-size: .42rem;
+        letter-spacing: .06em;
+    }
+    .tha-menu-bottom-meta span:last-child { grid-column: 1 / -1; }
+}
+
+@media (max-width: 380px) {
+    .tha-menu-topbar { padding-inline: 9px; }
+    .tha-menu-brand-copy strong { font-size: .52rem; }
+    .tha-menu-brand-copy small { font-size: .39rem; }
+    .tha-menu-identity-slot .tha-global-identity-badge.is-in-menu-header { gap: 6px; padding: 5px 7px; }
+    .tha-menu-identity-slot .tha-global-badge-copy { font-size: .42rem; }
+    .tha-menu-main { padding-inline: 8px; }
+    .tha-menu-map-panel { padding-inline: 8px; }
+    .tha-menu-card { grid-template-columns: 29px minmax(0, 1fr) auto; gap: 7px; padding-inline: 7px; }
+    .tha-menu-card-icon { width: 28px; height: 30px; font-size: .92rem; }
+    .tha-menu-card-title { font-size: .56rem; }
+    .tha-menu-card-status { font-size: .41rem; }
+    .tha-menu-card-count { min-width: 32px; font-size: .49rem; }
+    .tha-menu-card.is-locked .tha-menu-card-count { font-size: .44rem; }
+    .tha-menu-map-legend { font-size: .44rem; }
+}
+
+/* =============================================================
+   MENU MOTION
+   Gentle motion adds depth without controlling whether content is visible.
+============================================================= */
+@keyframes thaMenuStarDrift {
+    from { background-position: 14px 17px, 53px 41px, 91px 73px; }
+    to { background-position: 93px 96px, 180px 168px, 272px 254px; }
+}
+
+@keyframes thaMenuPulse {
+    0%, 45% { opacity: 1; }
+    46%, 100% { opacity: .35; }
+}
+
+@keyframes thaMenuNebulaDrift {
+    from { transform: translate3d(-.8%, 0, 0) scale(1); }
+    to { transform: translate3d(.8%, -1%, 0) scale(1.04); }
+}
+
+@keyframes thaMenuRouteFlow {
+    to { stroke-dashoffset: -140; }
+}
+
+@keyframes thaMenuPing {
+    0% { opacity: .8; transform: scale(.65); }
+    75%, 100% { opacity: 0; transform: scale(1.75); }
+}
+
+@keyframes thaMenuCardArrival {
+    from { transform: translateY(12px); filter: brightness(.84); }
+    to { transform: translateY(0); filter: brightness(1); }
+}
+
+@keyframes thaMenuSceneArrival {
+    from { opacity: 0; filter: brightness(1.3); }
+    to { opacity: 1; filter: brightness(1); }
+}
+
+@keyframes thaMenuBadgeArrival {
+    from { opacity: .25; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Respect reduced-motion settings without hiding cards during animation delays. */
+@media (prefers-reduced-motion: reduce) {
+    .tha-menu-screen,
+    .tha-menu-card {
+        opacity: 1 !important;
+        animation: none !important;
+        filter: none !important;
+        transform: none !important;
+    }
+}
+
+
+/* =============================================================
+   MOBILE MENU REFINEMENT
+   Keep the station identity, archaeologist badge, and footer compact.
+============================================================= */
+@media (max-width: 700px) {
+    .tha-menu-rings {
+        width: 125vw;
+        height: 48vw;
+        bottom: 12%;
+        opacity: .45;
+        box-shadow: 0 0 0 24px rgba(128,225,148,.014), 0 0 0 52px rgba(128,225,148,.009);
+    }
+
+    .tha-menu-topbar {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        column-gap: 8px;
+        row-gap: 0;
+        padding: 9px 10px;
+        min-height: 0;
+    }
+    .tha-menu-brand {
+        flex: initial;
+        min-width: 0;
+        gap: 7px;
+        align-items: center;
+    }
+    .tha-menu-brand-mark {
+        flex: 0 0 27px;
+        width: 27px;
+        height: 27px;
+        font-size: .54rem;
+    }
+    .tha-menu-brand-copy { min-width: 0; gap: 3px; }
+    .tha-menu-brand-copy strong {
+        font-size: clamp(.46rem, 1.8vw, .55rem);
+        letter-spacing: .015em;
+        line-height: 1.35;
+        white-space: nowrap;
+    }
+    .tha-menu-brand-copy small {
+        font-size: clamp(.35rem, 1.35vw, .42rem);
+        letter-spacing: .015em;
+        line-height: 1.35;
+        white-space: normal;
+    }
+    .tha-menu-topbar-actions {
+        flex: initial;
+        width: auto;
+        min-width: 0;
+        margin: 0;
+        justify-content: flex-end;
+        align-self: center;
+    }
+    .tha-menu-system { display: none; }
+    .tha-menu-identity-slot { min-width: 0; max-width: 142px; }
+    .tha-menu-identity-slot .tha-global-identity-badge.is-in-menu-header {
+        width: auto;
+        max-width: 142px;
+        gap: 5px;
+        padding: 5px 6px;
+        border-color: rgba(140,230,158,.35);
+        background: rgba(5,17,8,.76);
+    }
+    .tha-menu-identity-slot .tha-global-badge-icon {
+        flex: 0 0 22px; width: 22px; height: 22px;
+    }
+    .tha-menu-identity-slot .tha-global-badge-icon svg { width: 18px; height: 18px; }
+    .tha-menu-identity-slot .tha-global-badge-copy {
+        min-width: 0; gap: 2px; font-size: clamp(.36rem, 1.45vw, .43rem);
+        letter-spacing: .02em;
+    }
+    .tha-menu-identity-slot .tha-global-badge-copy strong {
+        line-height: 1.25; overflow-wrap: anywhere;
+    }
+    .tha-menu-identity-slot .tha-global-badge-copy small {
+        font-size: .72em; letter-spacing: .015em; line-height: 1.25;
+    }
+
+    .tha-menu-main { padding: 17px 10px 22px; }
+    .tha-menu-heading { margin-bottom: 14px; }
+    .tha-menu-eyebrow { font-size: .48rem; letter-spacing: .08em; }
+    .tha-menu-heading h1 { font-size: clamp(1.55rem, 7.4vw, 2.25rem); line-height: 1.08; }
+    .tha-menu-heading h1 span { margin-top: 2px; }
+    .tha-menu-intro { font-size: .45rem; letter-spacing: .07em; }
+
+    .tha-menu-map-panel { padding: 11px 9px 12px; }
+    .tha-menu-panel-top { font-size: .47rem; letter-spacing: .06em; }
+    .tha-menu-scan-state { font-size: .44rem; line-height: 1.4; }
+    .tha-menu-schematic svg text { font-size: 12px; }
+    .tha-menu-map-note { font-size: .39rem; }
+    .tha-menu-map-legend { gap: 8px 6px; font-size: .44rem; letter-spacing: .025em; }
+
+    .tha-menu-card { min-height: 62px; }
+    .tha-menu-card-title { font-size: clamp(.58rem, 2.15vw, .7rem); line-height: 1.35; }
+    .tha-menu-card-status { font-size: clamp(.41rem, 1.45vw, .49rem); line-height: 1.45; }
+    .tha-menu-card-count { font-size: .52rem; }
+
+    .tha-menu-footer { gap: 7px; margin-top: 13px; padding-block: 4px; }
+    .tha-menu-footer p { font-size: .45rem; letter-spacing: .045em; white-space: normal; }
+    .tha-menu-footer-line { flex: 0 1 18px; min-width: 12px; }
+
+    .tha-menu-bottom-meta {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        align-items: start;
+        justify-items: center;
+        gap: 7px 5px;
+        padding: 10px 9px max(11px, env(safe-area-inset-bottom));
+        font-size: .37rem;
+        line-height: 1.5;
+        letter-spacing: .025em;
+        text-align: center;
+    }
+    .tha-menu-bottom-meta span { min-width: 0; overflow-wrap: anywhere; }
+    .tha-menu-bottom-meta span:last-child { grid-column: auto; }
+}
+
+@media (max-width: 380px) {
+    .tha-menu-topbar { padding-inline: 8px; column-gap: 6px; }
+    .tha-menu-brand { gap: 6px; }
+    .tha-menu-brand-copy strong { font-size: .45rem; letter-spacing: 0; }
+    .tha-menu-brand-copy small { font-size: .34rem; }
+    .tha-menu-identity-slot { max-width: 124px; }
+    .tha-menu-identity-slot .tha-global-identity-badge.is-in-menu-header { max-width: 124px; gap: 4px; padding: 4px 5px; }
+    .tha-menu-identity-slot .tha-global-badge-copy { font-size: .34rem; }
+    .tha-menu-identity-slot .tha-global-badge-copy small { display: none; }
+    .tha-menu-main { padding-inline: 8px; }
+    .tha-menu-map-legend { font-size: .41rem; }
+    .tha-menu-bottom-meta { font-size: .34rem; padding-inline: 6px; }
 }

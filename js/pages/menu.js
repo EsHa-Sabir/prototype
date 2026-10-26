@@ -7,11 +7,15 @@ const THA_MENU_PROGRESS_KEY = "thaProgress";
 
 // Keep these route values aligned with the names in your existing router.
 const THA_MENU_ROUTES = {
-    moon: "moon",
-    mars: "mars",
-    other: "other",
-    hidden: "hidden",
-    your: "yourArchive"
+    // These names are present in the router.js supplied with this project.
+    moon: "moonMap",
+    mars: "marsMap",
+    your: "yourArchive",
+
+    // The supplied router has no dedicated landing routes for these sections.
+    // Set each value to the correct section-index route when that page exists.
+    other: null,
+    hidden: null
 };
 
 const THA_MENU_TOTALS = { moon: 3, mars: 4, other: 2, hidden: 2 };
@@ -83,22 +87,30 @@ function getTHAActiveSection(progress, unlocked) {
 
 function navigateTHAMenuRoute(routeKey) {
     const routeName = THA_MENU_ROUTES[routeKey];
-    try {
-        if (typeof router !== "undefined" && router && typeof router.navigateTo === "function") {
-            router.navigateTo(routeName);
-            return true;
+    const status = document.getElementById("thaMenuNotice");
+
+    // Avoid guessing a route or moving the badge when no section page exists yet.
+    if (!routeName) {
+        if (status) {
+            status.textContent = `SECTION NOT CONNECTED: Add a landing-page route for ${routeKey.toUpperCase()} in THA_MENU_ROUTES.`;
+            status.classList.add("is-visible");
         }
-        if (typeof navigateTo === "function") {
-            navigateTo(routeName);
-            return true;
-        }
-    } catch (error) {
-        console.error(`THE HUMAN ARCHIVE: route "${routeName}" could not be opened.`, error);
+        return false;
     }
 
-    const status = document.getElementById("thaMenuNotice");
+    // Move the shared badge out of the sticky header before a route replaces #app.
+    window.THAIdentity?.moveToBody();
+    const navigated = window.THANavigation
+        ? window.THANavigation.goTo(routeName)
+        : (typeof router !== "undefined" && router && typeof router.navigateTo === "function"
+            ? router.navigateTo(routeName)
+            : false);
+    if (navigated) return true;
+
+    // Restore the badge if the router rejected the route.
+    window.THAIdentity?.mountInMenu();
     if (status) {
-        status.textContent = `ROUTE NOT CONNECTED: ${routeName}. Update THA_MENU_ROUTES in menu.js to match your router.`;
+        status.textContent = `ROUTE NOT CONNECTED: ${routeName}. Check the route name in menu.js.`;
         status.classList.add("is-visible");
     }
     return false;
@@ -111,24 +123,15 @@ function renderMenu() {
         return;
     }
 
-    // The assignment badge first appears after mission acceptance. From this
-    // point onward it persists, including on Main Menu and future story screens.
-    let identityAssigned = false;
-    try {
-        identityAssigned = window.localStorage.getItem("thaIdentityAssigned") === "true";
-    } catch (error) {
-        identityAssigned = Boolean(window.THA && window.THA.identityAssigned);
-    }
-    if (identityAssigned && typeof ensureTHAIdentityBadge === "function") {
-        const badge = ensureTHAIdentityBadge();
-        badge.hidden = false;
-        badge.classList.add("is-post-mission");
-    }
+    // Rehome the shared badge before replacing the routed screen's DOM.
+    window.THAIdentity?.moveToBody();
 
+    // Main Menu is intentionally silent: stop sounds from earlier screens,
+    // but do not start or play any audio from this screen.
     if (typeof stopSplashAudio === "function") stopSplashAudio();
     if (typeof stopTerminalAudio === "function") stopTerminalAudio();
-    document.documentElement.classList.remove("splash-no-scroll");
-    document.body.classList.remove("splash-no-scroll");
+    document.documentElement.classList.remove("splash-no-scroll", "tha-terminal-active");
+    document.body.classList.remove("splash-no-scroll", "tha-terminal-active");
 
     const progress = readTHAMenuProgress();
     const unlocked = getTHAMenuUnlocks(progress);
@@ -151,15 +154,15 @@ function renderMenu() {
         },
         {
             key: "other", icon: "🛰️", title: "OTHER TRACES",
-            count: unlocked.other ? `${progress.other} / 2` : "LOCKED", unlocked: unlocked.other,
+            count: `${progress.other} / 2`, unlocked: unlocked.other,
             active: active === "other",
-            status: unlocked.other ? "DEEP SPACE // 2 RECORDS" : "LOCKED // COMPLETE MARS ARCHIVE"
+            status: !unlocked.other ? "LOCKED // COMPLETE MARS ARCHIVE" : (THA_MENU_ROUTES.other ? "DEEP SPACE // 2 RECORDS" : "SECTION ROUTE NOT CONNECTED")
         },
         {
             key: "hidden", icon: "🔒", title: "HIDDEN RECORDS",
             count: unlocked.hidden ? `${progress.hidden} / 2` : "LOCKED", unlocked: unlocked.hidden,
             active: active === "hidden",
-            status: unlocked.hidden ? "UNIDENTIFIED HARDWARE // 2 RECORDS" : "LOCKED // FINISH OTHER TRACES"
+            status: !unlocked.hidden ? "LOCKED // FINISH OTHER TRACES" : (THA_MENU_ROUTES.hidden ? "UNIDENTIFIED HARDWARE // 2 RECORDS" : "SECTION ROUTE NOT CONNECTED")
         },
         {
             key: "your", icon: "🫵", title: "YOUR ARCHIVE",
@@ -184,7 +187,10 @@ function renderMenu() {
                         <small>EARTH ORBIT // RECOVERY STATION</small>
                     </span>
                 </div>
-                <span class="tha-menu-system"><i aria-hidden="true"></i> ARCHIVE LINK ACTIVE</span>
+                <div class="tha-menu-topbar-actions">
+                    <span class="tha-menu-system"><i aria-hidden="true"></i> ARCHIVE LINK ACTIVE</span>
+                    <div class="tha-menu-identity-slot" id="thaMenuIdentitySlot" aria-label="Assigned Space Archaeologist"></div>
+                </div>
             </header>
 
             <main class="tha-menu-main">
@@ -227,6 +233,12 @@ function renderMenu() {
                             <path class="schematic-mars-crater" d="M 586 86 l4 3 -2 4 5 3" />
                             <circle class="schematic-node schematic-node-deep" cx="793" cy="71" r="5" />
                             <circle class="schematic-ping" cx="793" cy="71" r="12" />
+                            <g class="schematic-labels" aria-hidden="true">
+                                <text x="134" y="143" text-anchor="middle">EARTH</text>
+                                <text x="378" y="110" text-anchor="middle">MOON</text>
+                                <text x="590" y="119" text-anchor="middle">MARS</text>
+                                <text x="793" y="98" text-anchor="middle">DEEP SPACE</text>
+                            </g>
                         </svg>
                         <span class="tha-menu-map-note">SCHEMATIC ROUTE // NOT TO SCALE</span>
                     </div>
@@ -257,6 +269,8 @@ function renderMenu() {
             </footer>
         </section>
     `;
+
+    window.THAIdentity?.mountInMenu();
 
     app.querySelectorAll("[data-tha-menu-route]").forEach((button) => {
         button.addEventListener("click", () => {

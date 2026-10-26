@@ -1,7 +1,7 @@
 // =====================================================
 // THE HUMAN ARCHIVE — CINEMATIC SPLASH
-// This screen is only the visual opening. Story text and
-// the YEAR: 2126 typewriter sequence belong to Terminal.
+// Visual opening only. The actual story begins in Terminal
+// with the first visible line: YEAR: 2126.
 // =====================================================
 
 let splashTransitioning = false;
@@ -9,24 +9,19 @@ let splashMouseMoveHandler = null;
 
 function renderSplash() {
     const app = document.getElementById("app");
-
     if (!app) {
-        console.error("The #app container was not found.");
+        console.error("THE HUMAN ARCHIVE: #app container was not found.");
         return;
     }
 
-    // Splash is the pre-mission intro. A badge restored from localStorage must
-    // never overlay this screen; it is revealed after ACCEPT THE MISSION.
-    const savedIdentityBadge = document.getElementById("thaGlobalIdentityBadge");
-    if (savedIdentityBadge) savedIdentityBadge.hidden = true;
-    document.querySelectorAll(".terminal-identity-badge").forEach((badge) => {
-        badge.hidden = true;
-    });
+    window.THAIdentity?.hide();
 
-    // Ensure a previous Splash instance cannot leave sound running.
+    // Stop any previous Splash ambience before this screen is rebuilt.
     stopSplashAudio();
     splashTransitioning = false;
 
+    document.documentElement.classList.remove("tha-terminal-active");
+    document.body.classList.remove("tha-terminal-active");
     document.documentElement.classList.add("splash-no-scroll");
     document.body.classList.add("splash-no-scroll");
 
@@ -37,7 +32,6 @@ function renderSplash() {
             <div class="splash-radar-sweep" aria-hidden="true"></div>
             <div class="splash-orbit-lines" aria-hidden="true"></div>
 
-            <!-- CSS-built planetary silhouettes keep the opening lightweight. -->
             <div class="splash-earth" aria-hidden="true">
                 <span class="earth-atmosphere"></span>
                 <span class="earth-clouds"></span>
@@ -48,8 +42,6 @@ function renderSplash() {
             <div class="splash-mars" aria-hidden="true">
                 <span class="mars-craters"></span>
             </div>
-
-            <!-- A distant, inactive-looking station sets the story location. -->
             <div class="splash-station" aria-hidden="true">
                 <span class="station-panel station-panel-left"></span>
                 <span class="station-arm"></span>
@@ -87,8 +79,7 @@ function renderSplash() {
                     <span>ENTER THE STATION</span>
                     <span aria-hidden="true" class="enter-arrow">↗</span>
                 </button>
-
-                </main>
+            </main>
 
             <footer class="splash-footer">ABANDONED ≠ FORGOTTEN</footer>
         </section>
@@ -97,43 +88,49 @@ function renderSplash() {
     const splashScreen = document.getElementById("splashScreen");
     const enterButton = document.getElementById("beginArchive");
 
-    // Keep the requested mouse-movement trigger. It is a fallback, not a
-    // guaranteed browser autoplay permission; some browsers only accept clicks/taps.
+    // Keep the requested mouse-movement retry for ambient-hum.mp3.
+    // Browsers may still require a click/tap to permit audio playback.
     splashMouseMoveHandler = async () => {
-        if (splashTransitioning) return;
-
+        if (splashTransitioning || !splashScreen.isConnected) return;
         const started = await startSplashAudio(true);
-        if (started) {
+        if (started && splashMouseMoveHandler) {
             splashScreen.removeEventListener("mousemove", splashMouseMoveHandler);
+            splashMouseMoveHandler = null;
         }
     };
     splashScreen.addEventListener("mousemove", splashMouseMoveHandler, { passive: true });
 
-    // Try as soon as Splash appears. The mousemove listener above retries if blocked.
     startSplashAudio().then((started) => {
-        if (started) {
+        if (started && splashMouseMoveHandler) {
             splashScreen.removeEventListener("mousemove", splashMouseMoveHandler);
+            splashMouseMoveHandler = null;
         }
     });
 
     enterButton.addEventListener("click", () => {
         if (splashTransitioning) return;
 
+        // Direct hand-off: do not show an intermediate “Entering the station”
+        // label or wait through a fade. Terminal owns its own story timing.
         splashTransitioning = true;
         enterButton.disabled = true;
-        enterButton.querySelector("span").textContent = "ENTERING THE STATION";
 
-        // Stop this screen's ambience before Terminal or its audio is initialized.
         if (splashMouseMoveHandler) {
             splashScreen.removeEventListener("mousemove", splashMouseMoveHandler);
             splashMouseMoveHandler = null;
         }
+        window.THAIdentity?.hide();
         stopSplashAudio();
 
-        document.documentElement.classList.remove("splash-no-scroll");
-        document.body.classList.remove("splash-no-scroll");
+        const navigated = window.THANavigation
+            ? window.THANavigation.goTo("terminal")
+            : (typeof router !== "undefined" && router && typeof router.navigateTo === "function"
+                ? router.navigateTo("terminal")
+                : false);
 
-        // Preserve the router API already used in this project.
-        router.navigateTo("terminal");
+        if (!navigated) {
+            enterButton.disabled = false;
+            splashTransitioning = false;
+        }
     });
 }

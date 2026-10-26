@@ -3,21 +3,6 @@
    All selectors here are Splash-specific. Keep Terminal styling in terminal.css.
 ===================================================== */
 
-/* The page should not scroll while this full-screen scene is active. */
-html.splash-no-scroll,
-body.splash-no-scroll {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    overflow: hidden !important;
-}
-
-body.splash-no-scroll #app {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
-
 .splash-screen {
     position: fixed;
     isolation: isolate;
@@ -26,23 +11,16 @@ body.splash-no-scroll #app {
     display: grid;
     place-items: center;
     width: 100%;
-    height: 100vh;
-    height: 100svh;
-    box-sizing: border-box;
+    min-height: 100vh;
+    min-height: 100dvh;
     overflow: hidden;
     padding: 24px 20px 46px;
     color: #eaf7ed;
-    font-family: "Fira Code", Consolas, monospace;
+    font-family: var(--tha-font-mono);
     background:
         radial-gradient(ellipse at 50% 48%, rgba(24, 76, 43, .35), transparent 41%),
         radial-gradient(ellipse at 80% 18%, rgba(31, 74, 43, .23), transparent 35%),
         linear-gradient(145deg, #020904 0%, #06120a 45%, #02040b 100%);
-}
-
-.splash-screen *,
-.splash-screen *::before,
-.splash-screen *::after {
-    box-sizing: border-box;
 }
 
 /* Layered pinpoints suggest deep space while remaining lightweight. */
@@ -280,6 +258,16 @@ body.splash-no-scroll #app {
     line-height: 1.7;
 }
 
+.splash-description {
+    max-width: 34rem;
+    margin: 0 auto 23px;
+    color: #c9dfcd;
+    font-family: var(--tha-font-mono);
+    font-size: clamp(.8rem, 1.55vw, .98rem);
+    line-height: 1.8;
+    text-wrap: balance;
+}
+
 .splash-emblem {
     position: relative;
     display: grid;
@@ -313,7 +301,7 @@ body.splash-no-scroll #app {
 .splash-title {
     margin: 0;
     color: #f1fff3;
-    font-family: "Orbitron", "Fira Code", Consolas, monospace;
+    font-family: var(--tha-font-display);
     font-size: clamp(2.15rem, 6.3vw, 5rem);
     font-weight: 500;
     line-height: 1.12;
@@ -351,16 +339,6 @@ body.splash-no-scroll #app {
     box-shadow: 0 0 8px rgba(142, 255, 174, .53);
 }
 
-.splash-description {
-    max-width: 500px;
-    margin: 0 auto 23px;
-    color: #c9dfcd;
-    font-family: "Fira Code", Consolas, monospace;
-    font-size: clamp(.83rem, 1.7vw, 1rem);
-    line-height: 1.85;
-    text-wrap: balance;
-}
-
 .splash-enter-button {
     display: inline-flex;
     justify-content: center;
@@ -373,7 +351,7 @@ body.splash-no-scroll #app {
     border-radius: 2px;
     color: #e0ffe7;
     background: rgba(27, 83, 40, .27);
-    font-family: "Fira Code", Consolas, monospace;
+    font-family: var(--tha-font-mono);
     font-size: .70rem;
     letter-spacing: .10em;
     cursor: pointer;
@@ -456,44 +434,73 @@ body.splash-no-scroll #app {
     50% { box-shadow: 0 0 20px rgba(115, 255, 145, .14); }
 }
 
+/* Small and medium screens: reduce decoration without shrinking the title too far. */
 @media (max-width: 700px) {
-    .splash-screen { padding: 20px 14px 43px; }
-    .splash-earth { left: -34%; bottom: -25%; width: 76vw; opacity: .54; }
+    .splash-screen {
+        padding: max(18px, env(safe-area-inset-top)) 14px max(42px, env(safe-area-inset-bottom));
+    }
+
+    .splash-earth {
+        left: -34%;
+        bottom: -25%;
+        width: 76vw;
+        opacity: .54;
+    }
+
     .splash-moon { top: 8%; left: 7%; width: 49px; }
     .splash-mars { top: 8%; right: 7%; width: 43px; }
-    .splash-station { top: 62%; right: 4%; left: auto; width: 118px; opacity: .48; }
+    .splash-station { top: 62%; right: 4%; width: 118px; opacity: .48; }
     .splash-orbit-lines { width: 130vw; height: 70vw; top: 58%; }
     .splash-content { padding: 8px 4px 12px; }
-    .splash-eyebrow { font-size: .55rem; letter-spacing: .10em; }
+    .splash-eyebrow { margin-bottom: 11px; font-size: .55rem; letter-spacing: .10em; }
     .splash-emblem { width: 49px; height: 49px; margin-bottom: 12px; }
     .splash-core { width: 8px; height: 8px; }
     .splash-title { font-size: clamp(1.9rem, 8.7vw, 3.3rem); }
-    .splash-description { font-size: .81rem; line-height: 1.7; margin-bottom: 18px; }
-    .splash-enter-button { width: min(100%, 325px); min-height: 46px; font-size: .65rem; gap: 18px; }
-    .splash-footer { bottom: 9px; font-size: .49rem; letter-spacing: .10em; }
+    .splash-description { max-width: 38rem; font-size: .81rem; line-height: 1.65; margin-bottom: 18px; }
+    .splash-enter-button { width: min(100%, 325px); min-height: 46px; gap: 18px; font-size: .65rem; }
+    .splash-footer { bottom: max(8px, env(safe-area-inset-bottom)); font-size: .49rem; letter-spacing: .10em; }
 }
 
+/* Short viewports need tighter vertical rhythm, not smaller readable controls. */
 @media (max-height: 680px) {
     .splash-screen { padding-top: 8px; padding-bottom: 36px; }
     .splash-eyebrow { margin-bottom: 7px; }
     .splash-emblem { width: 43px; height: 43px; margin-bottom: 6px; }
-    .splash-core { width: 8px; height: 8px; }
     .splash-divider { margin: 10px auto; }
-    .splash-description { margin-bottom: 12px; line-height: 1.55; }
+    .splash-description { margin-bottom: 12px; line-height: 1.5; }
     .splash-earth { bottom: -47%; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-    .splash-screen *,
-    .splash-screen *::before,
-    .splash-screen *::after {
-        animation: none !important;
-        transition: none !important;
-    }
+@media (max-height: 480px) {
+    .splash-screen { padding: 6px 12px 30px; }
+    .splash-eyebrow { margin-bottom: 5px; font-size: .48rem; }
+    .splash-emblem { width: 34px; height: 34px; margin-bottom: 4px; }
+    .splash-title { font-size: clamp(1.45rem, 5vw, 2.4rem); }
+    .splash-divider { margin: 7px auto; }
+    .splash-description { margin-bottom: 8px; font-size: .72rem; line-height: 1.35; }
+    .splash-enter-button { min-height: 40px; padding: 8px 14px; }
+    .splash-footer { font-size: .42rem; }
 }
 
-/* A saved identity badge must never overlay the pre-mission Splash screen. */
-body.splash-no-scroll #thaGlobalIdentityBadge,
-body.splash-no-scroll .terminal-identity-badge {
-    display: none !important;
+/* Reduced-motion behavior is centralized in style.css. */
+
+
+/* Phone composition: keep the station silhouette away from the center CTA. */
+.splash-station { pointer-events: none; }
+@media (max-width: 700px) {
+    .splash-station {
+        top: auto;
+        right: 5%;
+        bottom: max(10%, 62px);
+        left: auto;
+        width: 92px;
+        height: 54px;
+        opacity: .24;
+        transform: rotate(-14deg) scale(.9);
+    }
+    .splash-content { z-index: 3; }
+    .splash-enter-button { position: relative; z-index: 4; }
+}
+@media (max-height: 560px) and (max-width: 700px) {
+    .splash-station { bottom: 7%; width: 76px; height: 45px; opacity: .16; }
 }

@@ -1,47 +1,53 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#020604">
     <title>The Human Archive | NASA Space Apps Challenge 2026</title>
 
-    <!-- Google Monospace & Cyber Fonts -->
+    <!-- Shared fonts used by the global design system and screen-specific styles. -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
 
-    <!-- CSS Imports (As per your Folder Structure) -->
+    <!-- Shared foundations must load before screen-specific stylesheets. -->
+    <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/splash.css">
     <link rel="stylesheet" href="css/terminal.css">
     <link rel="stylesheet" href="css/menu.css">
+    <!-- Keep these stylesheets from your existing project. -->
     <link rel="stylesheet" href="css/maps.css">
     <link rel="stylesheet" href="css/templates.css">
 </head>
 <body>
+    <!-- The SPA router mounts every screen inside this container. -->
+    <main id="app" aria-live="off"></main>
 
-    <!-- Main Container for Dynamic Screen Rendering -->
-    <main id="app"></main>
-
-    <!-- JS Data Baseline Import -->
+    <!-- Keep your existing data layer before pages that read it. -->
     <script src="js/data/records.js"></script>
 
-    <!-- JS Pages Modules Import -->
+    <!-- Shared dependencies are required by the screen modules. -->
+    <script src="js/shared/identity.js"></script>
+    <script src="js/shared/navigation.js"></script>
     <script src="js/audio.js"></script>
+
+    <!-- Main cinematic screens. -->
     <script src="js/pages/splash.js"></script>
     <script src="js/pages/terminal.js"></script>
     <script src="js/pages/menu.js"></script>
+
+    <!-- Keep the remaining screen modules from your existing project. -->
     <script src="js/pages/moonMap.js"></script>
     <script src="js/pages/marsMap.js"></script>
     <script src="js/pages/archive99.js"></script>
     <script src="js/pages/yourArchive.js"></script>
     <script src="js/pages/finale.js"></script>
-
-    <!-- JS Templates Modules Import -->
     <script src="js/templates/templateA.js"></script>
     <script src="js/templates/templateB.js"></script>
     <script src="js/templates/templateC.js"></script>
 
-    <!-- JS Core Engine & Router Import -->
+    <!-- Load the router before the startup script. -->
     <script src="js/router.js"></script>
     <script src="js/main.js"></script>
 </body>

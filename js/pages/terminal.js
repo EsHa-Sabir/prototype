@@ -9,8 +9,7 @@ let terminalRunId = 0;
 let terminalTransitioning = false;
 
 const TERMINAL_OPENING_LINES = [
-    { text: "YEAR: 2126", className: "terminal-year-line", speed: 68, pauseAfter: 520 },
-    { text: "", className: "terminal-spacer-line", pauseAfter: 250 },
+    { text: "YEAR: 2126", className: "terminal-year-line", speed: 68, pauseAfter: 180 },
     { text: "Humanity went to the Moon.", className: "terminal-story-line", speed: 40 },
     { text: "It went to Mars.", className: "terminal-story-line", speed: 44 },
     { text: "It sent signals into the distance.", className: "terminal-story-line", speed: 38, pauseAfter: 320 },
@@ -33,24 +32,24 @@ const TERMINAL_RECOVERY_LINES = [
 // On-screen text follows the story script's wording and order.
 const TERMINAL_ARCHIVE_LINES = [
     { text: "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", className: "archive-divider-line", static: true, pauseAfter: 170 },
-    { text: "        THE HUMAN ARCHIVE", className: "archive-title-line", speed: 42, pauseAfter: 220 },
+    { text: "THE HUMAN ARCHIVE", className: "archive-title-line", speed: 42, pauseAfter: 220 },
     { text: "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", className: "archive-divider-line", static: true, pauseAfter: 180 },
-    { text: "   ARCHIVE STATUS:   INCOMPLETE", className: "archive-status-line", speed: 27 },
-    { text: "   LAST UPDATED:     2026", className: "archive-data-line", speed: 27 },
+    { text: "ARCHIVE STATUS: INCOMPLETE", className: "archive-status-line", speed: 27 },
+    { text: "LAST UPDATED: 2026", className: "archive-data-line", speed: 27 },
     { text: "", className: "archive-spacer-line", pauseAfter: 160 },
-    { text: "   ARCHIVE RECORDS:  9", className: "archive-data-line", speed: 27 },
-    { text: "   ACCESSIBLE:       0 / 9", className: "archive-data-line", speed: 27, pauseAfter: 240 },
+    { text: "ARCHIVE RECORDS: 9", className: "archive-data-line", speed: 27 },
+    { text: "ACCESSIBLE: 0 / 9", className: "archive-data-line", speed: 27, pauseAfter: 240 },
     { text: "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", className: "archive-divider-line", static: true, pauseAfter: 220 },
     { text: "", className: "archive-spacer-line", pauseAfter: 170 },
     { text: "When we leave a world behind,", className: "archive-question-line", speed: 31 },
     { text: "what do we leave with it?", className: "archive-question-line", speed: 33, pauseAfter: 300 },
     { text: "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", className: "archive-divider-line", static: true, pauseAfter: 200 },
-    { text: "   RECORDS MISSING.", className: "archive-warning-line", speed: 31 },
-    { text: "   TRACES ERASED.", className: "archive-warning-line", speed: 33 },
-    { text: "   STORIES UNFINISHED.", className: "archive-warning-line", speed: 34, pauseAfter: 250 },
+    { text: "RECORDS MISSING.", className: "archive-warning-line", speed: 31 },
+    { text: "TRACES ERASED.", className: "archive-warning-line", speed: 33 },
+    { text: "STORIES UNFINISHED.", className: "archive-warning-line", speed: 34, pauseAfter: 250 },
     { text: "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", className: "archive-divider-line", static: true, pauseAfter: 200 },
-    { text: "   A SPACE ARCHAEOLOGIST", className: "archive-call-line", speed: 32 },
-    { text: "   IS NEEDED TO FIND THESE TRACES.", className: "archive-call-line", speed: 32, pauseAfter: 310 },
+    { text: "A SPACE ARCHAEOLOGIST", className: "archive-call-line", speed: 32 },
+    { text: "IS NEEDED TO FIND THESE TRACES.", className: "archive-call-line", speed: 32, pauseAfter: 310 },
     { text: "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", className: "archive-divider-line", static: true, pauseAfter: 230 }
 ];
 
@@ -127,64 +126,6 @@ async function typeTerminalLines(target, lines, runId, defaultSpeed = 30) {
     return terminalIsCurrent(runId);
 }
 
-function ensureTHAIdentityBadge() {
-    let badge = document.getElementById("thaGlobalIdentityBadge");
-    if (badge) return badge;
-
-    badge = document.createElement("aside");
-    badge.id = "thaGlobalIdentityBadge";
-    badge.className = "tha-global-identity-badge";
-    badge.hidden = true;
-    badge.setAttribute("aria-label", "Space Archaeologist identity badge");
-    badge.innerHTML = `
-        <span class="tha-global-badge-icon" aria-hidden="true">
-            <svg viewBox="0 0 40 40" focusable="false">
-                <circle cx="20" cy="20" r="5.5" fill="none" stroke="currentColor" stroke-width="1.4" />
-                <ellipse cx="20" cy="20" rx="17" ry="7.5" fill="none" stroke="currentColor" stroke-width="1.1" transform="rotate(-28 20 20)" />
-                <circle cx="33.5" cy="12.5" r="2" fill="currentColor" />
-            </svg>
-        </span>
-        <span class="tha-global-badge-copy">
-            <strong>SPACE ARCHAEOLOGIST</strong>
-            <small>IDENTITY ASSIGNED</small>
-        </span>`;
-    document.body.appendChild(badge);
-    return badge;
-}
-
-function wasTHAIdentityAssigned() {
-    try {
-        return window.localStorage.getItem("thaIdentityAssigned") === "true";
-    } catch (error) {
-        return Boolean(window.THA && window.THA.identityAssigned);
-    }
-}
-
-function restoreTHAIdentityBadge() {
-    const assigned = wasTHAIdentityAssigned();
-    window.THA = window.THA || {};
-    window.THA.identityAssigned = assigned;
-
-    if (!assigned) {
-        const existing = document.getElementById("thaGlobalIdentityBadge");
-        if (existing) existing.hidden = true;
-        return;
-    }
-
-    const badge = ensureTHAIdentityBadge();
-    const preMissionScreen = Boolean(
-        document.getElementById("splashScreen") ||
-        document.getElementById("terminalScreen")
-    );
-    badge.hidden = preMissionScreen;
-}
-
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => window.setTimeout(restoreTHAIdentityBadge, 0), { once: true });
-} else {
-    window.setTimeout(restoreTHAIdentityBadge, 0);
-}
-
 function renderTerminal() {
     const app = document.getElementById("app");
     if (!app) {
@@ -199,20 +140,16 @@ function renderTerminal() {
     if (typeof stopSplashAudio === "function") stopSplashAudio();
     if (typeof stopTerminalAudio === "function") stopTerminalAudio();
 
-    // Terminal gets its own full-viewport root reset. This prevents generic
-    // site-wide body/main/#app styles from adding white gutters or offsets.
+    // The Terminal owns the viewport until the Main Menu takes over.
+    window.THAIdentity?.hide();
+    document.documentElement.classList.remove("splash-no-scroll");
+    document.body.classList.remove("splash-no-scroll");
     document.documentElement.classList.add("tha-terminal-active");
     document.body.classList.add("tha-terminal-active");
 
-    // Any saved badge stays hidden until the current mission is accepted.
-    ensureTHAIdentityBadge().hidden = true;
-    document.documentElement.classList.remove("splash-no-scroll");
-    document.body.classList.remove("splash-no-scroll");
-
     app.innerHTML = `
-        <section class="terminal-screen is-booting" id="terminalScreen" aria-label="The Human Archive terminal">
+        <section class="terminal-screen" id="terminalScreen" aria-label="The Human Archive terminal">
             <div class="terminal-room" aria-hidden="true">
-                <div class="terminal-observation-port"><span class="terminal-earth-horizon"></span></div>
                 <div class="terminal-wall-seams"></div>
                 <div class="terminal-room-haze"></div>
                 <div class="terminal-floor-grille"></div>
@@ -255,7 +192,6 @@ function renderTerminal() {
                 </div>
             </div>
 
-            <div class="terminal-room-shadow" aria-hidden="true"></div>
 
             <section class="terminal-transition" id="terminalTransition" hidden aria-live="polite">
                 <div class="terminal-flash" id="terminalFlash" aria-hidden="true"></div>
@@ -270,6 +206,9 @@ function renderTerminal() {
         </section>
     `;
 
+    // The script does not call for mechanical CRT boot/shutdown effects.
+    // Unlock audio from the real Splash button gesture for typing/heartbeat cues.
+    if (typeof unlockTHAAudioContext === "function") unlockTHAAudioContext();
     void runTerminalStory(runId);
 }
 
@@ -280,66 +219,58 @@ async function runTerminalStory(runId) {
     const screen = document.getElementById("terminalScreen");
     if (!output || !missionArea || !acceptButton || !screen) return;
 
-    // The old monitor powers on first; only then does the first script line appear.
-    await terminalDelay(740);
+    // Give the newly displayed terminal a full second of quiet before its first line.
+    // This is a pause only; no unrequested power-on effect or sound is added.
+    await terminalDelay(1000);
     if (!terminalIsCurrent(runId)) return;
-    screen.classList.remove("is-booting");
 
+    // Opening transcript: only terminal text is typed, with fan + synced key ticks.
     void startTerminalTypingAudio();
     const openingDone = await typeTerminalLines(output, TERMINAL_OPENING_LINES, runId, 39);
     if (!openingDone || !terminalIsCurrent(runId)) return;
-    stopTerminalTypingAudio();
 
-    // Let the final click tick die out, then clear the display and hold exactly
-    // three seconds of silence with no story copy or active audio.
-    await terminalDelay(60);
+    // Script: “Three seconds of silence.” Stop fan/keying and let any synthetic
+    // fallback hum finish its short decay, then hold a full three silent seconds.
+    stopTerminalTypingAudio();
+    await terminalDelay(260);
     if (!terminalIsCurrent(runId)) return;
-    output.replaceChildren();
-    output.scrollTop = 0;
-    screen.classList.add("is-silent");
     await terminalDelay(3000);
     if (!terminalIsCurrent(runId)) return;
-    screen.classList.remove("is-silent");
-    screen.classList.add("is-recovery-wake");
-    await terminalDelay(420);
-    if (!terminalIsCurrent(runId)) return;
-    screen.classList.remove("is-recovery-wake");
 
-    // Recovery lines return on the same CRT, with the typewriter effect.
+    // Recovery transcript appears on the same continuously visible terminal.
+    // No unrequested screen-off/on animation or mechanical power cue is added.
     void startTerminalTypingAudio();
     const recoveryDone = await typeTerminalLines(output, TERMINAL_RECOVERY_LINES, runId, 31);
     if (!recoveryDone || !terminalIsCurrent(runId)) return;
-    stopTerminalTypingAudio();
 
-    // Give “was discovered.” a readable pause. Then let the old text fade into
-    // phosphor afterglow, briefly cycle the CRT, and only then begin the archive.
-    await terminalDelay(1150);
-    if (!terminalIsCurrent(runId)) return;
-    output.classList.add("is-dissolving");
-    screen.classList.add("is-chapter-transition");
-    await terminalDelay(760);
+    // Separate the recovery transcript from the archive output with a full second.
+    // Let the fan/keying stop, keep the recovered text visible, then reset the
+    // terminal content without a black-screen hold or invented power-cycle effect.
+    stopTerminalTypingAudio();
+    await terminalDelay(1000);
     if (!terminalIsCurrent(runId)) return;
     output.replaceChildren();
     output.scrollTop = 0;
-    output.classList.remove("is-dissolving");
-    screen.classList.remove("is-chapter-transition");
-    screen.classList.add("is-archive-wake");
-    await terminalDelay(610);
-    if (!terminalIsCurrent(runId)) return;
-    screen.classList.remove("is-archive-wake");
 
-    // A very quiet archive-room hum (supplied ambient asset + subtle synthesized
-    // low tone) begins under the recovered system text, before the heartbeat cue.
-    if (typeof startTerminalArchiveAmbient === "function") void startTerminalArchiveAmbient();
+    // Archive display: separators stay clean and only typed characters make key ticks.
     void startTerminalTypingAudio();
     const archiveDone = await typeTerminalLines(output, TERMINAL_ARCHIVE_LINES, runId, 28);
     if (!archiveDone || !terminalIsCurrent(runId)) return;
     stopTerminalTypingAudio();
 
+    // Digital Note: low-frequency hum + one deep double-beat cue, then silence.
+    // The CSS breathing/glow remains on the CTA until the user accepts the mission.
     await terminalDelay(420);
     if (!terminalIsCurrent(runId)) return;
     missionArea.hidden = false;
-    void startTerminalHeartbeat();
+    void startTerminalHeartbeat(() => {
+        if (!terminalIsCurrent(runId)) return;
+        // This class owns the persistent visual glow; it is not tied to audio
+        // playback. The heartbeat class is temporary and syncs only the two beats.
+        acceptButton.classList.remove("is-heartbeat-playing", "is-heartbeat-complete", "is-mission-ready");
+        void acceptButton.offsetWidth;
+        acceptButton.classList.add("is-mission-ready", "is-heartbeat-playing");
+    });
     acceptButton.addEventListener("click", () => acceptTerminalMission(runId), { once: true });
 }
 
@@ -358,6 +289,7 @@ async function acceptTerminalMission(runId) {
     }
 
     if (typeof stopTerminalAudio === "function") stopTerminalAudio();
+    if (button) button.classList.remove("is-heartbeat-playing");
     transition.hidden = false;
     transition.classList.add("is-flashing");
     await terminalDelay(300);
@@ -368,12 +300,12 @@ async function acceptTerminalMission(runId) {
     transition.classList.add("is-assignment-visible");
     if (assignmentCard) assignmentCard.classList.add("is-revealed");
 
-    window.THA = window.THA || {};
-    window.THA.identityAssigned = true;
-    try {
-        window.localStorage.setItem("thaIdentityAssigned", "true");
-    } catch (error) {
-        console.info("Identity is assigned for this session, but localStorage is unavailable.");
+    if (window.THAIdentity) {
+        window.THAIdentity.assign();
+    } else {
+        window.THA = window.THA || {};
+        window.THA.identityAssigned = true;
+        try { window.localStorage.setItem("thaIdentityAssigned", "true"); } catch (_) {}
     }
 
     // REC cue, a brief silence, then the persistent badge. Keep the assignment
@@ -381,22 +313,21 @@ async function acceptTerminalMission(runId) {
     if (typeof playTerminalRecCue === "function") playTerminalRecCue();
     await terminalDelay(900);
     if (!terminalIsCurrent(runId)) return;
-    ensureTHAIdentityBadge().hidden = false;
+    window.THAIdentity?.show();
+    // The assignment card is visible for 3 seconds after the 300 ms white flash.
+    // The badge appears after 900 ms; the remaining 2100 ms completes the hold.
     await terminalDelay(2100);
     if (!terminalIsCurrent(runId)) return;
 
-    if (typeof router !== "undefined" && router && typeof router.navigateTo === "function") {
-        document.documentElement.classList.remove("tha-terminal-active");
-        document.body.classList.remove("tha-terminal-active");
-        router.navigateTo("menu");
-    } else if (typeof navigateTo === "function") {
-        document.documentElement.classList.remove("tha-terminal-active");
-        document.body.classList.remove("tha-terminal-active");
-        navigateTo("menu");
-    } else {
-        console.error('THE HUMAN ARCHIVE: route "menu" was not found after mission acceptance.');
+    const navigated = window.THANavigation
+        ? window.THANavigation.goTo("menu")
+        : (typeof router !== "undefined" && router && typeof router.navigateTo === "function"
+            ? router.navigateTo("menu")
+            : false);
+
+    if (!navigated) {
         transition.classList.add("route-error");
-        const status = transition.querySelector(".assignment-overline");
+        const status = transition.querySelector(".assignment-status");
         if (status) status.textContent = 'IDENTITY ASSIGNED · ROUTE "menu" NOT FOUND';
         terminalTransitioning = false;
     }
