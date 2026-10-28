@@ -5,9 +5,10 @@
 // scripts call these shared functions so two Audio objects cannot overlap.
 // Load this script ONCE, before splash.js and terminal.js.
 //
-// Optional assets in assets/audio/:
-//   ambient-hum.mp3       Splash ambience; reused quietly in the Terminal
-//   fan.mp3               Optional terminal machine-fan bed while text is typed
+// Required assets in assets/audio/:
+//   ambient-hum.mp3    Splash ambience; reused quietly in the Terminal
+//   heartbeat.mp3      One double-thump cue at the mission prompt (single cycle)
+//   fan.mp3            Terminal machine-fan bed while text is typed
 //
 // Character-synchronized key clicks and the REC cue use Web Audio. The heartbeat
 // uses a dedicated, rounded double-thump audio asset so it does not sound like beeps.
@@ -32,6 +33,7 @@ window.THA.openingAudioStatus = {
 };
 
 // Cancel token lets the mission click stop a two-play heartbeat sequence at once.
+let thaSplashPlayPromise = null;
 let thaHeartbeatSequenceId = 0;
 let thaHeartbeatCancelPending = null;
 
@@ -40,6 +42,12 @@ let thaHeartbeatCancelPending = null;
 let thaKeyAudioContext = null;
 let thaKeyNoiseBuffer = null;
 let thaArchiveDroneNodes = [];
+// Sequence owners prevent a late media.play() resolution from restarting audio
+// after a scene has already moved to its documented silence/next route.
+let thaTerminalTypingSequenceId = 0;
+let thaTerminalTypingOwner = null;
+let thaArchiveAmbientSequenceId = 0;
+let thaArchiveAmbientOwner = null;
 let thaHeartbeatNodes = []; // Only used by the asset-failure audio-buffer fallback.
 let thaHeartbeatTimer = null;
 const thaAudioFadeTokens = new WeakMap();
@@ -132,7 +140,9 @@ function getSplashAudio() {
  * browser blocked autoplay. `fromMouseMovement` bypasses a pending page-load
  * attempt so a real interaction-triggered retry is not ignored.
  */
-async function startSplashAudio(fromMouseMovement = false) {
+async function startSplashAudio() {
+    // All callers share one in-flight play attempt. Pointer movement cannot start
+    // multiple concurrent play()/fade operations while the browser is deciding.
     const audio = getSplashAudio();
     const status = window.THA.openingAudioStatus;
 
@@ -140,46 +150,57 @@ async function startSplashAudio(fromMouseMovement = false) {
         status.playing = true;
         return true;
     }
-    if (status.attempting && !fromMouseMovement) return false;
-    if (!fromMouseMovement) status.attempting = true;
+    if (thaSplashPlayPromise) return thaSplashPlayPromise;
 
-    const shouldFadeIn = status.playing === false && audio.currentTime < 0.08;
-    if (shouldFadeIn) audio.volume = 0.001;
-    try {
-        await audio.play();
-        // If navigation happened during a pending play(), never restart Splash audio over Terminal.
-        if (window.THA.openingAudio !== audio) {
-            audio.pause();
-            return false;
-        }
-        status.playing = true;
-        status.blocked = false;
-        status.failed = false;
-        if (shouldFadeIn) {
-            await fadeTHAAudioVolume(audio, 0.42, 560, () => window.THA.openingAudio === audio && !audio.paused);
-        } else {
-            audio.volume = 0.42;
-        }
-        return true;
-    } catch (error) {
-        // A concurrent attempt may have succeeded despite this attempt rejecting.
-        if (window.THA.openingAudio === audio && !audio.paused) {
+    status.attempting = true;
+    const attempt = (async () => {
+        const shouldFadeIn = status.playing === false && audio.currentTime < 0.08;
+        if (shouldFadeIn) audio.volume = 0.001;
+
+        try {
+            await audio.play();
+            // Navigation may stop/release this audio while play() is still pending.
+            if (window.THA.openingAudio !== audio) {
+                audio.pause();
+                return false;
+            }
+
             status.playing = true;
             status.blocked = false;
             status.failed = false;
+            if (shouldFadeIn) {
+                await fadeTHAAudioVolume(audio, 0.42, 560, () => window.THA.openingAudio === audio && !audio.paused);
+            } else {
+                audio.volume = 0.42;
+            }
             return true;
+        } catch (error) {
+            // Another event may have caused playback to succeed despite a rejected promise.
+            if (window.THA.openingAudio === audio && !audio.paused) {
+                status.playing = true;
+                status.blocked = false;
+                status.failed = false;
+                return true;
+            }
+
+            status.playing = false;
+            if (error && error.name === "NotAllowedError") {
+                status.blocked = true;
+                // Autoplay restrictions are expected in browsers; this is not a fatal error.
+            } else {
+                status.failed = true;
+                console.error("Splash ambience failed to start:", error);
+            }
+            return false;
         }
-        status.playing = false;
-        if (error && error.name === "NotAllowedError") {
-            status.blocked = true;
-            console.info("Splash ambience autoplay was restricted; retrying on mouse movement or another permitted interaction.");
-        } else {
-            status.failed = true;
-            console.error("Splash ambience failed to start:", error);
-        }
-        return false;
+    })();
+
+    thaSplashPlayPromise = attempt;
+    try {
+        return await attempt;
     } finally {
-        if (!fromMouseMovement) status.attempting = false;
+        if (thaSplashPlayPromise === attempt) thaSplashPlayPromise = null;
+        status.attempting = false;
     }
 }
 
@@ -271,22 +292,32 @@ function stopTHALowFrequencyDrone() {
 
 async function startTerminalArchiveAmbient() {
     const hum = getTerminalArchiveHum();
+    const sequenceId = ++thaArchiveAmbientSequenceId;
+    thaArchiveAmbientOwner = sequenceId;
     hum.loop = true;
     let mp3Started = false;
     try {
         if (hum.paused) {
             hum.volume = 0.001;
             await hum.play();
+            // A scene may have been stopped while play() was pending. Do not
+            // revive its ambience after the route has moved on.
+            if (thaArchiveAmbientOwner !== sequenceId) {
+                if (thaArchiveAmbientOwner === null) stopTHATrack(hum);
+                return false;
+            }
             mp3Started = true;
             // Let the ambience and drone rise while the heartbeat cue starts,
             // rather than delaying the heartbeat until the fade is complete.
-            void fadeTHAAudioVolume(hum, 0.18, 520, () => window.THA.archiveHum === hum && !hum.paused);
+            void fadeTHAAudioVolume(hum, 0.18, 520, () => window.THA.archiveHum === hum && !hum.paused && thaArchiveAmbientOwner === sequenceId);
         } else {
             mp3Started = true;
         }
     } catch (error) {
+        if (thaArchiveAmbientOwner !== sequenceId) return false;
         console.warn("Supplied archive ambient audio was blocked or failed:", error);
     }
+    if (thaArchiveAmbientOwner !== sequenceId) return false;
     const droneStarted = startTHALowFrequencyDrone();
     return mp3Started || droneStarted;
 }
@@ -300,6 +331,8 @@ async function fadeOutTerminalArchiveAmbient(durationMs = 340) {
 }
 
 function stopTerminalArchiveAmbient() {
+    ++thaArchiveAmbientSequenceId;
+    thaArchiveAmbientOwner = null;
     stopTHATrack(window.THA.archiveHum);
     stopTHALowFrequencyDrone();
 }
@@ -341,9 +374,18 @@ function unlockTHAAudioContext() {
 /** Fan + character-synchronised keyboard ticks while text is actually typing. */
 async function startTerminalTypingAudio() {
     const sounds = getTerminalSounds();
+    const sequenceId = ++thaTerminalTypingSequenceId;
+    thaTerminalTypingOwner = sequenceId;
     sounds.fan.loop = true;
     sounds.fan.volume = 0.30;
     const fanStarted = await playTHATrack(sounds.fan, true);
+
+    // A delayed play() rejection must not start a fallback drone after the
+    // three-second silence timer has already begun.
+    if (thaTerminalTypingOwner !== sequenceId) {
+        if (thaTerminalTypingOwner === null) stopTHATrack(sounds.fan);
+        return false;
+    }
     // A soft synthetic machine hum is the fallback when assets/audio/fan.mp3
     // is missing or the browser refuses the media file.
     if (!fanStarted) startTHALowFrequencyDrone();
@@ -352,12 +394,28 @@ async function startTerminalTypingAudio() {
 
 /** Stop terminal fan-bed and any fallback drone between scripted sound phases. */
 function stopTerminalTypingAudio() {
+    ++thaTerminalTypingSequenceId;
+    thaTerminalTypingOwner = null;
     const sounds = window.THA.terminalSounds;
     if (sounds) stopTHATrack(sounds.fan);
     stopTHALowFrequencyDrone();
 }
 
-/** Get the authored two-thump cue; a single dedicated clip sounds rounder than raw oscillators. */
+/** Stop typing audio and wait until any fallback drone is fully silent. */
+function stopTerminalTypingAudioAndWaitForSilence() {
+    const fallbackDroneWasActive = thaArchiveDroneNodes.length > 0;
+    stopTerminalTypingAudio();
+    // The drone's gain reaches silence at 220 ms and its nodes stop at 250 ms.
+    return fallbackDroneWasActive
+        ? new Promise((resolve) => window.setTimeout(resolve, 270))
+        : Promise.resolve();
+}
+
+/**
+ * Get the production two-thump cue. The full uploaded source repeated the same
+ * beat cycle; assets/audio/heartbeat.mp3 contains only one authored cycle, while
+ * assets/audio/source/heartbeat-original-full.mp3 preserves the supplied source.
+ */
 function getTerminalHeartbeatCue() {
     if (!window.THA.heartbeatCueAudio) {
         window.THA.heartbeatCueAudio = createTHAAudio(THA_HEARTBEAT_CUE_PATH, {
@@ -369,11 +427,11 @@ function getTerminalHeartbeatCue() {
 }
 
 /**
- * Fallback cue built as a short audio buffer if the WAV asset cannot play.
- * It uses soft, decaying low-mid thumps (not sustained oscillator beeps).
+ * Fallback cue mirrors the supplied one-cycle heartbeat asset: two deep thumps,
+ * approximately 250 ms apart, followed by a short silent tail.
  */
 function createTHAHeartbeatFallbackBuffer(context) {
-    const duration = 2.25;
+    const duration = 1.25;
     const sampleRate = context.sampleRate;
     const frameCount = Math.floor(sampleRate * duration);
     const buffer = context.createBuffer(1, frameCount, sampleRate);
@@ -391,8 +449,9 @@ function createTHAHeartbeatFallbackBuffer(context) {
     }
 
     const beats = [
-        { start: 0.075, length: 0.56, strength: 1.0, f0: 76, f1: 43 },
-        { start: 0.615, length: 0.43, strength: 0.78, f0: 88, f1: 48 }
+        // The uploaded recording's strongest low-frequency peaks are near 0.07 s and 0.32 s.
+        { start: 0.055, length: 0.25, strength: 1.0, f0: 76, f1: 43 },
+        { start: 0.305, length: 0.30, strength: 0.78, f0: 84, f1: 46 }
     ];
     let peak = 0;
     for (let i = 0; i < frameCount; i += 1) {
@@ -480,8 +539,9 @@ function playTHASyncedHeartbeat(onStart = () => {}) {
             if (settled || started) return;
             started = true;
             onStart();
-            // Safety timeout for browsers that fail to fire `ended` reliably.
-            thaHeartbeatTimer = window.setTimeout(() => finish(true), 2600);
+            // The supplied double-beat clip is about one second; avoid leaving the hum
+            // running for several extra seconds if a browser misses the media `ended` event.
+            thaHeartbeatTimer = window.setTimeout(() => finish(true), 1450);
         };
         const useFallback = () => {
             if (settled || usingFallback) return;
@@ -493,13 +553,14 @@ function playTHASyncedHeartbeat(onStart = () => {}) {
                 // if this browser blocks both media playback and Web Audio.
                 markStarted();
                 if (thaHeartbeatTimer !== null) window.clearTimeout(thaHeartbeatTimer);
-                thaHeartbeatTimer = window.setTimeout(() => finish(false), 2250);
+                thaHeartbeatTimer = window.setTimeout(() => finish(false), 1500);
             }
         };
 
         thaHeartbeatCancelPending = cancel;
         heartbeatAudio.loop = false;
-        heartbeatAudio.volume = 0.96;
+        // Keep the low thumps deep and clear without making the recording harsh.
+        heartbeatAudio.volume = 0.84;
         heartbeatAudio.addEventListener("ended", onAudioEnded, { once: true });
 
         const startPlayback = async () => {
@@ -526,7 +587,7 @@ function playTHASyncedHeartbeat(onStart = () => {}) {
     });
 }
 
-/** Hum begins with the mission prompt; one double-beat follows, then both fade to silence. */
+/** Low-frequency hum starts with the mission prompt; one double-beat follows, then the sound fades to silence. */
 async function startTerminalHeartbeat(onStart = () => {}) {
     stopTerminalTypingAudio();
     stopTerminalHeartbeat();
@@ -550,7 +611,7 @@ async function startTerminalHeartbeat(onStart = () => {}) {
     if (button) button.classList.remove("is-heartbeat-playing");
 
     // AUDIO AND VISUALS ARE SEPARATE STATES:
-    // The sound controller plays one double-beat, then fades the hum to silence.
+    // Play “once, twice”, then fade the low-frequency hum completely to silence.
     // It removes only the temporary beat-synchronized animation class. The
     // independent `is-mission-ready` class keeps a soft visual glow pulsing until
     // the user clicks ACCEPT THE MISSION.
@@ -587,6 +648,12 @@ function stopTerminalAudio() {
     stopTerminalTypingAudio();
     stopTerminalHeartbeat();
     stopTerminalArchiveAmbient();
+}
+
+/** Stop every sound owned by the opening sequence before a route transition. */
+function stopAllOpeningAudio() {
+    stopSplashAudio();
+    stopTerminalAudio();
 }
 
 // ----------------------- RECORDING DEVICE CUE -----------------------

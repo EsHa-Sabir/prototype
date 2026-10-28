@@ -3,22 +3,23 @@
 // The map and unlock sequence follow the Complete Script and Digital Brief.
 // =============================================================
 
+// -----------------------------------------------------------------------------
+// Progress state and section totals
+// -----------------------------------------------------------------------------
 const THA_MENU_PROGRESS_KEY = "thaProgress";
 
 // Keep these route values aligned with the names in your existing router.
-const THA_MENU_ROUTES = {
-    // These names are present in the router.js supplied with this project.
+const THA_MENU_ROUTES = Object.freeze({
     moon: "moonMap",
     mars: "marsMap",
-    your: "yourArchive",
+    other: "otherTraces",
+    hidden: "hiddenRecords",
+    // The 99% interlude precedes the personal archive in the documented flow.
+    your: "archive99"
+});
 
-    // The supplied router has no dedicated landing routes for these sections.
-    // Set each value to the correct section-index route when that page exists.
-    other: null,
-    hidden: null
-};
-
-const THA_MENU_TOTALS = { moon: 3, mars: 4, other: 2, hidden: 2 };
+const THA_MENU_TOTALS = Object.freeze({ moon: 3, mars: 4, other: 2, hidden: 2 });
+const THA_MENU_PRIMARY_TOTAL = THA_MENU_TOTALS.moon + THA_MENU_TOTALS.mars + THA_MENU_TOTALS.other;
 
 function readTHAMenuProgress() {
     const progress = { moon: 0, mars: 0, other: 0, hidden: 0 };
@@ -85,14 +86,18 @@ function getTHAActiveSection(progress, unlocked) {
     return "moon";
 }
 
+// -----------------------------------------------------------------------------
+// Menu navigation
+// -----------------------------------------------------------------------------
 function navigateTHAMenuRoute(routeKey) {
     const routeName = THA_MENU_ROUTES[routeKey];
     const status = document.getElementById("thaMenuNotice");
 
-    // Avoid guessing a route or moving the badge when no section page exists yet.
-    if (!routeName) {
+    // Every visible section maps to a named route. The router renders a temporary
+    // bridge when a later chapter is not part of this opening-screen build.
+    if (typeof routeName !== "string" || !routeName) {
         if (status) {
-            status.textContent = `SECTION NOT CONNECTED: Add a landing-page route for ${routeKey.toUpperCase()} in THA_MENU_ROUTES.`;
+            status.textContent = `ROUTE NOT CONFIGURED: ${String(routeKey).toUpperCase()}`;
             status.classList.add("is-visible");
         }
         return false;
@@ -100,11 +105,7 @@ function navigateTHAMenuRoute(routeKey) {
 
     // Move the shared badge out of the sticky header before a route replaces #app.
     window.THAIdentity?.moveToBody();
-    const navigated = window.THANavigation
-        ? window.THANavigation.goTo(routeName)
-        : (typeof router !== "undefined" && router && typeof router.navigateTo === "function"
-            ? router.navigateTo(routeName)
-            : false);
+    const navigated = window.THANavigation?.goTo(routeName) === true;
     if (navigated) return true;
 
     // Restore the badge if the router rejected the route.
@@ -116,6 +117,9 @@ function navigateTHAMenuRoute(routeKey) {
     return false;
 }
 
+// -----------------------------------------------------------------------------
+// Main Menu rendering and event binding
+// -----------------------------------------------------------------------------
 function renderMenu() {
     const app = document.getElementById("app");
     if (!app) {
@@ -128,8 +132,7 @@ function renderMenu() {
 
     // Main Menu is intentionally silent: stop sounds from earlier screens,
     // but do not start or play any audio from this screen.
-    if (typeof stopSplashAudio === "function") stopSplashAudio();
-    if (typeof stopTerminalAudio === "function") stopTerminalAudio();
+    if (typeof stopAllOpeningAudio === "function") stopAllOpeningAudio();
     document.documentElement.classList.remove("splash-no-scroll", "tha-terminal-active");
     document.body.classList.remove("splash-no-scroll", "tha-terminal-active");
 
@@ -140,33 +143,42 @@ function renderMenu() {
     const cards = [
         {
             key: "moon", icon: "🌙", title: "MOON ARCHIVE",
-            count: `${progress.moon} / 3`, unlocked: unlocked.moon,
+            count: `${progress.moon} / ${THA_MENU_TOTALS.moon}`, unlocked: unlocked.moon,
+            complete: progress.moon >= THA_MENU_TOTALS.moon,
             active: active === "moon",
-            status: progress.moon === 3 ? "RECOVERED // 3 RECORDS COMPLETE" : "FIRST RECOVERY ZONE // 3 RECORDS"
+            status: progress.moon === THA_MENU_TOTALS.moon
+                ? `RECOVERED // ${THA_MENU_TOTALS.moon} RECORDS COMPLETE`
+                : `FIRST RECOVERY ZONE // ${THA_MENU_TOTALS.moon} RECORDS`
         },
         {
             key: "mars", icon: "🔴", title: "MARS ARCHIVE",
-            count: `${progress.mars} / 4`, unlocked: unlocked.mars,
+            count: `${progress.mars} / ${THA_MENU_TOTALS.mars}`, unlocked: unlocked.mars,
+            complete: progress.mars >= THA_MENU_TOTALS.mars,
             active: active === "mars",
             status: unlocked.mars
-                ? (progress.mars === 4 ? "RECOVERED // 4 RECORDS COMPLETE" : "MARTIAN SURFACE // 4 RECORDS")
+                ? (progress.mars === THA_MENU_TOTALS.mars
+                    ? `RECOVERED // ${THA_MENU_TOTALS.mars} RECORDS COMPLETE`
+                    : `MARTIAN SURFACE // ${THA_MENU_TOTALS.mars} RECORDS`)
                 : "LOCKED // COMPLETE MOON ARCHIVE"
         },
         {
             key: "other", icon: "🛰️", title: "OTHER TRACES",
-            count: `${progress.other} / 2`, unlocked: unlocked.other,
+            count: `${progress.other} / ${THA_MENU_TOTALS.other}`, unlocked: unlocked.other,
+            complete: progress.other >= THA_MENU_TOTALS.other,
             active: active === "other",
-            status: !unlocked.other ? "LOCKED // COMPLETE MARS ARCHIVE" : (THA_MENU_ROUTES.other ? "DEEP SPACE // 2 RECORDS" : "SECTION ROUTE NOT CONNECTED")
+            status: !unlocked.other ? "LOCKED // COMPLETE MARS ARCHIVE" : `DEEP SPACE // ${THA_MENU_TOTALS.other} RECORDS`
         },
         {
             key: "hidden", icon: "🔒", title: "HIDDEN RECORDS",
-            count: unlocked.hidden ? `${progress.hidden} / 2` : "LOCKED", unlocked: unlocked.hidden,
+            count: unlocked.hidden ? `${progress.hidden} / ${THA_MENU_TOTALS.hidden}` : "LOCKED", unlocked: unlocked.hidden,
+            complete: progress.hidden >= THA_MENU_TOTALS.hidden,
             active: active === "hidden",
-            status: !unlocked.hidden ? "LOCKED // FINISH OTHER TRACES" : (THA_MENU_ROUTES.hidden ? "UNIDENTIFIED HARDWARE // 2 RECORDS" : "SECTION ROUTE NOT CONNECTED")
+            status: !unlocked.hidden ? "LOCKED // FINISH OTHER TRACES" : `UNIDENTIFIED HARDWARE // ${THA_MENU_TOTALS.hidden} RECORDS`
         },
         {
             key: "your", icon: "🫵", title: "YOUR ARCHIVE",
             count: unlocked.your ? "UNLOCKED" : "LOCKED", unlocked: unlocked.your,
+            complete: false,
             active: active === "your", personal: true,
             status: unlocked.your ? "PERSONAL ARCHIVE // READY" : "LOCKED // YOUR CONTRIBUTION IS THE FINAL TRACE"
         }
@@ -198,7 +210,6 @@ function renderMenu() {
                     <p class="tha-menu-eyebrow">ARCHIVE NAVIGATION <span>//</span> YEAR 2126</p>
                     <h1 id="thaMenuTitle">THE HUMAN <span>ARCHIVE</span></h1>
                     <div class="tha-menu-rule" aria-hidden="true"><span></span><i></i><span></span></div>
-                    <p class="tha-menu-intro">NINE RECORDS. NONE OF THEM ARE OPEN.</p>
                 </section>
 
                 <section class="tha-menu-map-panel" aria-label="Archive sections and recovery progress">
@@ -264,7 +275,7 @@ function renderMenu() {
 
             <footer class="tha-menu-bottom-meta">
                 <span>STATION: EARTH ORBIT</span>
-                <span>RECOVERY ${coreRecovered === 9 ? "READY FOR HIDDEN RECORDS" : "IN PROGRESS"}</span>
+                <span>RECOVERY ${coreRecovered === THA_MENU_PRIMARY_TOTAL ? "READY FOR HIDDEN RECORDS" : "IN PROGRESS"}</span>
                 <span>THA // 2126</span>
             </footer>
         </section>
@@ -281,7 +292,8 @@ function renderMenu() {
     });
 }
 
-function renderTHAMenuCard({ key, icon, title, count, unlocked, active = false, personal = false, status = "", index = 0 }) {
+// Render one section card. The template uses only values prepared above.
+function renderTHAMenuCard({ key, icon, title, count, unlocked, complete = false, active = false, personal = false, status = "", index = 0 }) {
     const classes = [
         "tha-menu-card",
         active ? "is-active" : "",
@@ -289,7 +301,7 @@ function renderTHAMenuCard({ key, icon, title, count, unlocked, active = false, 
         personal ? "is-personal" : ""
     ].filter(Boolean).join(" ");
     const iconContent = icon === "🛰️" ? "🛰" : icon;
-    const trailing = unlocked ? (count.includes("3 / 3") || count.includes("4 / 4") || count.includes("2 / 2") ? "✓" : "↗") : "⌑";
+    const trailing = unlocked ? (complete ? "✓" : "↗") : "⌑";
     const iconMark = iconContent === "🔴" ? "mars" : key;
     return `
         <button type="button" class="${classes}" data-tha-menu-route="${key}" style="--card-index:${index}" ${unlocked ? "" : "disabled"} aria-label="${title}, ${count}. ${status}">

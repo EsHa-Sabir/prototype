@@ -1,7 +1,7 @@
-// =============================================================
+// =============================================================================
 // THE HUMAN ARCHIVE — APPLICATION ENTRY POINT
-// Starts the SPA once, after all classic scripts have been loaded.
-// =============================================================
+// Start the single-page app once, after its core scripts have loaded.
+// =============================================================================
 
 (() => {
     let started = false;
@@ -27,7 +27,7 @@
             return;
         }
 
-        // Splash is the first screen. The Terminal begins only after the user enters.
+        // The opening experience always starts on Splash; Terminal begins on user action.
         router.navigateTo("splash");
     }
 

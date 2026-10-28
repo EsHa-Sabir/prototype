@@ -1,0 +1,68 @@
+/* Temporary fallback styling only; opening screen styles are unchanged. */
+.tha-route-bridge {
+    display: grid;
+    place-items: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: clamp(24px, 6vw, 72px);
+    color: var(--tha-green-bright);
+    background: var(--tha-bg);
+    font-family: var(--tha-font-mono);
+}
+.tha-route-bridge-panel {
+    width: min(680px, 100%);
+    padding: clamp(24px, 5vw, 48px);
+    border: 1px solid rgba(131, 224, 151, .28);
+    background: linear-gradient(145deg, rgba(8, 22, 12, .98), rgba(2, 6, 4, .98));
+    box-shadow: 0 0 42px rgba(72, 192, 99, .07), inset 0 0 34px rgba(72, 192, 99, .025);
+}
+.tha-route-bridge-eyebrow {
+    margin: 0 0 22px;
+    color: var(--tha-green-muted);
+    font-size: .68rem;
+    letter-spacing: .17em;
+    line-height: 1.8;
+}
+.tha-route-bridge h1 {
+    margin: 0 0 12px;
+    color: var(--tha-green-bright);
+    font-family: var(--tha-font-display);
+    font-size: clamp(1.45rem, 4vw, 2.25rem);
+    font-weight: 700;
+    letter-spacing: .06em;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+.tha-route-bridge-detail {
+    margin: 0 0 24px;
+    color: var(--tha-green);
+    font-size: .9rem;
+    line-height: 1.8;
+}
+.tha-route-bridge-message {
+    max-width: 54ch;
+    margin: 0 0 30px;
+    color: var(--tha-green-muted);
+    font-size: .83rem;
+    line-height: 1.9;
+}
+.tha-route-bridge-button {
+    min-height: 44px;
+    padding: 12px 16px;
+    border: 1px solid rgba(169, 239, 186, .55);
+    color: var(--tha-green-bright);
+    background: rgba(22, 58, 32, .14);
+    font: inherit;
+    font-size: .72rem;
+    letter-spacing: .1em;
+    cursor: pointer;
+    transition: background-color 180ms ease, border-color 180ms ease;
+}
+.tha-route-bridge-button:hover,
+.tha-route-bridge-button:focus-visible {
+    border-color: var(--tha-green-bright);
+    background: rgba(22, 58, 32, .3);
+}
+@media (prefers-reduced-motion: reduce) {
+    .tha-route-bridge-button { transition: none; }
+}

@@ -5,6 +5,7 @@
 // not on-screen story copy.
 // =============================================================
 
+// A run ID invalidates pending timers when Terminal is re-rendered or left.
 let terminalRunId = 0;
 let terminalTransitioning = false;
 
@@ -57,8 +58,13 @@ function terminalIsCurrent(runId) {
     return runId === terminalRunId && Boolean(document.getElementById("terminalScreen"));
 }
 
+// Keep all timed waits in one place so sequence timing is easy to audit.
 function terminalDelay(milliseconds) {
     return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+}
+
+function terminalPrefersReducedMotion() {
+    return Boolean(window.matchMedia?.("(prefers-reduced-motion: reduce)").matches);
 }
 
 function getTerminalCharacterDelay(character, baseSpeed) {
@@ -69,6 +75,12 @@ function getTerminalCharacterDelay(character, baseSpeed) {
 
 function scrollTerminalOutput(target) {
     target.scrollTop = target.scrollHeight;
+}
+
+// Keep visual typewriter text and screen-reader announcements synchronized.
+function announceTerminalLine(text) {
+    const announcement = document.getElementById("terminalAnnouncement");
+    if (announcement) announcement.textContent = text;
 }
 
 async function typeTerminalLines(target, lines, runId, defaultSpeed = 30) {
@@ -100,7 +112,18 @@ async function typeTerminalLines(target, lines, runId, defaultSpeed = 30) {
         if (item.static) {
             textNode.textContent = item.text;
             scrollTerminalOutput(target);
+            announceTerminalLine(item.text);
             await terminalDelay(item.pauseAfter ?? 150);
+            continue;
+        }
+
+        // With reduced motion enabled, show each line immediately and skip key ticks.
+        // Scripted pauses remain intact because they carry story meaning, not animation.
+        if (terminalPrefersReducedMotion()) {
+            textNode.textContent = item.text;
+            scrollTerminalOutput(target);
+            announceTerminalLine(item.text);
+            await terminalDelay(item.pauseAfter ?? 120);
             continue;
         }
 
@@ -118,6 +141,7 @@ async function typeTerminalLines(target, lines, runId, defaultSpeed = 30) {
             await terminalDelay(getTerminalCharacterDelay(character, speed));
         }
 
+        announceTerminalLine(item.text);
         await terminalDelay(item.pauseAfter ?? 120);
     }
 
@@ -137,8 +161,7 @@ function renderTerminal() {
     const runId = terminalRunId;
     terminalTransitioning = false;
 
-    if (typeof stopSplashAudio === "function") stopSplashAudio();
-    if (typeof stopTerminalAudio === "function") stopTerminalAudio();
+    if (typeof stopAllOpeningAudio === "function") stopAllOpeningAudio();
 
     // The Terminal owns the viewport until the Main Menu takes over.
     window.THAIdentity?.hide();
@@ -168,7 +191,8 @@ function renderTerminal() {
                     <div class="terminal-glass-glow" aria-hidden="true"></div>
                     <main class="terminal-stage">
                         <section class="terminal-console" id="terminalConsole" aria-label="Terminal output">
-                            <div class="terminal-output" id="terminalOutput" aria-live="polite" aria-atomic="false"></div>
+                            <div class="terminal-output" id="terminalOutput" aria-live="off" aria-atomic="false"></div>
+                            <p class="tha-sr-only" id="terminalAnnouncement" aria-live="polite" aria-atomic="true"></p>
                             <div class="terminal-mission-area" id="terminalMissionArea" hidden>
                                 <button type="button" id="acceptMission" class="terminal-mission-button">
                                     <span class="mission-bracket">[</span>
@@ -231,9 +255,11 @@ async function runTerminalStory(runId) {
 
     // Script: “Three seconds of silence.” Stop fan/keying and let any synthetic
     // fallback hum finish its short decay, then hold a full three silent seconds.
-    stopTerminalTypingAudio();
-    await terminalDelay(260);
-    if (!terminalIsCurrent(runId)) return;
+    if (typeof stopTerminalTypingAudioAndWaitForSilence === "function") {
+        await stopTerminalTypingAudioAndWaitForSilence();
+    } else {
+        stopTerminalTypingAudio();
+    }
     await terminalDelay(3000);
     if (!terminalIsCurrent(runId)) return;
 
@@ -258,8 +284,9 @@ async function runTerminalStory(runId) {
     if (!archiveDone || !terminalIsCurrent(runId)) return;
     stopTerminalTypingAudio();
 
-    // Digital Note: low-frequency hum + one deep double-beat cue, then silence.
-    // The CSS breathing/glow remains on the CTA until the user accepts the mission.
+    // Digital Note: low-frequency hum + one deep heartbeat cycle (“once, twice”), then silence.
+    // The CTA's first and second CSS pulses are synchronized to the two audio thumps;
+    // its softer mission-ready glow continues after the sound stops.
     await terminalDelay(420);
     if (!terminalIsCurrent(runId)) return;
     missionArea.hidden = false;
@@ -319,11 +346,7 @@ async function acceptTerminalMission(runId) {
     await terminalDelay(2100);
     if (!terminalIsCurrent(runId)) return;
 
-    const navigated = window.THANavigation
-        ? window.THANavigation.goTo("menu")
-        : (typeof router !== "undefined" && router && typeof router.navigateTo === "function"
-            ? router.navigateTo("menu")
-            : false);
+    const navigated = window.THANavigation?.goTo("menu") === true;
 
     if (!navigated) {
         transition.classList.add("route-error");

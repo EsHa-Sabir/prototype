@@ -8,8 +8,6 @@
 
 \============================================================= */
 
-
-
 .terminal-screen {
 
     --crt-green: #c4f4ce;
@@ -54,8 +52,6 @@
 
 }
 
-
-
 .terminal-room { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
 
 .terminal-room > div { position: absolute; }
@@ -91,8 +87,6 @@
     background: repeating-linear-gradient(0deg, transparent 0 78px, rgba(174,201,174,.028) 79px, transparent 81px 158px);
 
 }
-
-
 
 .terminal-wall-seams {
 
@@ -236,8 +230,6 @@
 
 .terminal-monitor-frame::after { right: 4px; }
 
-
-
 .terminal-monitor-bezel {
 
     position: relative;
@@ -328,8 +320,6 @@
 
 .terminal-control-group b { display: block; width: 12px; height: 6px; border: 1px solid #758176; border-radius: 5px; background: #202921; }
 
-
-
 /* The CRT glass is deliberately darker at the edges and softly glowing at its centre. */
 
 .terminal-glass {
@@ -366,6 +356,39 @@
 
     transition: border-color 500ms ease, background 500ms ease, box-shadow 500ms ease;
 
+}
+
+
+/* The story describes the old terminal screen as slowly flickering, like a machine breathing.
+   This is a visible phosphor brightness drift with occasional uneven dips—not a glitch,
+   screen shake, power-on, or power-off effect. It changes no geometry, colors, or typography.
+   The existing reduced-motion rules below disable these continuous animations when requested. */
+.terminal-screen:not(.is-silent) .terminal-glass {
+    animation: thaTerminalSlowFlicker 6.4s ease-in-out infinite;
+}
+
+.terminal-screen:not(.is-silent) .terminal-glass-glow {
+    animation: thaTerminalPhosphorBreath 6.4s ease-in-out infinite;
+}
+
+@keyframes thaTerminalSlowFlicker {
+    0%, 31%, 67%, 100% { filter: brightness(1); }
+    13% { filter: brightness(.90); }
+    18% { filter: brightness(.97); }
+    48% { filter: brightness(.86); }
+    53% { filter: brightness(.95); }
+    82% { filter: brightness(.90); }
+    88% { filter: brightness(.98); }
+}
+
+@keyframes thaTerminalPhosphorBreath {
+    0%, 31%, 67%, 100% { opacity: .52; }
+    13% { opacity: .40; }
+    18% { opacity: .49; }
+    48% { opacity: .38; }
+    53% { opacity: .48; }
+    82% { opacity: .41; }
+    88% { opacity: .50; }
 }
 
 .terminal-glass::before {
@@ -447,8 +470,6 @@
     mix-blend-mode: screen;
 
 }
-
-
 
 .terminal-stage {
 
@@ -574,7 +595,7 @@
 
 .terminal-output::-webkit-scrollbar-thumb { background: rgba(99,159,109,.36); border-radius: 4px; }
 
-.terminal-output > div { min-height: 1.45em; animation: thaTerminalLineIn .3s ease-out both; }
+.terminal-output > div { min-height: 1.45em; }
 
 .terminal-line-text { white-space: pre-wrap; }
 
@@ -608,8 +629,6 @@
 
 .terminal-discovered-line { color: #e7ffeb; text-shadow: 0 0 16px rgba(164,255,178,.2); }
 
-
-
 .terminal-inline-caret {
 
     display: inline-block;
@@ -629,8 +648,6 @@
     animation: thaTerminalCursor .95s steps(2, end) infinite;
 
 }
-
-
 
 /* Archive layout mirrors the terminal's monospaced source script. */
 
@@ -698,47 +715,27 @@
 
 .archive-call-line { padding-left: clamp(0px, 1.2vw, 10px); color: #e1ffe7; font-weight: 600; letter-spacing: .015em; }
 
-
-
 .terminal-mission-area {
 
     flex: 0 0 auto;
 
-    margin-top: clamp(6px, 1vh, 11px);
-
     padding-top: 0;
-
-    text-align: left;
-
-    animation: thaMissionArrival .72s ease-out both;
 
 }
 
 .terminal-mission-button {
 
-    display: inline-flex;
-
-    align-items: center;
-
-    justify-content: center;
-
     gap: clamp(9px, 1.7vw, 18px);
 
     min-height: 46px;
-
-    max-width: 100%;
 
     margin: 0;
 
     padding: 8px 12px;
 
-    border: 1px solid rgba(149,239,165,.55);
-
     border-radius: 2px;
 
     color: #e3ffe8;
-
-    background: linear-gradient(180deg, rgba(33,79,42,.34), rgba(4,20,8,.42));
 
     font: inherit;
 
@@ -752,15 +749,7 @@
 
     cursor: pointer;
 
-    position: relative;
-
-    box-shadow: inset 0 0 18px rgba(110,222,130,.08), 0 0 12px rgba(119,255,147,.10);
-
-    animation: none;
-
-    box-shadow: inset 0 0 18px rgba(110,222,130,.10), 0 0 12px rgba(119,255,147,.14);
-
-    transition: background .22s ease, border-color .22s ease, box-shadow .22s ease, transform .22s ease, filter .18s ease;
+    transition: .22s ease, border-color .22s ease, box-shadow .22s ease, transform .22s ease, filter .18s ease;
 
 }
 
@@ -782,25 +771,9 @@
 
 .terminal-mission-button:disabled { opacity: .58; cursor: wait; animation: none; }
 
-.terminal-mission-button.is-heartbeat-playing {
-
-    animation: thaHeartbeatGlow 1.55s ease-out both;
-
-}
-
-.terminal-mission-button.is-heartbeat-complete {
-
-    border-color: rgba(160,245,174,.7);
-
-    box-shadow: inset 0 0 16px rgba(110,222,130,.10), 0 0 13px rgba(119,255,147,.14);
-
-}
-
 .mission-bracket { color: #6dad7a; }
 
 .terminal-mission-divider { height: 1px; min-height: 1px; margin-top: 4px; color: transparent; font-size: 0; line-height: 1px; white-space: nowrap; overflow: hidden; background: linear-gradient(90deg, transparent, rgba(97,170,111,.48), transparent); }
-
-
 
 /* Deliberate blank screen, not a page transition. The room remains visible. */
 
@@ -822,13 +795,9 @@
 
 .terminal-screen.is-silent .terminal-monitor-frame { filter: brightness(.74); }
 
-
-
 /* A calm hold, phosphor dissolve, short CRT relay, and slow re-wake prevent
 
    the archive from popping in abruptly after “was discovered.” */
-
-.terminal-output.is-dissolving { opacity: 0; filter: blur(4px) brightness(1.7); transform: translateY(-2px) scale(.995); }
 
 .terminal-screen.is-recovery-wake .terminal-glass { animation: thaRecoveryWake .42s ease-out both; }
 
@@ -843,8 +812,6 @@
 .terminal-screen.is-archive-wake .terminal-glass-glow { animation: thaCRTGlowWake .61s ease-out both; }
 
 .terminal-screen.is-archive-wake .terminal-monitor-frame { animation: thaHousingSettle .61s ease-out both; }
-
-
 
 /* Acceptance transition: white flash, then a spare dark assignment screen. */
 
@@ -994,15 +961,9 @@
 
 .terminal-transition.route-error .assignment-overline { color: #ffd1a3; }
 
-
-
-
-
 @keyframes thaTerminalCursor { 0%, 48% { opacity: 1; } 49%, 100% { opacity: 0; } }
 
 @keyframes thaTerminalLineIn { from { opacity: .58; transform: translateY(2px); } to { opacity: 1; transform: translateY(0); } }
-
-
 
 @keyframes thaMonitorArrive { from { opacity: 0; transform: translateY(13px) scale(.986); filter: brightness(.72); } to { opacity: 1; transform: translateY(0) scale(1); filter: brightness(1); } }
 
@@ -1026,54 +987,6 @@
 
 @keyframes thaMissionArrival { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
 
-@keyframes thaHeartbeatGlow {
-
-    0%, 100% { filter: brightness(1); border-color: rgba(149,239,165,.55); box-shadow: inset 0 0 12px rgba(110,222,130,.05), 0 0 8px rgba(119,255,147,.08); }
-
-    2.5% { filter: brightness(1.35); border-color: rgba(220,255,226,1); box-shadow: inset 0 0 24px rgba(110,222,130,.20), 0 0 22px rgba(119,255,147,.46), 0 0 42px rgba(119,255,147,.22); }
-
-    15% { filter: brightness(1); border-color: rgba(149,239,165,.62); box-shadow: inset 0 0 12px rgba(110,222,130,.06), 0 0 9px rgba(119,255,147,.12); }
-
-    23.2% { filter: brightness(1); }
-
-    24.5% { filter: brightness(1.30); border-color: rgba(220,255,226,.98); box-shadow: inset 0 0 22px rgba(110,222,130,.18), 0 0 20px rgba(119,255,147,.40), 0 0 36px rgba(119,255,147,.18); }
-
-    38% { filter: brightness(1); border-color: rgba(149,239,165,.62); box-shadow: inset 0 0 12px rgba(110,222,130,.06), 0 0 9px rgba(119,255,147,.12); }
-
-}
-
-
-
-@keyframes thaMissionPulse {
-
-    0%, 100% {
-
-        border-color: rgba(149,239,165,.55);
-
-        filter: brightness(1);
-
-        box-shadow: inset 0 0 12px rgba(110,222,130,.05), 0 0 8px rgba(119,255,147,.08);
-
-    }
-
-    50% {
-
-        border-color: rgba(198,255,208,.98);
-
-        filter: brightness(1.14);
-
-        box-shadow:
-
-            inset 0 0 22px rgba(110,222,130,.16),
-
-            0 0 16px rgba(119,255,147,.28),
-
-            0 0 36px rgba(119,255,147,.18);
-
-    }
-
-}
-
 @keyframes thaTerminalWhiteFlash { 0% { opacity: 0; } 23% { opacity: 1; } 100% { opacity: 0; } }
 
 @keyframes thaAssignmentReveal { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -1081,8 +994,6 @@
 @keyframes thaIdentityOrbit { from { transform: rotate(0); } to { transform: rotate(360deg); } }
 
 @keyframes thaRECIndicator { 0%, 45% { opacity: 1; } 46%, 100% { opacity: .38; } }
-
-
 
 /* =============================================================
 
@@ -1097,8 +1008,6 @@
 @media (max-width: 700px) {
 
     .terminal-screen { padding: 0; }
-
-
 
     .terminal-monitor-frame {
 
@@ -1116,11 +1025,7 @@
 
     }
 
-
-
     .terminal-monitor-bezel { padding-inline: 8px; }
-
-    .terminal-stage { padding: 12px clamp(9px, 2.6vw, 18px) 10px; }
 
     .terminal-console { flex: 0 1 auto; height: auto; max-height: 100%; }
 
@@ -1128,53 +1033,17 @@
 
         flex: 0 1 auto;
 
-        max-height: min(70dvh, 500px);
-
         padding: 0 2px 2px 0;
-
-        font-size: clamp(.68rem, 2.5vw, .82rem);
-
-        line-height: 1.4;
 
         scrollbar-width: thin;
 
     }
 
-    .terminal-output > div { min-height: 1.38em; }
-
-    .terminal-year-line { font-size: clamp(1.15rem, 5.8vw, 1.55rem); }
-
     .terminal-years-line { font-size: clamp(.92rem, 3.8vw, 1.08rem); }
-
-    .archive-title-line {
-
-        font-size: clamp(.9rem, 4vw, 1.15rem);
-
-        letter-spacing: .045em;
-
-    }
 
     .archive-divider-line,
 
     .terminal-mission-divider { font-size: clamp(.39rem, 1.5vw, .54rem); }
-
-    .archive-question-line { font-size: clamp(.69rem, 2.5vw, .84rem); }
-
-    .terminal-mission-area { margin-top: 7px; }
-
-    .terminal-mission-button {
-
-        min-height: 42px;
-
-        padding: 7px 10px;
-
-        gap: 8px;
-
-        font-size: clamp(.62rem, 2.35vw, .74rem);
-
-        letter-spacing: .055em;
-
-    }
 
     .terminal-power-cluster { gap: 4px; margin-right: 6px; }
 
@@ -1198,8 +1067,6 @@
 
 }
 
-
-
 @media (max-width: 380px) {
 
     .terminal-monitor-frame {
@@ -1214,47 +1081,19 @@
 
     }
 
-
-
-    .terminal-stage { padding: 9px 7px 8px; }
-
-    .terminal-output {
-
-        max-height: min(70dvh, 440px);
-
-        font-size: clamp(.62rem, 2.9vw, .7rem);
-
-        line-height: 1.34;
-
-    }
-
-    .archive-title-line { font-size: .88rem; letter-spacing: .025em; }
-
     .archive-divider-line,
 
     .terminal-mission-divider { font-size: .39rem; }
 
-    .terminal-mission-area { margin-top: 5px; }
-
     .terminal-mission-button {
 
-        min-height: 40px;
-
         padding: 6px 7px;
-
-        gap: 6px;
-
-        font-size: .59rem;
-
-        letter-spacing: .035em;
 
     }
 
     .terminal-hardware-ports i { width: 7px; }
 
 }
-
-
 
 /* Short laptop windows keep the CRT and mission action within the viewport. */
 
@@ -1269,8 +1108,6 @@
         grid-template-rows: 23px minmax(0, 1fr) 24px;
 
     }
-
-
 
     .terminal-stage { padding-block: 6px; }
 
@@ -1288,8 +1125,6 @@
 
 }
 
-
-
 /* Compact landscape phones and short windows need a scrollable text pane. */
 
 @media (max-height: 480px) {
@@ -1301,8 +1136,6 @@
         grid-template-rows: 22px minmax(0, 1fr) 23px;
 
     }
-
-
 
     .terminal-stage { padding-block: 5px; }
 
@@ -1330,8 +1163,6 @@
 
 }
 
-
-
 @media (prefers-reduced-motion: reduce) {
 
     .terminal-screen *,
@@ -1352,10 +1183,6 @@
 
 }
 
-
-
-
-
 /* Final mobile polish: readable terminal transcript and no blank gap above the CTA. */
 
 @media (max-width: 700px) {
@@ -1364,31 +1191,15 @@
 
     .terminal-stage { padding-top: 10px; }
 
-    .terminal-output { max-height: calc(100dvh - 150px); line-height: 1.32; }
-
-    .archive-divider-line { margin: 3px 0; }
-
-    .archive-title-line { white-space: nowrap; font-size: clamp(.80rem, 4.0vw, 1.08rem); letter-spacing: .015em; }
+    .archive-title-line { white-space: nowrap; }
 
     .archive-status-line, .archive-data-line, .archive-warning-line, .archive-call-line { padding-left: 0; letter-spacing: .01em; }
 
-    .terminal-mission-area { margin-top: 5px; }
-
 }
-
-
 
 @media (max-width: 380px) {
 
-    .terminal-output { max-height: calc(100dvh - 126px); font-size: .64rem; line-height: 1.28; }
-
-    .archive-title-line { font-size: .78rem; letter-spacing: 0; }
-
-    .terminal-mission-button { font-size: .58rem; letter-spacing: .025em; }
-
 }
-
-
 
 /* =============================================================
 
@@ -1412,8 +1223,6 @@
 
 }
 
-
-
 /* No CRT relay/dissolve/reboot at the change from recovery text to archive. */
 
 .terminal-output.is-dissolving { opacity: 1; filter: none; transform: none; }
@@ -1436,31 +1245,11 @@
 
 }
 
-
-
 /* Center the call-to-action under the archive text, like the centered title. */
-
-.terminal-mission-area {
-
-    width: 100%;
-
-    text-align: center;
-
-    margin-top: clamp(9px, 1.6vh, 16px);
-
-    animation: none;
-
-}
 
 .terminal-mission-button {
 
-    display: flex;
-
     width: fit-content;
-
-    max-width: 100%;
-
-    margin-inline: auto;
 
     text-align: center;
 
@@ -1468,79 +1257,7 @@
 
     border-color: rgba(164, 255, 180, .78);
 
-    box-shadow: inset 0 0 14px rgba(110,222,130,.12), 0 0 14px rgba(119,255,147,.20);
-
 }
-
-.terminal-mission-button.is-heartbeat-playing {
-
-    animation: thaHeartbeatGlow 4.2s linear infinite;
-
-}
-
-.terminal-mission-button.is-heartbeat-complete {
-
-    border-color: rgba(187,255,198,.88);
-
-    box-shadow: inset 0 0 18px rgba(110,222,130,.13), 0 0 16px rgba(119,255,147,.22), 0 0 29px rgba(119,255,147,.12);
-
-}
-
-@keyframes thaHeartbeatGlow {
-
-    0%, 100% {
-
-        filter: brightness(1);
-
-        border-color: rgba(164,255,180,.78);
-
-        box-shadow: inset 0 0 14px rgba(110,222,130,.12), 0 0 14px rgba(119,255,147,.20);
-
-    }
-
-    1.5%, 5.5% {
-
-        filter: brightness(1.35);
-
-        border-color: rgba(230,255,234,1);
-
-        box-shadow: inset 0 0 25px rgba(110,222,130,.24), 0 0 25px rgba(119,255,147,.55), 0 0 44px rgba(119,255,147,.24);
-
-    }
-
-    10%, 38% {
-
-        filter: brightness(1.02);
-
-        border-color: rgba(164,255,180,.78);
-
-        box-shadow: inset 0 0 14px rgba(110,222,130,.12), 0 0 14px rgba(119,255,147,.20);
-
-    }
-
-    29.5%, 34% {
-
-        filter: brightness(1.31);
-
-        border-color: rgba(230,255,234,1);
-
-        box-shadow: inset 0 0 23px rgba(110,222,130,.22), 0 0 23px rgba(119,255,147,.48), 0 0 40px rgba(119,255,147,.21);
-
-    }
-
-    39%, 68% {
-
-        filter: brightness(1.02);
-
-        border-color: rgba(164,255,180,.78);
-
-        box-shadow: inset 0 0 14px rgba(110,222,130,.12), 0 0 14px rgba(119,255,147,.20);
-
-    }
-
-}
-
-
 
 @media (max-width: 700px) {
 
@@ -1602,8 +1319,6 @@
 
     .archive-question-line { font-size: clamp(.72rem, 2.7vw, .84rem); }
 
-    .terminal-mission-area { margin-top: clamp(10px, 1.8vh, 14px); }
-
     .terminal-mission-button {
 
         min-height: 45px;
@@ -1657,147 +1372,249 @@
 }
 
 /* V17 — Document-aligned terminal: no invented CRT power-on/off effect. */
+
 .terminal-stage {
+
     opacity: 1;
+
     transition: none;
+
 }
 
 /* CTA is centered beneath the final divider. The first two visible pulses line
+
    up with the one-time double heartbeat; after the cue, a softer CSS pulse waits
+
    for the user to press ACCEPT THE MISSION. */
+
 .terminal-mission-area {
+
     width: 100%;
+
     margin-top: clamp(8px, 1.25vh, 14px);
+
     text-align: center;
+
     animation: thaMissionArrival .5s ease-out both;
+
 }
 
 .terminal-mission-button {
+
     position: relative;
+
     z-index: 1;
+
     display: inline-flex;
+
     align-items: center;
+
     justify-content: center;
+
     max-width: 100%;
+
     margin-inline: auto;
+
     transform-origin: center;
+
     will-change: transform, filter, box-shadow;
+
     border: 1px solid rgba(177,255,190,.88);
+
     background: linear-gradient(180deg, rgba(34,88,44,.40), rgba(4,18,7,.68));
+
     box-shadow: inset 0 0 14px rgba(110,222,130,.15), 0 0 15px rgba(119,255,147,.23);
+
 }
 
 .terminal-mission-button.is-heartbeat-playing {
-    animation: thaHeartbeatDoublePulse 2.2s ease-out 1 both;
-}
 
-.terminal-mission-button.is-heartbeat-complete {
-    border-color: rgba(195,255,204,.94);
-    animation: thaMissionPulse 2.45s ease-in-out infinite;
-    box-shadow: inset 0 0 18px rgba(110,222,130,.17), 0 0 16px rgba(119,255,147,.24), 0 0 30px rgba(119,255,147,.12);
+    animation: thaHeartbeatDoublePulse 1.1s ease-out 1 both;
+
 }
 
 .terminal-mission-button:disabled,
+
 .terminal-mission-button:disabled:hover {
+
     animation: none !important;
+
     transform: none;
+
     filter: none;
+
     box-shadow: none;
+
 }
 
-
 @keyframes thaHeartbeatDoublePulse {
+
     0%, 100% {
+
         transform: scale(1);
+
         filter: brightness(1);
+
         border-color: rgba(177,255,190,.88);
+
         box-shadow: inset 0 0 14px rgba(110,222,130,.15), 0 0 14px rgba(119,255,147,.20);
+
     }
-    /* First “thump” — bright enough to read as a heartbeat, not a blink. */
-    3%, 14% {
-        transform: scale(1.055);
-        filter: brightness(1.5);
-        border-color: #edfff0;
-        box-shadow: inset 0 0 25px rgba(110,222,130,.27), 0 0 31px rgba(119,255,147,.72), 0 0 52px rgba(119,255,147,.32);
-    }
-    23% {
-        transform: scale(1);
-        filter: brightness(1.04);
-        box-shadow: inset 0 0 15px rgba(110,222,130,.12), 0 0 16px rgba(119,255,147,.24);
-    }
-    /* Second “thump” lands at about the same time as the second audio beat. */
-    29%, 41% {
+
+    /* First thump: starts at the first strong waveform peak. */
+
+    3%, 10% {
+
         transform: scale(1.045);
-        filter: brightness(1.42);
+
+        filter: brightness(1.36);
+
         border-color: #edfff0;
-        box-shadow: inset 0 0 23px rgba(110,222,130,.24), 0 0 28px rgba(119,255,147,.64), 0 0 46px rgba(119,255,147,.28);
+
+        box-shadow: inset 0 0 23px rgba(110,222,130,.23), 0 0 27px rgba(119,255,147,.58), 0 0 42px rgba(119,255,147,.24);
+
     }
-    52% {
+
+    20% {
+
         transform: scale(1);
-        filter: brightness(1.08);
+
+        filter: brightness(1.02);
+
+        box-shadow: inset 0 0 15px rgba(110,222,130,.12), 0 0 16px rgba(119,255,147,.24);
+
+    }
+
+    /* Second thump: the supplied recording's second strong peak is \~0.31 seconds in. */
+
+    29%, 36% {
+
+        transform: scale(1.038);
+
+        filter: brightness(1.30);
+
+        border-color: #edfff0;
+
+        box-shadow: inset 0 0 21px rgba(110,222,130,.21), 0 0 25px rgba(119,255,147,.52), 0 0 38px rgba(119,255,147,.21);
+
+    }
+
+    47% {
+
+        transform: scale(1);
+
+        filter: brightness(1.04);
+
         box-shadow: inset 0 0 16px rgba(110,222,130,.16), 0 0 18px rgba(119,255,147,.26);
+
     }
-    72% {
-        transform: scale(1.012);
-        filter: brightness(1.14);
-        box-shadow: inset 0 0 17px rgba(110,222,130,.16), 0 0 20px rgba(119,255,147,.29);
+
+    76% {
+
+        transform: scale(1.006);
+
+        filter: brightness(1.08);
+
     }
+
 }
 
 @keyframes thaMissionPulse {
+
     0%, 100% {
+
         transform: scale(1);
+
         filter: brightness(1);
+
         box-shadow: inset 0 0 16px rgba(110,222,130,.13), 0 0 13px rgba(119,255,147,.18), 0 0 23px rgba(119,255,147,.09);
+
     }
+
     48% {
+
         transform: scale(1.022);
+
         filter: brightness(1.22);
+
         box-shadow: inset 0 0 22px rgba(110,222,130,.2), 0 0 21px rgba(119,255,147,.38), 0 0 36px rgba(119,255,147,.16);
+
     }
+
 }
 
 @media (prefers-reduced-motion: reduce) {
+
     .terminal-mission-button.is-heartbeat-complete {
+
         animation: none !important;
+
         transform: none;
+
         filter: brightness(1.16);
+
         box-shadow: inset 0 0 18px rgba(110,222,130,.2), 0 0 20px rgba(119,255,147,.38), 0 0 36px rgba(119,255,147,.2);
+
     }
+
 }
 
 @media (max-width: 700px) {
+
     .terminal-mission-area { margin-top: 7px; }
+
     .terminal-mission-button { margin-inline: auto; }
+
 }
 
-
 /* V19 — Audio cue and button glow are deliberately independent.
+
    The double-beat animation synchronizes with the two sounds only once; the
+
    softer mission-ready pulse then continues until the user accepts the mission. */
+
 .terminal-mission-button.is-mission-ready {
+
     animation: thaMissionPulse 2.45s ease-in-out infinite;
+
     border-color: rgba(195,255,204,.94);
+
     box-shadow: inset 0 0 18px rgba(110,222,130,.17), 0 0 16px rgba(119,255,147,.24), 0 0 30px rgba(119,255,147,.12);
+
 }
 
 .terminal-mission-button.is-mission-ready.is-heartbeat-playing {
-    animation: thaHeartbeatDoublePulse 2.2s ease-out 1 both;
+
+    animation: thaHeartbeatDoublePulse 1.1s ease-out 1 both;
+
 }
 
 .terminal-mission-button.is-mission-ready:disabled,
+
 .terminal-mission-button.is-mission-ready:disabled:hover {
+
     animation: none !important;
+
     transform: none;
+
     filter: none;
+
     box-shadow: none;
+
 }
 
 @media (prefers-reduced-motion: reduce) {
+
     .terminal-mission-button.is-mission-ready:not(.is-heartbeat-playing) {
+
         animation: none !important;
+
         transform: none;
+
         filter: brightness(1.16);
+
         box-shadow: inset 0 0 18px rgba(110,222,130,.2), 0 0 20px rgba(119,255,147,.38), 0 0 36px rgba(119,255,147,.2);
+
     }
+
 }

@@ -1,11 +1,22 @@
-// =====================================================
+// =============================================================================
 // THE HUMAN ARCHIVE — CINEMATIC SPLASH
-// Visual opening only. The actual story begins in Terminal
-// with the first visible line: YEAR: 2126.
-// =====================================================
+// This screen is visual-only; the story begins in Terminal with YEAR: 2126.
+// =============================================================================
 
 let splashTransitioning = false;
-let splashMouseMoveHandler = null;
+let splashAudioRetryHandler = null;
+let splashAudioRetryPending = false;
+let lastSplashAudioRetryAt = 0;
+
+function removeSplashAudioRetryHandler() {
+    const screen = document.getElementById("splashScreen");
+    if (screen && splashAudioRetryHandler) {
+        for (const eventName of ["pointermove", "touchstart", "keydown"]) {
+            screen.removeEventListener(eventName, splashAudioRetryHandler);
+        }
+    }
+    splashAudioRetryHandler = null;
+}
 
 function renderSplash() {
     const app = document.getElementById("app");
@@ -16,9 +27,12 @@ function renderSplash() {
 
     window.THAIdentity?.hide();
 
-    // Stop any previous Splash ambience before this screen is rebuilt.
-    stopSplashAudio();
+    // Stop any previous Splash ambience before rebuilding the screen.
+    if (typeof stopAllOpeningAudio === "function") stopAllOpeningAudio();
+    removeSplashAudioRetryHandler();
     splashTransitioning = false;
+    splashAudioRetryPending = false;
+    lastSplashAudioRetryAt = 0;
 
     document.documentElement.classList.remove("tha-terminal-active");
     document.body.classList.remove("tha-terminal-active");
@@ -88,46 +102,45 @@ function renderSplash() {
     const splashScreen = document.getElementById("splashScreen");
     const enterButton = document.getElementById("beginArchive");
 
-    // Keep the requested mouse-movement retry for ambient-hum.mp3.
-    // Browsers may still require a click/tap to permit audio playback.
-    splashMouseMoveHandler = async () => {
-        if (splashTransitioning || !splashScreen.isConnected) return;
-        const started = await startSplashAudio(true);
-        if (started && splashMouseMoveHandler) {
-            splashScreen.removeEventListener("mousemove", splashMouseMoveHandler);
-            splashMouseMoveHandler = null;
+    // Try ambient audio on entry. If autoplay is restricted, retry in a guarded
+    // manner on pointer movement; the audio controller serializes play attempts.
+    splashAudioRetryHandler = async (event) => {
+        // Browsers may reject autoplay. Retry from a real input event; touch
+        // devices do not reliably emit mousemove events.
+        if (event?.type === "keydown" && !["Enter", " "].includes(event.key)) return;
+        if (splashTransitioning || !splashScreen.isConnected || splashAudioRetryPending) return;
+        const now = Date.now();
+        if (now - lastSplashAudioRetryAt < 1200) return;
+        lastSplashAudioRetryAt = now;
+        splashAudioRetryPending = true;
+        try {
+            const started = await startSplashAudio();
+            if (started) removeSplashAudioRetryHandler();
+        } finally {
+            splashAudioRetryPending = false;
         }
     };
-    splashScreen.addEventListener("mousemove", splashMouseMoveHandler, { passive: true });
+    splashScreen.addEventListener("pointermove", splashAudioRetryHandler, { passive: true });
+    splashScreen.addEventListener("touchstart", splashAudioRetryHandler, { passive: true });
+    splashScreen.addEventListener("keydown", splashAudioRetryHandler);
 
     startSplashAudio().then((started) => {
-        if (started && splashMouseMoveHandler) {
-            splashScreen.removeEventListener("mousemove", splashMouseMoveHandler);
-            splashMouseMoveHandler = null;
-        }
+        if (started) removeSplashAudioRetryHandler();
     });
 
+    // Entering the station ends Splash audio and hands control to Terminal.
     enterButton.addEventListener("click", () => {
         if (splashTransitioning) return;
 
-        // Direct hand-off: do not show an intermediate “Entering the station”
-        // label or wait through a fade. Terminal owns its own story timing.
+        if (typeof unlockTHAAudioContext === "function") unlockTHAAudioContext();
         splashTransitioning = true;
         enterButton.disabled = true;
-
-        if (splashMouseMoveHandler) {
-            splashScreen.removeEventListener("mousemove", splashMouseMoveHandler);
-            splashMouseMoveHandler = null;
-        }
+        removeSplashAudioRetryHandler();
         window.THAIdentity?.hide();
-        stopSplashAudio();
 
-        const navigated = window.THANavigation
-            ? window.THANavigation.goTo("terminal")
-            : (typeof router !== "undefined" && router && typeof router.navigateTo === "function"
-                ? router.navigateTo("terminal")
-                : false);
-
+        // renderTerminal() owns the route-entry audio cleanup; do not stop the
+        // Splash track twice during a successful transition.
+        const navigated = window.THANavigation?.goTo("terminal") === true;
         if (!navigated) {
             enterButton.disabled = false;
             splashTransitioning = false;

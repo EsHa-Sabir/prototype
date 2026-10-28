@@ -1,32 +1,24 @@
 /* =============================================================
    THE HUMAN ARCHIVE — GLOBAL DESIGN SYSTEM
-   Shared foundations, design tokens, accessibility, and identity badge.
-   Screen-specific visuals belong in splash.css, terminal.css, and menu.css.
+   Shared foundations, design tokens, accessibility, identity badge.
+   Screen-specific visuals remain in splash.css, terminal.css, menu.css.
 ============================================================= */
 
 :root {
     color-scheme: dark;
-
-    /* Shared colors */
     --tha-bg: #020604;
     --tha-green: #a9efba;
     --tha-green-bright: #e2ffe8;
     --tha-green-muted: #789d80;
     --tha-green-line: rgba(131, 224, 151, 0.23);
     --tha-focus: #d4ffdd;
-
-    /* Shared typography */
     --tha-font-mono: "Fira Code", "Cascadia Code", Consolas, monospace;
     --tha-font-display: "Orbitron", "Fira Code", Consolas, monospace;
-
-    /* Shared motion */
 }
 
 *,
 *::before,
-*::after {
-    box-sizing: border-box;
-}
+*::after { box-sizing: border-box; }
 
 html {
     min-width: 320px;
@@ -49,45 +41,22 @@ body {
     text-rendering: optimizeLegibility;
 }
 
-#app {
-    position: relative;
-    min-height: 100vh;
-    min-height: 100dvh;
-    isolation: isolate;
-}
-
-button,
-input,
-textarea,
-select {
-    font: inherit;
-}
-
-button {
-    touch-action: manipulation;
-}
-
+#app { position: relative; min-height: 100vh; min-height: 100dvh; isolation: isolate; }
+button, input, textarea, select { font: inherit; }
+button { touch-action: manipulation; }
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
-select:focus-visible {
+select:focus-visible,
+[tabindex="-1"]:focus-visible {
     outline: 2px solid var(--tha-focus);
     outline-offset: 3px;
 }
+img, svg, video, canvas { max-width: 100%; }
+[hidden] { display: none !important; }
 
-img,
-svg,
-video,
-canvas {
-    max-width: 100%;
-}
-
-[hidden] {
-    display: none !important;
-}
-
-/* Lock document scrolling only while a full-screen cinematic scene is active. */
+/* Lock document scrolling only while a viewport-filling cinematic scene is active. */
 html.splash-no-scroll,
 body.splash-no-scroll,
 html.tha-terminal-active,
@@ -99,24 +68,11 @@ body.tha-terminal-active {
     overflow: hidden;
 }
 
-body.splash-no-scroll {
-    background: #020904;
-}
-
-body.splash-no-scroll #app {
-    width: 100%;
-    height: 100%;
-    min-height: 0;
-    overflow: hidden;
-}
-
-/* Isolate the Terminal route from any generic site-level content/card styles. */
+body.splash-no-scroll { background: #020904; }
+body.splash-no-scroll #app { width: 100%; height: 100%; min-height: 0; overflow: hidden; }
 html.tha-terminal-active,
 body.tha-terminal-active,
-body.tha-terminal-active #app {
-    background: #020403;
-}
-
+body.tha-terminal-active #app { background: #020403; }
 body.tha-terminal-active #app {
     position: fixed;
     inset: 0;
@@ -134,8 +90,7 @@ body.tha-terminal-active #app {
     box-shadow: none;
 }
 
-/* Shared identity badge. It remains fixed on story screens and joins the
-   sticky Menu header while the archive map itself scrolls. */
+/* Shared identity badge. On story screens it overlays the viewport; in Menu it is a header item. */
 .tha-global-identity-badge {
     position: fixed;
     z-index: 1000;
@@ -155,11 +110,7 @@ body.tha-terminal-active #app {
     backdrop-filter: blur(10px);
     animation: thaIdentityReveal 450ms ease both;
 }
-
-.tha-global-identity-badge[hidden] {
-    display: none !important;
-}
-
+.tha-global-identity-badge[hidden] { display: none !important; }
 .tha-global-badge-icon {
     display: grid;
     place-items: center;
@@ -168,35 +119,10 @@ body.tha-terminal-active #app {
     height: 33px;
     border: 1px solid rgba(155, 244, 173, 0.53);
 }
-
-.tha-global-badge-icon svg {
-    display: block;
-    width: 28px;
-    height: 28px;
-}
-
-.tha-global-badge-copy {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    min-width: 0;
-    font-size: 0.56rem;
-    letter-spacing: 0.09em;
-}
-
-.tha-global-badge-copy strong {
-    font-weight: 600;
-    line-height: 1.35;
-    white-space: normal;
-}
-
-.tha-global-badge-copy small {
-    color: #638d6e;
-    font-size: 0.84em;
-    letter-spacing: 0.12em;
-}
-
-/* In the Menu the badge is a normal header item, not an overlay above cards. */
+.tha-global-badge-icon svg { display: block; width: 28px; height: 28px; }
+.tha-global-badge-copy { display: flex; flex-direction: column; gap: 4px; min-width: 0; font-size: 0.56rem; letter-spacing: 0.09em; }
+.tha-global-badge-copy strong { font-weight: 600; line-height: 1.35; white-space: normal; }
+.tha-global-badge-copy small { color: #638d6e; font-size: 0.84em; letter-spacing: 0.12em; }
 .tha-global-identity-badge.is-in-menu-header {
     position: static;
     z-index: 1;
@@ -211,60 +137,20 @@ body.tha-terminal-active #app {
     backdrop-filter: none;
     animation: thaIdentityReveal 450ms ease both;
 }
+@keyframes thaIdentityReveal { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
 
-@keyframes thaIdentityReveal {
-    from { opacity: 0; transform: translateY(7px); }
-    to { opacity: 1; transform: translateY(0); }
+.tha-sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
 }
 
-@media (max-width: 700px) {
-    .tha-global-identity-badge {
-        top: 10px;
-        right: 8px;
-        gap: 6px;
-        padding: 6px 8px;
-        max-width: min(290px, calc(100vw - 16px));
-    }
-
-    .tha-global-badge-icon {
-        flex-basis: 27px;
-        width: 27px;
-        height: 27px;
-    }
-
-    .tha-global-badge-icon svg {
-        width: 23px;
-        height: 23px;
-    }
-
-    .tha-global-badge-copy {
-        font-size: 0.48rem;
-    }
-
-    .tha-global-identity-badge.is-in-menu-header {
-        top: auto;
-        right: auto;
-        max-width: min(290px, 100%);
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    html {
-        scroll-behavior: auto;
-    }
-
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
-    }
-}
-
-
-/* Shared error surface used when a configured SPA route cannot render. */
 .tha-route-error {
     min-height: 100vh;
     min-height: 100dvh;
@@ -277,16 +163,23 @@ body.tha-terminal-active #app {
     background: var(--tha-bg);
     font-family: var(--tha-font-mono);
 }
+.tha-route-error h1, .tha-route-error p { max-width: 42rem; margin: 0; line-height: 1.7; }
+.tha-route-error-label { color: #8acb98; font-size: 0.75rem; letter-spacing: 0.18em; }
 
-.tha-route-error h1,
-.tha-route-error p {
-    max-width: 42rem;
-    margin: 0;
-    line-height: 1.7;
+@media (max-width: 700px) {
+    .tha-global-identity-badge { top: 10px; right: 8px; gap: 6px; padding: 6px 8px; max-width: min(290px, calc(100vw - 16px)); }
+    .tha-global-badge-icon { flex-basis: 27px; width: 27px; height: 27px; }
+    .tha-global-badge-icon svg { width: 23px; height: 23px; }
+    .tha-global-badge-copy { font-size: 0.48rem; }
+    .tha-global-identity-badge.is-in-menu-header { top: auto; right: auto; max-width: min(290px, 100%); }
 }
 
-.tha-route-error-label {
-    color: #8acb98;
-    font-size: .75rem;
-    letter-spacing: .18em;
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }
