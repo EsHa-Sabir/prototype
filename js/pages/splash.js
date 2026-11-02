@@ -4,18 +4,32 @@
 // =============================================================================
 
 let splashTransitioning = false;
-let splashAudioRetryHandler = null;
-let splashAudioRetryPending = false;
 let lastSplashAudioRetryAt = 0;
+let splashPointerAudioRetry = null;
 
-function removeSplashAudioRetryHandler() {
-    const screen = document.getElementById("splashScreen");
-    if (screen && splashAudioRetryHandler) {
-        for (const eventName of ["pointermove", "touchstart", "keydown"]) {
-            screen.removeEventListener(eventName, splashAudioRetryHandler);
-        }
-    }
-    splashAudioRetryHandler = null;
+function updateSplashSoundControl() {
+    const button = document.getElementById("splashSoundControl");
+    if (!button) return;
+
+    const muted = Boolean(window.THA?.audioMuted);
+    const playing = Boolean(window.THA?.openingAudioStatus?.playing);
+    const state = muted ? "off" : (playing ? "on" : "blocked");
+    const label = muted ? "Turn ambient sound on" : (playing ? "Turn ambient sound off" : "Tap to start ambient sound");
+    button.dataset.state = state;
+    button.setAttribute("aria-label", label);
+    button.setAttribute("title", label);
+    button.setAttribute("aria-pressed", String(!muted && playing));
+    button.innerHTML = muted || !playing
+        ? `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path class="sound-muted" d="m16 9 5 6m0-6-5 6"/></svg>`
+        : `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path class="sound-wave" d="M16 9.2a4 4 0 0 1 0 5.6M18.5 6.8a7.4 7.4 0 0 1 0 10.4"/></svg>`;
+}
+
+function removeSplashPointerAudioRetry() {
+    if (!splashPointerAudioRetry) return;
+    document.removeEventListener("pointermove", splashPointerAudioRetry);
+    document.removeEventListener("pointerdown", splashPointerAudioRetry);
+    document.removeEventListener("touchstart", splashPointerAudioRetry);
+    splashPointerAudioRetry = null;
 }
 
 function renderSplash() {
@@ -27,11 +41,10 @@ function renderSplash() {
 
     window.THAIdentity?.hide();
 
-    // Stop any previous Splash ambience before rebuilding the screen.
+    // Stop any previous opening ambience before rebuilding the screen.
     if (typeof stopAllOpeningAudio === "function") stopAllOpeningAudio();
-    removeSplashAudioRetryHandler();
+    removeSplashPointerAudioRetry();
     splashTransitioning = false;
-    splashAudioRetryPending = false;
     lastSplashAudioRetryAt = 0;
 
     document.documentElement.classList.remove("tha-terminal-active");
@@ -41,6 +54,9 @@ function renderSplash() {
 
     app.innerHTML = `
         <section class="splash-screen" id="splashScreen" aria-labelledby="splashTitle">
+            <button type="button" id="splashSoundControl" class="splash-sound-control" aria-label="Tap to start ambient sound" title="Tap to start ambient sound" aria-pressed="false" data-state="blocked">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path class="sound-muted" d="m16 9 5 6m0-6-5 6"/></svg>
+            </button>
             <div class="splash-stars" aria-hidden="true"></div>
             <div class="splash-nebula" aria-hidden="true"></div>
             <div class="splash-radar-sweep" aria-hidden="true"></div>
@@ -99,33 +115,53 @@ function renderSplash() {
         </section>
     `;
 
-    const splashScreen = document.getElementById("splashScreen");
+    const soundButton = document.getElementById("splashSoundControl");
     const enterButton = document.getElementById("beginArchive");
 
-    // Try ambient audio on entry. If autoplay is restricted, retry in a guarded
-    // manner on pointer movement; the audio controller serializes play attempts.
-    splashAudioRetryHandler = async (event) => {
-        // Browsers may reject autoplay. Retry from a real input event; touch
-        // devices do not reliably emit mousemove events.
-        if (event?.type === "keydown" && !["Enter", " "].includes(event.key)) return;
-        if (splashTransitioning || !splashScreen.isConnected || splashAudioRetryPending) return;
-        const now = Date.now();
-        if (now - lastSplashAudioRetryAt < 1200) return;
-        lastSplashAudioRetryAt = now;
-        splashAudioRetryPending = true;
-        try {
-            const started = await startSplashAudio();
-            if (started) removeSplashAudioRetryHandler();
-        } finally {
-            splashAudioRetryPending = false;
-        }
-    };
-    splashScreen.addEventListener("pointermove", splashAudioRetryHandler, { passive: true });
-    splashScreen.addEventListener("touchstart", splashAudioRetryHandler, { passive: true });
-    splashScreen.addEventListener("keydown", splashAudioRetryHandler);
+    // Autoplay is attempted on entry. If the browser blocks it, pointer movement is
+    // an opportunistic retry; pointerdown and the speaker button provide real user gestures.
+    const initiallyMuted = Boolean(window.THA?.audioMuted);
+    updateSplashSoundControl();
+    if (!initiallyMuted) {
+        void startSplashAudio().then(updateSplashSoundControl);
+        splashPointerAudioRetry = (event) => {
+            if (event?.target?.closest?.("#splashSoundControl")) return;
+            if (splashTransitioning || window.THA?.audioMuted || window.THA?.openingAudioStatus?.playing) {
+                removeSplashPointerAudioRetry();
+                updateSplashSoundControl();
+                return;
+            }
+            const now = Date.now();
+            if (now - lastSplashAudioRetryAt < 900) return;
+            lastSplashAudioRetryAt = now;
+            const start = ["pointerdown", "touchstart"].includes(event?.type) ? startSplashAudioFromGesture : startSplashAudio;
+            void start().then((started) => {
+                updateSplashSoundControl();
+                if (started) removeSplashPointerAudioRetry();
+            });
+        };
+        document.addEventListener("pointermove", splashPointerAudioRetry, { passive: true });
+        document.addEventListener("pointerdown", splashPointerAudioRetry, { passive: true });
+        document.addEventListener("touchstart", splashPointerAudioRetry, { passive: true });
+    }
 
-    startSplashAudio().then((started) => {
-        if (started) removeSplashAudioRetryHandler();
+    soundButton.addEventListener("click", async () => {
+        if (splashTransitioning) return;
+        const muted = Boolean(window.THA?.audioMuted);
+        const playing = Boolean(window.THA?.openingAudioStatus?.playing);
+
+        if (muted) {
+            setTHAAudioMuted(false);
+            if (typeof unlockTHAAudioContext === "function") unlockTHAAudioContext();
+            await startSplashAudioFromGesture();
+        } else if (playing) {
+            setTHAAudioMuted(true);
+            removeSplashPointerAudioRetry();
+        } else {
+            if (typeof unlockTHAAudioContext === "function") unlockTHAAudioContext();
+            await startSplashAudioFromGesture();
+        }
+        updateSplashSoundControl();
     });
 
     // Entering the station ends Splash audio and hands control to Terminal.
@@ -135,15 +171,15 @@ function renderSplash() {
         if (typeof unlockTHAAudioContext === "function") unlockTHAAudioContext();
         splashTransitioning = true;
         enterButton.disabled = true;
-        removeSplashAudioRetryHandler();
-        window.THAIdentity?.hide();
+        removeSplashPointerAudioRetry();
+        void fadeOutSplashAudio(240);
 
-        // renderTerminal() owns the route-entry audio cleanup; do not stop the
-        // Splash track twice during a successful transition.
+        // The router fades this scene out before Terminal takes over.
         const navigated = window.THANavigation?.goTo("terminal") === true;
         if (!navigated) {
             enterButton.disabled = false;
             splashTransitioning = false;
+            updateSplashSoundControl();
         }
     });
 }

@@ -210,6 +210,7 @@ function renderMenu() {
                     <p class="tha-menu-eyebrow">ARCHIVE NAVIGATION <span>//</span> YEAR 2126</p>
                     <h1 id="thaMenuTitle">THE HUMAN <span>ARCHIVE</span></h1>
                     <div class="tha-menu-rule" aria-hidden="true"><span></span><i></i><span></span></div>
+                    <p class="tha-menu-intro">Start with the Moon. Recover its records to unlock the next chapter.</p>
                 </section>
 
                 <section class="tha-menu-map-panel" aria-label="Archive sections and recovery progress">
@@ -287,7 +288,9 @@ function renderMenu() {
         button.addEventListener("click", () => {
             if (button.disabled) return;
             button.classList.add("is-selected");
-            navigateTHAMenuRoute(button.dataset.thaMenuRoute);
+            const navigated = navigateTHAMenuRoute(button.dataset.thaMenuRoute);
+            if (navigated) button.disabled = true;
+            else button.classList.remove("is-selected");
         });
     });
 }

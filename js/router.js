@@ -44,6 +44,9 @@ const THA_ROUTE_BRIDGE_INFO = Object.freeze({
 });
 
 const THA_REQUIRED_OPENING_ROUTES = new Set(["splash", "terminal", "menu"]);
+const THA_ROUTE_EXIT_MS = 240;
+let thaRouteNavigationPending = false;
+let thaRouteNavigationToken = 0;
 
 function createTHARouteBridge(screenName) {
     const appSection = document.createElement("section");
@@ -55,7 +58,7 @@ function createTHARouteBridge(screenName) {
             <p class="tha-route-bridge-eyebrow">THE HUMAN ARCHIVE // ROUTE READY</p>
             <h1 id="thaRouteBridgeTitle">${info.title}</h1>
             <p class="tha-route-bridge-detail">${info.detail}</p>
-            <p class="tha-route-bridge-message">This destination is mapped and navigable. Its story renderer belongs to the next implementation phase and will replace this bridge when its page script is loaded.</p>
+            <p class="tha-route-bridge-message">This chapter is still being prepared. Return to the Archive Map and explore a chapter that is ready to open.</p>
             <button type="button" class="tha-route-bridge-button">${info.action || "RETURN TO ARCHIVE MAP"}</button>
         </div>`;
     appSection.querySelector("button").addEventListener("click", () => {
@@ -94,6 +97,7 @@ const router = {
             console.error("THE HUMAN ARCHIVE: #app container was not found.");
             return false;
         }
+        if (thaRouteNavigationPending) return false;
 
         const rendererName = THA_ROUTE_RENDERERS[screenName];
         if (!rendererName) {
@@ -103,40 +107,69 @@ const router = {
 
         const renderer = window[rendererName];
         const isOpeningRoute = THA_REQUIRED_OPENING_ROUTES.has(screenName);
-
-        // Missing opening renderers are genuine startup errors; missing future
-        // renderers use a bridge, not a broken route or an emptied Menu.
         if (typeof renderer !== "function" && isOpeningRoute) {
             renderTHARouteError(app, "ARCHIVE OPENING ERROR", `The required renderer ${rendererName} is not loaded. Check script order.`);
             return false;
         }
 
-        // Release route-specific locks before the destination applies its own state.
-        document.documentElement.classList.remove("splash-no-scroll", "tha-terminal-active");
-        document.body.classList.remove("splash-no-scroll", "tha-terminal-active");
-        this.currentScreen = screenName;
-        app.replaceChildren();
+        const previousScreen = app.firstElementChild;
+        // Menu opens as a steady archive map: skip the shared brightness/slide
+        // transition here so the screen does not flash or appear to jump.
+        const shouldAnimate = Boolean(previousScreen && this.currentScreen !== screenName
+            && screenName !== "menu"
+            && !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches);
+        const token = ++thaRouteNavigationToken;
 
-        try {
-            if (typeof renderer === "function") {
-                const result = renderer(recordId);
-                if (result instanceof Node && result.parentNode !== app) app.appendChild(result);
-            } else {
-                app.appendChild(createTHARouteBridge(screenName));
+        const renderDestination = () => {
+            if (token !== thaRouteNavigationToken) return false;
+
+            // Stop audio owned by the screen being left before the new renderer starts.
+            if (this.currentScreen !== screenName) window.THAMoonAudio?.stopAll();
+
+            document.documentElement.classList.remove("splash-no-scroll", "tha-terminal-active");
+            document.body.classList.remove("splash-no-scroll", "tha-terminal-active");
+            this.currentScreen = screenName;
+            window.THA = window.THA || {};
+            window.THA.currentRoute = screenName;
+            app.replaceChildren();
+
+            try {
+                if (typeof renderer === "function") {
+                    const result = renderer(recordId);
+                    if (result instanceof Node && result.parentNode !== app) app.appendChild(result);
+                } else {
+                    app.appendChild(createTHARouteBridge(screenName));
+                }
+
+                if (app.childElementCount === 0) {
+                    throw new Error(`${rendererName} did not render content into #app or return a node.`);
+                }
+
+                const destination = app.firstElementChild;
+                if (destination && shouldAnimate) {
+                    destination.classList.add("tha-route-enter");
+                    window.setTimeout(() => destination.classList.remove("tha-route-enter"), 620);
+                }
+                window.THAIdentity?.restoreForCurrentRoute();
+                window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+                return true;
+            } catch (error) {
+                console.error(`THE HUMAN ARCHIVE: route "${screenName}" failed to render.`, error);
+                renderTHARouteError(app, "ARCHIVE ROUTE ERROR", "Check the browser console, then verify the route renderer.");
+                return false;
             }
+        };
 
-            if (app.childElementCount === 0) {
-                throw new Error(`${rendererName} did not render content into #app or return a node.`);
-            }
+        if (!shouldAnimate) return renderDestination();
 
-            window.THAIdentity?.restoreForCurrentRoute();
-            window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-            return true;
-        } catch (error) {
-            console.error(`THE HUMAN ARCHIVE: route "${screenName}" failed to render.`, error);
-            renderTHARouteError(app, "ARCHIVE ROUTE ERROR", "Check the browser console, then verify the route renderer.");
-            return false;
-        }
+        thaRouteNavigationPending = true;
+        previousScreen.classList.add("tha-route-exit");
+        previousScreen.setAttribute("aria-hidden", "true");
+        window.setTimeout(() => {
+            try { renderDestination(); }
+            finally { thaRouteNavigationPending = false; }
+        }, THA_ROUTE_EXIT_MS);
+        return true;
     }
 };
 

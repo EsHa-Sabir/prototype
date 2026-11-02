@@ -30,6 +30,9 @@ const TERMINAL_RECOVERY_LINES = [
     { text: "", className: "terminal-spacer-line", pauseAfter: 160 }
 ];
 
+// The script uses a short clean-screen pause after the discovery passage.
+const TERMINAL_ARCHIVE_REVEAL_DELAY_MS = 2000;
+
 // On-screen text follows the story script's wording and order.
 const TERMINAL_ARCHIVE_LINES = [
     { text: "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", className: "archive-divider-line", static: true, pauseAfter: 170 },
@@ -68,9 +71,11 @@ function terminalPrefersReducedMotion() {
 }
 
 function getTerminalCharacterDelay(character, baseSpeed) {
-    if (character === " ") return Math.max(12, Math.round(baseSpeed * 0.56));
-    if (/[.,:;!?]/u.test(character)) return baseSpeed + 105;
-    return baseSpeed + Math.floor(Math.random() * 8);
+    // Keep the original typewriter rhythm, but reduce the wait between characters.
+    const responsiveSpeed = Math.max(15, Math.round(baseSpeed * 0.78));
+    if (character === " ") return Math.max(12, Math.round(responsiveSpeed * 0.56));
+    if (/[.,:;!?]/u.test(character)) return responsiveSpeed + 70;
+    return responsiveSpeed + Math.floor(Math.random() * 6);
 }
 
 function scrollTerminalOutput(target) {
@@ -83,8 +88,9 @@ function announceTerminalLine(text) {
     if (announcement) announcement.textContent = text;
 }
 
-async function typeTerminalLines(target, lines, runId, defaultSpeed = 30) {
+async function typeTerminalLines(target, lines, runId, defaultSpeed = 30, onTypingStart = null) {
     let activeCaret = null;
+    let typingStartAnnounced = false;
 
     for (const item of lines) {
         if (!terminalIsCurrent(runId)) return false;
@@ -135,6 +141,11 @@ async function typeTerminalLines(target, lines, runId, defaultSpeed = 30) {
         const speed = item.speed ?? defaultSpeed;
         for (const character of item.text) {
             if (!terminalIsCurrent(runId)) return false;
+            // Start the fan in the same task as the first visible typed character.
+            if (!typingStartAnnounced) {
+                typingStartAnnounced = true;
+                if (typeof onTypingStart === "function") onTypingStart();
+            }
             textNode.textContent += character;
             if (typeof playTerminalKeyTick === "function") playTerminalKeyTick(character);
             scrollTerminalOutput(target);
@@ -180,11 +191,14 @@ function renderTerminal() {
             </div>
 
             <div class="terminal-monitor-frame" id="terminalMonitorFrame">
-                <div class="terminal-monitor-bezel terminal-monitor-bezel-top" aria-hidden="true">
-                    <span class="terminal-frame-screw screw-left"></span>
-                    <span class="terminal-hardware-ports"><i></i><i></i><i></i><i></i><i></i></span>
-                    <span class="terminal-power-cluster"><i class="power-led"></i><i class="power-led power-led-dim"></i><i class="power-led power-led-dim"></i></span>
-                    <span class="terminal-frame-screw screw-right"></span>
+                <div class="terminal-monitor-bezel terminal-monitor-bezel-top">
+                    <span class="terminal-frame-screw screw-left" aria-hidden="true"></span>
+                    <span class="terminal-hardware-ports" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+                    <span class="terminal-power-cluster" aria-hidden="true"><i class="power-led"></i><i class="power-led power-led-dim"></i><i class="power-led power-led-dim"></i></span>
+                    <button type="button" id="terminalSkipIntro" class="terminal-skip-button" aria-label="Skip the terminal introduction and show the mission prompt">
+                        <span>SKIP INTRO</span><span class="terminal-skip-arrow" aria-hidden="true">↗</span>
+                    </button>
+                    <span class="terminal-frame-screw screw-right" aria-hidden="true"></span>
                 </div>
 
                 <div class="terminal-glass" id="terminalGlass">
@@ -233,6 +247,10 @@ function renderTerminal() {
     // The script does not call for mechanical CRT boot/shutdown effects.
     // Unlock audio from the real Splash button gesture for typing/heartbeat cues.
     if (typeof unlockTHAAudioContext === "function") unlockTHAAudioContext();
+    // Load the fan asset during the quiet lead-in; playback still starts with YEAR: 2126.
+    if (typeof preloadTerminalTypingAudio === "function") preloadTerminalTypingAudio();
+    const skipButton = document.getElementById("terminalSkipIntro");
+    if (skipButton) skipButton.addEventListener("click", () => skipTerminalIntro(runId), { once: true });
     void runTerminalStory(runId);
 }
 
@@ -248,9 +266,14 @@ async function runTerminalStory(runId) {
     await terminalDelay(1000);
     if (!terminalIsCurrent(runId)) return;
 
-    // Opening transcript: only terminal text is typed, with fan + synced key ticks.
-    void startTerminalTypingAudio();
-    const openingDone = await typeTerminalLines(output, TERMINAL_OPENING_LINES, runId, 39);
+    // Opening transcript: fan playback starts on the first visible character.
+    const openingDone = await typeTerminalLines(
+        output,
+        TERMINAL_OPENING_LINES,
+        runId,
+        39,
+        () => { if (typeof startTerminalTypingAudio === "function") void startTerminalTypingAudio(); }
+    );
     if (!openingDone || !terminalIsCurrent(runId)) return;
 
     // Script: “Three seconds of silence.” Stop fan/keying and let any synthetic
@@ -264,41 +287,114 @@ async function runTerminalStory(runId) {
     if (!terminalIsCurrent(runId)) return;
 
     // Recovery transcript appears on the same continuously visible terminal.
-    // No unrequested screen-off/on animation or mechanical power cue is added.
-    void startTerminalTypingAudio();
-    const recoveryDone = await typeTerminalLines(output, TERMINAL_RECOVERY_LINES, runId, 31);
+    // Fan playback begins with its first typed character, not during the pause.
+    const recoveryDone = await typeTerminalLines(
+        output,
+        TERMINAL_RECOVERY_LINES,
+        runId,
+        31,
+        () => { if (typeof startTerminalTypingAudio === "function") void startTerminalTypingAudio(); }
+    );
     if (!recoveryDone || !terminalIsCurrent(runId)) return;
 
-    // Separate the recovery transcript from the archive output with a full second.
-    // Let the fan/keying stop, keep the recovered text visible, then reset the
-    // terminal content without a black-screen hold or invented power-cycle effect.
+    // “Then the terminal begins to speak” is a stage direction, not visible copy.
+    // Hold the discovery passage briefly, dissolve it, then reveal the archive readout.
     stopTerminalTypingAudio();
-    await terminalDelay(1000);
+    await terminalDelay(500);
+    if (!terminalIsCurrent(runId)) return;
+    output.classList.add("is-clearing");
+    await terminalDelay(420);
     if (!terminalIsCurrent(runId)) return;
     output.replaceChildren();
     output.scrollTop = 0;
+    output.classList.remove("is-clearing");
+    await terminalDelay(TERMINAL_ARCHIVE_REVEAL_DELAY_MS);
+    if (!terminalIsCurrent(runId)) return;
 
     // Archive display: separators stay clean and only typed characters make key ticks.
-    void startTerminalTypingAudio();
-    const archiveDone = await typeTerminalLines(output, TERMINAL_ARCHIVE_LINES, runId, 28);
+    const archiveDone = await typeTerminalLines(
+        output,
+        TERMINAL_ARCHIVE_LINES,
+        runId,
+        28,
+        () => { if (typeof startTerminalTypingAudio === "function") void startTerminalTypingAudio(); }
+    );
     if (!archiveDone || !terminalIsCurrent(runId)) return;
     stopTerminalTypingAudio();
 
-    // Digital Note: low-frequency hum + one deep heartbeat cycle (“once, twice”), then silence.
-    // The CTA's first and second CSS pulses are synchronized to the two audio thumps;
-    // its softer mission-ready glow continues after the sound stops.
+    // Two double-beat cycles (dag-dag, pause, dag-dag) play with the matching CTA glow;
+    // the low hum fades away while the button keeps a steady ready glow.
     await terminalDelay(420);
     if (!terminalIsCurrent(runId)) return;
+    revealTerminalMission(runId);
+}
+
+/** Put the mission action in its existing place after the transcript is complete. */
+function revealTerminalMission(runId) {
+    const missionArea = document.getElementById("terminalMissionArea");
+    const acceptButton = document.getElementById("acceptMission");
+    const skipButton = document.getElementById("terminalSkipIntro");
+    if (!missionArea || !acceptButton || !terminalIsCurrent(runId)) return;
+
+    if (skipButton) skipButton.hidden = true;
     missionArea.hidden = false;
-    void startTerminalHeartbeat(() => {
-        if (!terminalIsCurrent(runId)) return;
-        // This class owns the persistent visual glow; it is not tied to audio
-        // playback. The heartbeat class is temporary and syncs only the two beats.
-        acceptButton.classList.remove("is-heartbeat-playing", "is-heartbeat-complete", "is-mission-ready");
-        void acceptButton.offsetWidth;
-        acceptButton.classList.add("is-mission-ready", "is-heartbeat-playing");
-    });
+    acceptButton.classList.add("is-mission-ready");
+
+    if (!window.THA?.audioMuted && typeof startTerminalHeartbeat === "function") {
+        void startTerminalHeartbeat(() => {
+            if (!terminalIsCurrent(runId)) return;
+            acceptButton.classList.remove("is-heartbeat-playing");
+            void acceptButton.offsetWidth;
+            acceptButton.classList.add("is-heartbeat-playing");
+        });
+    } else {
+        // Muted visitors still receive the visual heartbeat, without any sound.
+        acceptButton.classList.add("is-heartbeat-playing");
+        window.setTimeout(() => {
+            if (terminalIsCurrent(runId)) acceptButton.classList.remove("is-heartbeat-playing");
+        }, 2250);
+    }
+
     acceptButton.addEventListener("click", () => acceptTerminalMission(runId), { once: true });
+}
+
+/**
+ * The Skip control sits in the monitor bezel, separate from the story text.
+ * It reveals the existing archive readout and mission action without changing routes.
+ */
+function skipTerminalIntro(runId) {
+    if (!terminalIsCurrent(runId) || terminalTransitioning) return;
+
+    // Invalidate any in-flight typewriter wait before replacing its transcript.
+    terminalRunId += 1;
+    const skippedRunId = terminalRunId;
+
+    if (typeof stopTerminalAudio === "function") stopTerminalAudio();
+    else if (typeof stopTerminalTypingAudio === "function") stopTerminalTypingAudio();
+
+    const output = document.getElementById("terminalOutput");
+    if (!output) return;
+
+    output.replaceChildren();
+    for (const item of TERMINAL_ARCHIVE_LINES) {
+        const line = document.createElement("div");
+        line.className = item.className || "terminal-story-line";
+
+        if (item.text.length === 0) {
+            line.classList.add("terminal-line-spacer");
+            line.setAttribute("aria-hidden", "true");
+        } else {
+            const textNode = document.createElement("span");
+            textNode.className = "terminal-line-text";
+            textNode.textContent = item.text;
+            line.appendChild(textNode);
+        }
+        output.appendChild(line);
+    }
+
+    output.scrollTop = output.scrollHeight;
+    announceTerminalLine("THE HUMAN ARCHIVE. ARCHIVE STATUS: INCOMPLETE. ACCEPT THE MISSION.");
+    revealTerminalMission(skippedRunId);
 }
 
 async function acceptTerminalMission(runId) {
@@ -314,6 +410,8 @@ async function acceptTerminalMission(runId) {
         button.disabled = true;
         button.innerHTML = "<span>MISSION ACCEPTED</span>";
     }
+    const skipButton = document.getElementById("terminalSkipIntro");
+    if (skipButton) skipButton.hidden = true;
 
     if (typeof stopTerminalAudio === "function") stopTerminalAudio();
     if (button) button.classList.remove("is-heartbeat-playing");

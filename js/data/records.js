@@ -994,6 +994,55 @@
         "sojourner": "https://nasa.gov"
     };
 
+
+
+    // Visual asset assignments from the supplied Images.docx gallery.
+    // The gallery embeds images but does not expose captions or source URLs as
+    // text, so these three Moon mappings are based on visible subject matching.
+    const APPROVED_MOON_ASSET_MAP = {
+        "apollo-11": {
+            filename: "apollo11-lro-site-detail.png",
+            src: "assets/images/apollo11-lro-site-detail.png",
+            secondaryImages: [
+                {
+                    filename: "apollo11-lunar-module-context.png",
+                    src: "assets/images/apollo11-lunar-module-context.png",
+                    alt: "Apollo 11 Lunar Module on the lunar surface"
+                }
+            ],
+            assetStatus: "Mapped to the visible Apollo 11 LRO site-detail image in Images.docx; confirm its original source URL before final publication."
+        },
+        "laser-retroreflectors": {
+            filename: "lunar-laser-retroreflector-array.jpeg",
+            src: "assets/images/lunar-laser-retroreflector-array.jpeg",
+            secondaryImages: [
+                {
+                    filename: "lunar-retroreflector-deployment.jpg",
+                    src: "assets/images/lunar-retroreflector-deployment.jpg",
+                    alt: "Astronaut working beside lunar surface experiment equipment"
+                },
+                {
+                    filename: "apollo15-lunar-operations-map.png",
+                    src: "assets/images/apollo15-lunar-operations-map.png",
+                    alt: "Lunar orbital view identifying ALSEP, LRRR, and Apollo 15 descent stage"
+                }
+            ],
+            assetStatus: "Mapped to the visible lunar laser retroreflector array photograph in Images.docx; confirm its original source URL before final publication."
+        },
+        "fallen-astronaut": {
+            filename: "fallen-astronaut-figure-plaque.png",
+            src: "assets/images/fallen-astronaut-figure-plaque.png",
+            secondaryImages: [],
+            assetStatus: "Mapped to the visible small lunar memorial figure and plaque photograph in Images.docx; confirm its original source URL before final publication."
+        }
+    };
+
+    RECORDS.forEach((record) => {
+        const approvedMedia = APPROVED_MOON_ASSET_MAP[record.id];
+        if (!approvedMedia) return;
+        Object.assign(record.media, approvedMedia);
+    });
+
     RECORDS.forEach((record) => {
         const links = [
             {
@@ -1178,6 +1227,7 @@
             directory: record.media.directory,
             filename: record.media.filename,
             src: record.media.src,
+            secondaryImages: record.media.secondaryImages || [],
             requiredImage: record.media.requiredImage,
             assetStatus: record.media.assetStatus
         }));
@@ -1238,7 +1288,7 @@
         }
 
         warnings.push("Belge 1 contains an Apollo identifier/source-link mismatch (verified identifier 1969-059C vs URL identifier 1969-059A); the conflict is documented on the Apollo record.");
-        warnings.push("The team reports that the images have been collected and verified; the assets/images folder and exact filenames were not included in the files available for this build, so media.src values remain unset rather than guessed.");
+        warnings.push("The supplied Images.docx contains 18 embedded images but no readable captions or source URLs. The three Moon images have been mapped by visible subject; the remaining record images still need record-by-record mapping and source-URL confirmation.");
         warnings.push("Belge 2 identifies Elora's XLSX as the original data source. The workbook itself was not attached in the files available for this build, so direct cell-by-cell XLSX parity has not been independently re-audited here.");
         warnings.push("The three team-provided https://nasa.gov links are stored as supplementary general verification links; the record-specific deep links from Belge 1 remain the primary source links.");
         warnings.push("Voyager's current status/distance must be populated from a live NASA/JPL check at runtime.");
@@ -1254,7 +1304,7 @@
     }
 
     const api = {
-        version: "2.1.0-docs-aligned-assets-manifest",
+        version: "2.2.0-moon-section-assets-mapped",
         project: "THE HUMAN ARCHIVE",
         sourceDocuments: [
             "Belge 1 — THE HUMAN ARCHIVE v2.0 Complete Script with Verified Sources",
@@ -1263,6 +1313,7 @@
         schema: ["id", "chapter", "title", "template", "nasaData", "story", "mechanic"],
         archiveConfig: ARCHIVE_CONFIG,
         assetDirectory: ASSET_DIRECTORY,
+        approvedMoonAssetMap: APPROVED_MOON_ASSET_MAP,
         teamProvidedGeneralVerificationUrls: TEAM_PROVIDED_GENERAL_VERIFICATION_URLS,
         getImageManifest,
         chapters: CHAPTERS,

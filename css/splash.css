@@ -899,3 +899,62 @@
     .splash-station { bottom: 7%; width: 76px; height: 45px; opacity: .16; }
 
 }
+
+
+/* Small accessible speaker control; it stays clear of the central title. */
+.splash-sound-control {
+    position: absolute; z-index: 15; top: max(14px, env(safe-area-inset-top)); left: max(16px, env(safe-area-inset-left));
+    display: grid; place-items: center; width: 42px; height: 42px; min-width: 42px; min-height: 42px;
+    padding: 0; border: 1px solid rgba(145,239,166,.42); border-radius: 50%; color: #c9f7d1;
+    background: rgba(4,19,8,.72); box-shadow: 0 0 18px rgba(84,216,112,.08); cursor: pointer;
+    transition: background-color .2s ease, border-color .2s ease, color .2s ease, box-shadow .2s ease;
+}
+.splash-sound-control svg { display: block; width: 21px; height: 21px; fill: currentColor; overflow: visible; }
+.splash-sound-control svg path:not(:first-child) { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.splash-sound-control:hover, .splash-sound-control:focus-visible { border-color: #d6ffe0; color: #effff1; background: rgba(27,83,40,.66); box-shadow: 0 0 20px rgba(115,255,145,.18); }
+.splash-sound-control[data-state="on"] { border-color: rgba(183,255,197,.78); color: #e2ffe8; box-shadow: 0 0 16px rgba(115,255,145,.16); }
+.splash-sound-control[data-state="blocked"] { border-color: rgba(217,186,121,.58); }
+@media (max-width: 700px) {
+    .splash-sound-control { top: max(10px, env(safe-area-inset-top)); left: max(10px, env(safe-area-inset-left)); width: 38px; height: 38px; min-width: 38px; min-height: 38px; }
+    .splash-sound-control svg { width: 19px; height: 19px; }
+}
+
+
+/* Mobile type scale: preserve the cinematic composition without micro-sized copy. */
+@media (max-width: 700px) {
+    .splash-screen {
+        padding-top: max(54px, calc(env(safe-area-inset-top) + 46px));
+        padding-right: 16px;
+        padding-bottom: max(58px, calc(env(safe-area-inset-bottom) + 48px));
+        padding-left: 16px;
+    }
+
+    .splash-content { width: min(100%, 540px); padding: 8px 2px 12px; }
+    .splash-eyebrow { margin-bottom: 12px; font-size: .66rem; line-height: 1.55; letter-spacing: .10em; }
+    .splash-emblem { width: 52px; height: 52px; margin-bottom: 13px; }
+    .splash-title { font-size: clamp(2.1rem, 10vw, 3.3rem); line-height: 1.08; letter-spacing: .045em; }
+    .splash-divider { margin: 14px auto; }
+    .splash-description { max-width: 34rem; margin-bottom: 19px; font-size: .95rem; line-height: 1.62; }
+    .splash-enter-button { width: min(100%, 340px); min-height: 52px; padding: 12px 18px; gap: 16px; font-size: .78rem; letter-spacing: .07em; }
+    .splash-footer { bottom: max(12px, env(safe-area-inset-bottom)); font-size: .64rem; line-height: 1.4; letter-spacing: .07em; }
+    .splash-sound-control { width: 42px; height: 42px; min-width: 42px; min-height: 42px; }
+}
+
+@media (max-width: 380px) {
+    .splash-content { padding-inline: 0; }
+    .splash-eyebrow { font-size: .62rem; }
+    .splash-title { font-size: clamp(1.95rem, 9.4vw, 2.55rem); }
+    .splash-description { max-width: 21rem; font-size: .90rem; line-height: 1.58; }
+    .splash-enter-button { min-height: 50px; font-size: .74rem; }
+    .splash-footer { font-size: .60rem; }
+}
+
+/* Short landscape phones may scroll rather than clip the central content. */
+@media (max-width: 700px) and (max-height: 520px) {
+    .splash-screen { overflow-y: auto; place-items: start center; padding-top: 50px; padding-bottom: 54px; }
+    .splash-content { margin-block: auto; }
+    .splash-emblem { width: 42px; height: 42px; margin-bottom: 7px; }
+    .splash-eyebrow { margin-bottom: 6px; }
+    .splash-divider { margin-block: 8px; }
+    .splash-description { margin-bottom: 10px; }
+}

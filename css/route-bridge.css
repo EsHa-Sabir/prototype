@@ -66,3 +66,13 @@
 @media (prefers-reduced-motion: reduce) {
     .tha-route-bridge-button { transition: none; }
 }
+
+
+/* Shared cross-fade between Splash, Terminal, identity assignment and Menu. */
+#app > .tha-route-exit { animation: thaRouteExit 240ms ease-in both; pointer-events: none; }
+#app > .tha-route-enter { animation: thaRouteEnter 520ms cubic-bezier(.2,.72,.22,1) both; }
+@keyframes thaRouteExit { to { opacity: 0; transform: translateY(-7px) scale(.995); filter: brightness(.82); } }
+@keyframes thaRouteEnter { from { opacity: 0; transform: translateY(8px) scale(.995); filter: brightness(1.14); } to { opacity: 1; transform: translateY(0) scale(1); filter: brightness(1); } }
+@media (prefers-reduced-motion: reduce) {
+    #app > .tha-route-exit, #app > .tha-route-enter { animation: none !important; }
+}

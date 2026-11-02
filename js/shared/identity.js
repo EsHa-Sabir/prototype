@@ -97,8 +97,7 @@
             // In the Main Menu the sticky topbar keeps the badge at the upper-right.
             mountInMenu();
         } else {
-            // The script says the assigned badge remains visible on every screen,
-            // including after a returning user reloads the opening experience.
+            // Returning Space Archaeologists keep their assigned identity visible.
             show();
         }
     }
