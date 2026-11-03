@@ -69,6 +69,9 @@ let thaArchiveAmbientOwner = null;
 let thaHeartbeatNodes = []; // Only used by the asset-failure audio-buffer fallback.
 let thaHeartbeatTimer = null;
 let thaHeartbeatReplayTimer = null;
+let thaHeartbeatMediaSource = null;
+let thaHeartbeatGainNode = null;
+let thaHeartbeatCompressor = null;
 const thaAudioFadeTokens = new WeakMap();
 
 function createTHAAudio(path, options = {}) {
@@ -489,10 +492,41 @@ function stopTerminalTypingAudioAndWaitForSilence() {
  */
 function getTerminalHeartbeatCue() {
     if (!window.THA.heartbeatCueAudio) {
-        window.THA.heartbeatCueAudio = createTHAAudio(THA_HEARTBEAT_CUE_PATH, {
+        const audio = createTHAAudio(THA_HEARTBEAT_CUE_PATH, {
             loop: false,
-            volume: 0.96
+            volume: 1.0
         });
+        window.THA.heartbeatCueAudio = audio;
+
+        // The supplied heartbeat recording is quiet at normal media volume.
+        // Add a controlled gain stage and compressor so the two thumps are clear
+        // above the archive ambience without causing harsh digital clipping.
+        try {
+            const context = getTHAKeyAudioContext();
+            if (context && typeof context.createMediaElementSource === "function") {
+                thaHeartbeatMediaSource = context.createMediaElementSource(audio);
+                thaHeartbeatGainNode = context.createGain();
+                thaHeartbeatCompressor = context.createDynamicsCompressor();
+
+                thaHeartbeatGainNode.gain.setValueAtTime(2.0, context.currentTime);
+                thaHeartbeatCompressor.threshold.setValueAtTime(-10, context.currentTime);
+                thaHeartbeatCompressor.knee.setValueAtTime(8, context.currentTime);
+                thaHeartbeatCompressor.ratio.setValueAtTime(3.5, context.currentTime);
+                thaHeartbeatCompressor.attack.setValueAtTime(0.004, context.currentTime);
+                thaHeartbeatCompressor.release.setValueAtTime(0.18, context.currentTime);
+
+                thaHeartbeatMediaSource.connect(thaHeartbeatGainNode);
+                thaHeartbeatGainNode.connect(thaHeartbeatCompressor);
+                thaHeartbeatCompressor.connect(context.destination);
+            }
+        } catch (error) {
+            // Keep the normal media-element path available if Web Audio routing
+            // is unsupported; playback still runs at the browser's full volume.
+            console.info("Heartbeat gain stage is unavailable; using full media volume.");
+            if (thaHeartbeatMediaSource && !thaHeartbeatGainNode) {
+                try { thaHeartbeatMediaSource.connect(getTHAKeyAudioContext().destination); } catch (_) {}
+            }
+        }
     }
     return window.THA.heartbeatCueAudio;
 }
@@ -556,7 +590,7 @@ function playTHAHeartbeatFallback(context, onStart, onEnded) {
         const source = context.createBufferSource();
         const gain = context.createGain();
         source.buffer = createTHAHeartbeatFallbackBuffer(context);
-        gain.gain.setValueAtTime(0.92, context.currentTime);
+        gain.gain.setValueAtTime(1.12, context.currentTime);
         source.connect(gain);
         gain.connect(context.destination);
         source.addEventListener("ended", () => {

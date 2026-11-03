@@ -1,4 +1,3 @@
-// =============================================================
 // THE HUMAN ARCHIVE — MAIN MENU / ARCHIVE MAP
 // The map and unlock sequence follow the Complete Script and Digital Brief.
 // =============================================================
@@ -245,14 +244,22 @@ function renderMenu() {
                             <path class="schematic-mars-crater" d="M 586 86 l4 3 -2 4 5 3" />
                             <circle class="schematic-node schematic-node-deep" cx="793" cy="71" r="5" />
                             <circle class="schematic-ping" cx="793" cy="71" r="12" />
-                            <g class="schematic-labels" aria-hidden="true">
-                                <text x="134" y="143" text-anchor="middle">EARTH</text>
-                                <text x="378" y="110" text-anchor="middle">MOON</text>
-                                <text x="590" y="119" text-anchor="middle">MARS</text>
-                                <text x="793" y="98" text-anchor="middle">DEEP SPACE</text>
-                            </g>
-                        </svg>
-                        <span class="tha-menu-map-note">SCHEMATIC ROUTE // NOT TO SCALE</span>
+ <g class="schematic-labels schematic-labels-desktop" aria-hidden="true">
+    <text x="134" y="151" text-anchor="middle">EARTH</text>
+    <text x="378" y="113" text-anchor="middle">MOON</text>
+    <text x="590" y="125" text-anchor="middle">MARS</text>
+    <text x="793" y="104" text-anchor="middle">DEEP SPACE</text>
+</g>
+
+<g class="schematic-labels schematic-labels-mobile" aria-hidden="true">
+    <text x="134" y="160" text-anchor="middle">EARTH</text>
+    <text x="378" y="126" text-anchor="middle">MOON</text>
+    <text x="590" y="136" text-anchor="middle">MARS</text>
+    <text x="760" y="110" text-anchor="middle">DEEP SPACE</text>
+</g>
+
+<!-- Close the SVG BEFORE writing the HTML map note. -->
+</svg>                <span class="tha-menu-map-note">SCHEMATIC ROUTE // NOT TO SCALE</span>
                     </div>
                     <div class="tha-menu-map-legend" aria-label="Map key">
                         <span><i aria-hidden="true"></i> EARTH ORBIT</span>

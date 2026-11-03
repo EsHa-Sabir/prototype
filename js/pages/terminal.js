@@ -1,4 +1,3 @@
-// =============================================================
 // THE HUMAN ARCHIVE — CINEMATIC TERMINAL
 // Locked story text and sequence follow the Complete Script.
 // Stage directions / Digital Notes are implementation guidance,
@@ -193,11 +192,11 @@ function renderTerminal() {
             <div class="terminal-monitor-frame" id="terminalMonitorFrame">
                 <div class="terminal-monitor-bezel terminal-monitor-bezel-top">
                     <span class="terminal-frame-screw screw-left" aria-hidden="true"></span>
-                    <span class="terminal-hardware-ports" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
-                    <span class="terminal-power-cluster" aria-hidden="true"><i class="power-led"></i><i class="power-led power-led-dim"></i><i class="power-led power-led-dim"></i></span>
                     <button type="button" id="terminalSkipIntro" class="terminal-skip-button" aria-label="Skip the terminal introduction and show the mission prompt">
                         <span>SKIP INTRO</span><span class="terminal-skip-arrow" aria-hidden="true">↗</span>
                     </button>
+                    <span class="terminal-hardware-ports" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+                    <span class="terminal-power-cluster" aria-hidden="true"><i class="power-led"></i><i class="power-led power-led-dim"></i><i class="power-led power-led-dim"></i></span>
                     <span class="terminal-frame-screw screw-right" aria-hidden="true"></span>
                 </div>
 

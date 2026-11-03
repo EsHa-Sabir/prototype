@@ -1727,3 +1727,95 @@
     .terminal-mission-area { margin-top: 8px; }
     .terminal-mission-button { font-size: .72rem; padding-inline: 9px; }
 }
+
+
+/* ============================================================
+   TERMINAL — SKIP INTRO BUTTON / FIXED LEFT BEZEL CORNER
+   - Anchors the button to the left side of the CRT top bezel.
+   - Keeps the button vertically centered within the bezel strip.
+   - Leaves the hardware ports and power controls on the right.
+   ============================================================ */
+.terminal-monitor-bezel-top {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 0;
+    overflow: visible;
+}
+
+.terminal-skip-button {
+    position: absolute;
+    top: 30%;
+    left: 8px;
+    right: auto;
+    z-index: 20;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 108px;
+    min-width: 108px;
+    min-height: 30px;
+    margin: 0;
+    padding: 5px 8px;
+
+    transform: translateY(-50%);
+    white-space: nowrap;
+}
+
+.terminal-skip-button:hover,
+.terminal-skip-button:focus-visible {
+    transform: translateY(-50%);
+}
+
+/* Reserve the right side for the CRT's physical controls. */
+.terminal-hardware-ports {
+    margin-left: auto;
+}
+
+.terminal-power-cluster {
+    margin-left: 10px;
+}
+
+/* Phone screens: move the button closer to the actual left bezel corner. */
+@media (max-width: 700px) {
+    .terminal-monitor-bezel-top {
+        padding-left: 4px;
+        padding-right: 6px;
+        
+
+    }
+
+    .terminal-skip-button {
+        left: 5px;
+        width: 104px;
+        min-width: 104px;
+        min-height: 29px;
+        padding-inline: 6px;
+        font-size: .65rem;
+        letter-spacing: .025em;
+        top: 40%;
+    }
+
+    .terminal-hardware-ports {
+        margin-left: auto;
+    }
+
+    .terminal-power-cluster {
+        margin-left: 7px;
+        margin-right: 5px;
+    }
+}
+
+/* Extra-small phones. */
+@media (max-width: 380px) {
+    .terminal-skip-button {
+        left: 4px;
+        width: 98px;
+        min-width: 98px;
+        min-height: 28px;
+        font-size: .61rem;
+    }
+}
