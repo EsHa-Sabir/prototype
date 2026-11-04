@@ -209,7 +209,10 @@ function renderMenu() {
                     <p class="tha-menu-eyebrow">ARCHIVE NAVIGATION <span>//</span> YEAR 2126</p>
                     <h1 id="thaMenuTitle">THE HUMAN <span>ARCHIVE</span></h1>
                     <div class="tha-menu-rule" aria-hidden="true"><span></span><i></i><span></span></div>
-                    <p class="tha-menu-intro">Start with the Moon. Recover its records to unlock the next chapter.</p>
+                    <p class="tha-menu-intro">
+    <span>Start with the Moon. Recover its</span>
+    <span>records to unlock the next chapter.</span>
+</p>
                 </section>
 
                 <section class="tha-menu-map-panel" aria-label="Archive sections and recovery progress">
@@ -244,21 +247,28 @@ function renderMenu() {
                             <path class="schematic-mars-crater" d="M 586 86 l4 3 -2 4 5 3" />
                             <circle class="schematic-node schematic-node-deep" cx="793" cy="71" r="5" />
                             <circle class="schematic-ping" cx="793" cy="71" r="12" />
- <g class="schematic-labels schematic-labels-desktop" aria-hidden="true">
-    <text x="134" y="151" text-anchor="middle">EARTH</text>
-    <text x="378" y="113" text-anchor="middle">MOON</text>
-    <text x="590" y="125" text-anchor="middle">MARS</text>
-    <text x="793" y="104" text-anchor="middle">DEEP SPACE</text>
-</g>
+                             <g class="schematic-labels schematic-labels-desktop" aria-hidden="true">
+                              <text x="134" y="151" text-anchor="middle">EARTH</text>
+                             <text x="378" y="113" text-anchor="middle">MOON</text>
+                             <text x="590" y="125" text-anchor="middle">MARS</text>
+                            <text x="793" y="104" text-anchor="middle">DEEP SPACE</text>
+                            </g>
 
+                          <!-- Mobile Specific SVG Text Overlay Group inside menu.js -->
 <g class="schematic-labels schematic-labels-mobile" aria-hidden="true">
-    <text x="134" y="160" text-anchor="middle">EARTH</text>
-    <text x="378" y="126" text-anchor="middle">MOON</text>
-    <text x="590" y="136" text-anchor="middle">MARS</text>
-    <text x="760" y="110" text-anchor="middle">DEEP SPACE</text>
+    <!-- Earth Label -->
+    <text x="134" y="172" text-anchor="middle">EARTH</text>
+    
+    <!-- Moon Label -->
+    <text x="378" y="132" text-anchor="middle">MOON</text>
+    
+    <!-- Mars Label -->
+    <text x="590" y="142" text-anchor="middle">MARS</text>
+    
+    <!-- Deep Space Label -->
+    <text x="793" y="118" text-anchor="middle">DEEP SPACE</text>
 </g>
-
-<!-- Close the SVG BEFORE writing the HTML map note. -->
+                     <!-- Close the SVG BEFORE writing the HTML map note. -->
 </svg>                <span class="tha-menu-map-note">SCHEMATIC ROUTE // NOT TO SCALE</span>
                     </div>
                     <div class="tha-menu-map-legend" aria-label="Map key">

@@ -1393,3 +1393,92 @@
         letter-spacing: 0;
     }
 }
+
+/* =========================================================
+   MOBILE INTRO — EXACTLY TWO LINES
+   Desktop keeps the original natural text flow.
+========================================================= */
+
+.tha-menu-intro span {
+    display: inline;
+}
+
+@media (max-width: 700px) {
+
+    .tha-menu-intro {
+        width: 100%;
+        max-width: 100%;
+        margin-inline: auto;
+        font-size: clamp(.76rem, 3.3vw, .88rem);
+        line-height: 1.55;
+        text-align: center;
+    }
+
+    .tha-menu-intro span {
+        display: block;
+        white-space: nowrap;
+    }
+}
+/* =====================================================================
+   MOBILE MAP ENHANCED VISIBILITY & BOLD FIX
+   ===================================================================== */
+@media (max-width: 700px) {
+    /* 1. Map container padding aur height */
+    .tha-menu-schematic {
+        overflow: visible !important;
+        padding: 14px 0 !important;
+    }
+
+    .tha-menu-schematic svg {
+        min-height: 150px !important;
+        overflow: visible !important;
+    }
+
+    /* 2. Dotted lines ko mazeed bold aur bright karna */
+    .tha-menu-schematic .schematic-route {
+        stroke-width: 4.5px !important;
+        stroke-dasharray: 7 7 !important;
+        opacity: 1 !important;
+    }
+
+    .tha-menu-schematic .schematic-orbit,
+    .tha-menu-schematic .schematic-orbit-alt {
+        stroke-width: 2.5px !important;
+        opacity: 0.85 !important;
+    }
+
+    /* 3. Earth, Moon, Mars aur Deep Space nodes ko thora aur bara (enlarged) karna */
+    .tha-menu-schematic .schematic-earth { 
+        r: 26px !important; 
+        stroke-width: 3px !important;
+    }
+
+    .tha-menu-schematic .schematic-node-moon { 
+        r: 17px !important; 
+        stroke-width: 2.5px !important;
+    }
+
+    .tha-menu-schematic .schematic-node-mars { 
+        r: 20px !important; 
+        stroke-width: 2.5px !important;
+    }
+
+    .tha-menu-schematic .schematic-node-deep { 
+        r: 10px !important; 
+    }
+
+    .tha-menu-schematic .schematic-ping {
+        r: 16px !important;
+        stroke-width: 2.5px !important;
+    }
+
+    /* 4. Text labels ko sharp aur high-contrast banana */
+    .tha-menu-schematic .schematic-labels-mobile text {
+        fill: #ffffff !important;
+        font-weight: 700 !important;
+        font-size: 28px !important;
+        stroke: #020704 !important;
+        stroke-width: 5px !important;
+        paint-order: stroke fill !important;
+    }
+}
