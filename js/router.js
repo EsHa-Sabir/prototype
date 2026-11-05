@@ -1,3 +1,4 @@
+
 // =============================================================================
 // THE HUMAN ARCHIVE — SINGLE-PAGE ROUTER
 // Routes are stable names. Opening renderers run directly; future screen modules

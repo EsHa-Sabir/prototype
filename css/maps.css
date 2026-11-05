@@ -1,362 +1,164 @@
-/* =============================================================================
-   THE HUMAN ARCHIVE — PLANETARY MAP SCREENS
-   New Moon chapter styling only. Opening-screen styles remain untouched.
-============================================================================= */
+/* THE HUMAN ARCHIVE — MAP SYSTEMS
+   Shared layer for reusable Template A / SVG map mechanics.
+   Page-specific responsive adjustments remain scoped in moon.css. */
 
-.tha-moon-screen {
-    --moon-ink: #e8ebe3;
-    --moon-muted: #a3aba0;
-    --moon-dim: #747e74;
-    --moon-green: #a9efba;
-    --moon-line: rgba(169, 239, 186, .2);
-    position: relative;
-    isolation: isolate;
-    min-height: 100vh;
-    min-height: 100dvh;
-    overflow: hidden;
-    padding: 0 0 22px;
-    color: var(--moon-ink);
-    background:
-        radial-gradient(ellipse at 52% 36%, rgba(105, 115, 103, .2), transparent 46%),
-        radial-gradient(ellipse at 7% 88%, rgba(61, 82, 65, .16), transparent 38%),
-        linear-gradient(145deg, #090d0a 0%, #040705 54%, #020403 100%);
-    font-family: var(--tha-font-mono);
-}
-.tha-moon-atmosphere { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
-.tha-moon-atmosphere::before { content: ""; position: absolute; inset: 0; opacity: .16; background-image: radial-gradient(circle, #eff5e9 .7px, transparent 1px); background-size: 71px 71px; background-position: 12px 18px; }
-.tha-moon-atmosphere span { position: absolute; width: 48vw; height: 48vw; border: 1px solid rgba(210, 218, 206, .045); border-radius: 50%; }
-.tha-moon-atmosphere span:nth-child(1) { top: 12%; left: -26vw; box-shadow: 0 0 0 42px rgba(211,220,205,.012), 0 0 0 98px rgba(211,220,205,.009); }
-.tha-moon-atmosphere span:nth-child(2) { right: -28vw; bottom: -10%; width: 66vw; height: 66vw; }
-.tha-moon-atmosphere span:nth-child(3) { left: 38%; top: 42%; width: 19vw; height: 19vw; opacity: .3; }
+.tha-moon-map-panel { width: 100%; }
 
-.tha-moon-topbar {
-    position: relative;
-    z-index: 5;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 18px;
-    min-height: 66px;
-    padding: 10px clamp(18px, 4.2vw, 58px);
-    padding-right: clamp(270px, 25vw, 370px);
-    border-bottom: 1px solid rgba(169,239,186,.13);
-    background: rgba(3, 8, 5, .86);
-    -webkit-backdrop-filter: blur(14px);
-    backdrop-filter: blur(14px);
-}
-.tha-moon-back-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 9px;
-    flex: 0 0 auto;
-    min-height: 38px;
-    padding: 7px 11px;
-    border: 1px solid rgba(169,239,186,.22);
-    color: #bfd8c3;
-    background: rgba(11,23,14,.65);
-    font: inherit;
-    font-size: .61rem;
-    letter-spacing: .08em;
-    cursor: pointer;
-    transition: border-color .18s ease, color .18s ease, background .18s ease;
-}
-.tha-moon-back-button:hover { color: var(--tha-green-bright); border-color: rgba(169,239,186,.7); background: rgba(19,46,26,.62); }
-.tha-moon-back-button span { font-size: 1.15rem; }
-.tha-moon-brand { display: flex; align-items: center; gap: 10px; color: #91a895; font-size: .59rem; letter-spacing: .15em; white-space: nowrap; }
-.tha-moon-brand i { color: #536b58; font-style: normal; }
-.tha-moon-brand-mark { display: grid; place-items: center; width: 31px; height: 31px; border: 1px solid rgba(169,239,186,.4); color: #e0f7e4; font-family: var(--tha-font-display); font-size: .56rem; letter-spacing: .02em; }
-.tha-moon-progress { display: flex; align-items: center; gap: 12px; color: #91a895; font-size: .55rem; letter-spacing: .13em; white-space: nowrap; }
-.tha-moon-progress strong { color: var(--tha-green-bright); font-family: var(--tha-font-display); font-size: .86rem; }
 
-.tha-moon-main { width: min(1480px, calc(100% - clamp(32px, 8vw, 112px))); margin: 0 auto; padding: clamp(30px, 4.8vh, 54px) 0 28px; }
-.tha-moon-heading-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 28px; margin: 0 0 28px; }
-.tha-moon-eyebrow { margin: 0 0 13px; color: #879b89; font-size: .63rem; letter-spacing: .19em; }
-.tha-moon-heading-row h1 { margin: 0; color: #eef2ea; font-family: var(--tha-font-display); font-size: clamp(1.45rem, 3vw, 2.55rem); font-weight: 700; letter-spacing: .045em; line-height: 1.2; }
-.tha-moon-intro { max-width: 710px; margin: 13px 0 0; color: #a7b0a5; font-size: .78rem; line-height: 1.85; }
-.tha-moon-signal-readout { display: grid; grid-template-columns: auto auto; align-items: center; gap: 8px 10px; flex: 0 0 auto; min-width: 210px; margin-bottom: 4px; padding: 13px 15px; border: 1px solid rgba(169,239,186,.18); background: linear-gradient(135deg, rgba(11,26,15,.72), rgba(5,11,7,.86)); color: #9db4a1; font-size: .58rem; letter-spacing: .12em; }
-.tha-moon-signal-readout > span:nth-child(2) { align-self: center; }
-.tha-moon-signal-readout strong { color: #e2ffe8; font-family: var(--tha-font-display); font-size: .9rem; }
-.tha-moon-signal-readout small { grid-column: 2; color: #778f7b; font-size: .5rem; letter-spacing: .13em; }
-.tha-signal-led { width: 8px; height: 8px; border-radius: 50%; background: #a9efba; box-shadow: 0 0 11px rgba(169,239,186,.7); animation: thaMoonSignalBlink 2.2s ease-in-out infinite; }
-@keyframes thaMoonSignalBlink { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
+.tha-moon-panel-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 2px 2px 12px; border-bottom: 1px solid var(--moon-line); }
 
-.tha-moon-layout { display: grid; grid-template-columns: minmax(0, 1.48fr) minmax(310px, .76fr); align-items: start; gap: clamp(18px, 2.3vw, 32px); }
-.tha-moon-map-panel { min-width: 0; padding: 13px; border: 1px solid rgba(196,207,193,.19); background: linear-gradient(145deg, rgba(17,23,18,.94), rgba(5,9,6,.97)); box-shadow: 0 24px 65px rgba(0,0,0,.28), inset 0 0 30px rgba(190,205,186,.025); }
-.tha-moon-map-panel-top { display: flex; justify-content: space-between; gap: 12px; padding: 4px 5px 12px; color: #8e9b8e; font-size: .52rem; letter-spacing: .14em; }
-.tha-moon-map-panel-top span:last-child { color: #667468; }
-.tha-moon-map-viewport { position: relative; isolation: isolate; overflow: hidden; aspect-ratio: 1040 / 640; min-height: 340px; border: 1px solid rgba(224,230,216,.12); background: #5f655d; box-shadow: inset 0 0 80px rgba(0,0,0,.3); transition: transform 2s cubic-bezier(.18,.75,.25,1), filter 2s ease; }
-.tha-moon-map-viewport.is-zooming { transform: scale(1.14); filter: brightness(1.28) contrast(1.07); }
-.tha-moon-svg { display: block; width: 100%; height: 100%; }
-.tha-map-crater { transform-box: fill-box; }
-.tha-moon-map-markers { position: absolute; inset: 0; }
-.tha-moon-marker { position: absolute; display: grid; place-items: center; width: 48px; height: 48px; padding: 0; border: 0; border-radius: 50%; color: #e5ffe9; background: transparent; transform: translate(-50%, -50%); cursor: pointer; z-index: 3; }
-.tha-moon-marker-core { position: relative; z-index: 2; display: grid; place-items: center; width: 26px; height: 26px; border: 1px solid rgba(226,255,232,.85); border-radius: 50%; color: #f1fff2; background: rgba(4,20,9,.9); box-shadow: 0 0 0 4px rgba(169,239,186,.11), 0 0 20px rgba(169,239,186,.4); font: 600 .58rem var(--tha-font-display); }
-.tha-moon-marker-pulse { position: absolute; inset: 2px; border: 1px solid rgba(226,255,232,.7); border-radius: 50%; animation: thaMoonMarkerPulse 2.4s ease-out infinite; }
-.tha-moon-marker-label { position: absolute; top: 43px; left: 50%; padding: 4px 6px; border: 1px solid rgba(3,14,7,.52); color: #f1f4ea; background: rgba(3,10,5,.76); font-size: .48rem; letter-spacing: .08em; white-space: nowrap; transform: translateX(-50%); }
-.tha-moon-marker.is-complete .tha-moon-marker-core { border-color: rgba(226,255,232,.65); color: #c6ffd1; background: #183d22; box-shadow: 0 0 15px rgba(169,239,186,.22); }
-.tha-moon-marker.is-complete .tha-moon-marker-pulse { display: none; }
-.tha-moon-marker.is-locked { opacity: .36; cursor: not-allowed; }
-.tha-moon-marker.is-locked .tha-moon-marker-core { border-color: rgba(25,34,27,.6); color: #cad0c7; background: rgba(23,30,24,.85); box-shadow: none; }
-.tha-moon-marker.is-locked .tha-moon-marker-pulse { display: none; }
-.tha-moon-marker.is-dimmed { opacity: .22; }
-.tha-moon-marker:focus-visible { outline: 2px solid #fff; outline-offset: 6px; }
-@keyframes thaMoonMarkerPulse { 0% { opacity: .75; transform: scale(.34); } 75%,100% { opacity: 0; transform: scale(1.75); } }
-.tha-moon-map-crosshair { position: absolute; top: 50%; left: 50%; width: 46px; height: 46px; border: 1px solid rgba(235,241,230,.26); border-radius: 50%; transform: translate(-50%,-50%); pointer-events: none; opacity: .46; }
-.tha-moon-map-crosshair::before, .tha-moon-map-crosshair::after { content: ""; position: absolute; background: rgba(241,244,233,.4); }
-.tha-moon-map-crosshair::before { left: 50%; top: -12px; width: 1px; height: 68px; }
-.tha-moon-map-crosshair::after { left: -12px; top: 50%; height: 1px; width: 68px; }
-.tha-moon-map-crosshair span { position: absolute; inset: 13px; border: 1px solid rgba(235,241,230,.25); border-radius: 50%; }
-.tha-moon-map-crosshair i { display: none; }
-.tha-moon-map-scale { position: absolute; left: 18px; bottom: 16px; display: flex; align-items: center; gap: 8px; color: rgba(245,246,238,.73); font-size: .48rem; letter-spacing: .14em; pointer-events: none; }
-.tha-moon-map-scale span { display: block; width: 54px; height: 4px; border: 1px solid rgba(244,246,238,.66); border-top: 0; }
-.tha-moon-map-caption { display: flex; flex-wrap: wrap; gap: 16px; padding: 13px 4px 4px; color: #899689; font-size: .5rem; letter-spacing: .1em; }
-.tha-moon-map-caption span { display: inline-flex; align-items: center; gap: 7px; }
-.tha-moon-map-caption b { display: block; width: 7px; height: 7px; border-radius: 50%; }
-.tha-map-key-active { background: #caffd3; box-shadow: 0 0 8px #a9efba; }
-.tha-map-key-done { background: #668c6d; }
-.tha-map-key-locked { background: #4a504a; }
-.tha-moon-map-note { margin: 9px 4px 2px; color: #778176; font-size: .52rem; line-height: 1.7; }
 
-.tha-moon-side-panel { display: grid; gap: 14px; min-width: 0; }
-.tha-moon-next-card, .tha-moon-record-list { padding: 15px; border: 1px solid rgba(169,239,186,.16); background: linear-gradient(145deg, rgba(10,20,12,.88), rgba(4,8,5,.95)); }
-.tha-moon-panel-label { margin: 0 0 12px; color: #8ca591; font-size: .52rem; letter-spacing: .16em; }
-.tha-moon-preview-image { overflow: hidden; width: 100%; aspect-ratio: 16 / 8.7; border: 1px solid rgba(213,221,207,.14); background: #171d18; }
-.tha-moon-preview-image img { display: block; width: 100%; height: 100%; object-fit: cover; filter: grayscale(.7) contrast(1.03); }
-.tha-moon-preview-placeholder { display: grid; place-items: center; width: 100%; height: 100%; color: #8b988c; font-size: .58rem; letter-spacing: .14em; }
-.tha-moon-next-card h2 { margin: 14px 0 5px; color: #e8f1e8; font-family: var(--tha-font-display); font-size: .95rem; line-height: 1.35; letter-spacing: .025em; }
-.tha-moon-next-card > p:not(.tha-moon-panel-label) { margin: 0 0 14px; color: #8f9c90; font-size: .64rem; line-height: 1.7; }
-.tha-moon-primary-button, .tha-moon-secondary-button { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; min-height: 43px; padding: 11px 13px; border: 1px solid rgba(169,239,186,.52); color: #e0ffe5; background: rgba(29,68,39,.36); font: inherit; font-size: .58rem; letter-spacing: .1em; text-align: left; cursor: pointer; transition: background .18s ease, border-color .18s ease, transform .18s ease; }
-.tha-moon-primary-button:hover { border-color: #d9ffe0; background: rgba(43,94,55,.52); transform: translateY(-1px); }
-.tha-moon-primary-button:disabled { opacity: .5; cursor: wait; transform: none; }
-.tha-moon-secondary-button { justify-content: center; margin-top: 9px; border-color: rgba(169,239,186,.2); color: #a4b5a6; background: transparent; }
-.tha-moon-list-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 10px; }
-.tha-moon-list-heading h2 { margin: 0; color: #b2c8b6; font-family: var(--tha-font-display); font-size: .64rem; letter-spacing: .12em; }
-.tha-moon-list-heading span { color: #d8ffe0; font-size: .62rem; }
-.tha-moon-record-row { display: grid; grid-template-columns: 26px minmax(0,1fr) 18px; align-items: center; gap: 9px; width: 100%; min-height: 54px; padding: 8px 5px; border: 0; border-top: 1px solid rgba(169,239,186,.11); color: #cbd7cb; background: transparent; text-align: left; cursor: pointer; }
-.tha-moon-record-row:not(:disabled):hover { background: rgba(169,239,186,.055); }
-.tha-moon-record-index { color: #778e7c; font-family: var(--tha-font-display); font-size: .58rem; }
-.tha-moon-record-copy { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
-.tha-moon-record-copy strong { overflow: hidden; color: #dce8dc; font-size: .61rem; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
-.tha-moon-record-copy small { color: #718475; font-size: .48rem; letter-spacing: .08em; }
-.tha-moon-record-state { color: #98cda2; font-size: .86rem; text-align: right; }
-.tha-moon-record-row.is-current .tha-moon-record-index, .tha-moon-record-row.is-current .tha-moon-record-state { color: #d3ffda; }
-.tha-moon-record-row.is-current .tha-moon-record-copy strong { color: #f2fff3; }
-.tha-moon-record-row.is-locked { opacity: .43; cursor: not-allowed; }
-.tha-moon-record-row.is-complete .tha-moon-record-state { color: #a9efba; }
-.tha-moon-audio-note { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid rgba(169,239,186,.12); background: rgba(6,12,8,.64); }
-.tha-audio-symbol { display: grid; place-items: center; width: 26px; height: 26px; border: 1px solid rgba(169,239,186,.33); border-radius: 50%; color: #c8f8d0; font-size: 1.1rem; }
-.tha-moon-audio-note div { display: flex; flex-direction: column; gap: 4px; }
-.tha-moon-audio-note strong { color: #b9d0bd; font-size: .54rem; letter-spacing: .13em; }
-.tha-moon-audio-note small { color: #748477; font-size: .45rem; letter-spacing: .09em; }
-.tha-moon-footer { display: flex; justify-content: space-between; gap: 16px; width: min(1480px, calc(100% - clamp(32px, 8vw, 112px))); margin: 9px auto 0; padding-top: 14px; border-top: 1px solid rgba(169,239,186,.1); color: #5f7162; font-size: .48rem; letter-spacing: .13em; }
+.tha-moon-kicker,
+.tha-moon-record-count { color: #b4c8be; font-size: .58rem; letter-spacing: .12em; }
 
-.tha-moon-complete-screen { position: relative; isolation: isolate; display: grid; place-items: center; align-content: center; min-height: 100vh; min-height: 100dvh; overflow: hidden; padding: 40px 24px; color: #effbef; background: radial-gradient(ellipse at center, rgba(145,35,38,.25), transparent 50%), linear-gradient(145deg, #090b09, #190708 70%, #030504); text-align: center; transition: background 1s ease; }
-.tha-moon-complete-screen.is-ready { background: radial-gradient(ellipse at center, rgba(156,44,48,.38), transparent 54%), linear-gradient(145deg, #170909, #350b0e 70%, #080505); }
-.tha-moon-complete-flash { position: absolute; z-index: -1; inset: 0; background: #fff; opacity: 0; animation: thaMoonCompletionFlash 1s ease-out .95s both; pointer-events: none; }
-@keyframes thaMoonCompletionFlash { 0% { opacity: 0; } 18% { opacity: .94; } 58% { opacity: .88; } 100% { opacity: 0; } }
-.tha-moon-complete-eyebrow { margin: 0 0 28px; color: #9aa99c; font-size: .59rem; letter-spacing: .22em; }
-.tha-moon-complete-emblem { display: grid; place-items: center; width: 84px; height: 84px; margin-bottom: 19px; border: 1px solid rgba(221,255,226,.38); border-radius: 50%; background: rgba(240,245,237,.04); box-shadow: 0 0 50px rgba(203,236,207,.12); font-size: 2.25rem; }
-.tha-moon-complete-label { margin: 0 0 10px; color: #c1d3c2; font-size: .55rem; letter-spacing: .2em; }
-.tha-moon-complete-screen h1 { margin: 0; font-family: var(--tha-font-display); font-size: clamp(1.45rem, 4.5vw, 3rem); letter-spacing: .08em; line-height: 1.3; }
-.tha-moon-complete-count { margin: 12px 0 15px; color: #e4ffe8; font-family: var(--tha-font-display); font-size: 1.05rem; letter-spacing: .1em; }
-.tha-moon-complete-story { margin: 0; color: #aab9aa; font-size: .78rem; line-height: 1.7; }
-.tha-moon-complete-mantra { margin: 28px 0 0; color: #f1fff2; font-family: var(--tha-font-display); font-size: .86rem; letter-spacing: .2em; }
-.tha-moon-complete-actions { display: flex; flex-direction: column; width: min(350px, 100%); gap: 10px; margin-top: 34px; opacity: 0; transform: translateY(10px); transition: opacity .5s ease, transform .5s ease; }
-.tha-moon-complete-screen.is-ready .tha-moon-complete-actions { opacity: 1; transform: none; }
-.tha-moon-error, .tha-template-error { min-height: 100vh; display: grid; align-content: center; justify-items: start; gap: 14px; padding: 36px; color: #e2ffe8; background: #020604; font-family: var(--tha-font-mono); }
-.tha-moon-error h1, .tha-template-error h1 { margin: 0; font-family: var(--tha-font-display); font-size: 1.4rem; }
-.tha-moon-error p, .tha-template-error p { margin: 0; color: #91a895; line-height: 1.7; }
-.tha-moon-error button, .tha-template-error button { padding: 12px 16px; border: 1px solid rgba(169,239,186,.5); color: #e2ffe8; background: rgba(22,58,32,.2); cursor: pointer; }
 
-@media (max-width: 1120px) {
-    .tha-moon-topbar { padding-right: 270px; }
-    .tha-moon-layout { grid-template-columns: minmax(0,1.15fr) minmax(290px,.85fr); }
-    .tha-moon-main { width: min(100% - 42px, 1200px); }
-}
-@media (max-width: 900px) {
-    .tha-moon-topbar { padding-right: clamp(220px, 30vw, 320px); }
-    .tha-moon-progress { display: none; }
-    .tha-moon-layout { grid-template-columns: 1fr; }
-    .tha-moon-side-panel { grid-template-columns: minmax(0,1fr) minmax(0,1fr); align-items: start; }
-    .tha-moon-audio-note { grid-column: 1 / -1; }
-    .tha-moon-heading-row { align-items: flex-start; }
-}
-@media (max-width: 620px) {
-    .tha-moon-topbar { min-height: 96px; padding: 55px 13px 9px; gap: 8px; }
-    .tha-moon-brand { font-size: .46rem; letter-spacing: .09em; gap: 6px; }
-    .tha-moon-brand-mark { width: 26px; height: 26px; font-size: .5rem; }
-    .tha-moon-back-button { min-height: 34px; padding: 6px 8px; font-size: .49rem; gap: 5px; }
-    .tha-moon-main { width: calc(100% - 26px); padding-top: 28px; }
-    .tha-moon-heading-row { display: block; margin-bottom: 18px; }
-    .tha-moon-heading-row h1 { font-size: clamp(1.2rem, 7vw, 1.75rem); }
-    .tha-moon-eyebrow { font-size: .52rem; }
-    .tha-moon-intro { font-size: .68rem; line-height: 1.75; }
-    .tha-moon-signal-readout { margin-top: 17px; width: max-content; }
-    .tha-moon-map-panel { padding: 8px; }
-    .tha-moon-map-panel-top { font-size: .42rem; }
-    .tha-moon-map-viewport { min-height: 265px; }
-    .tha-moon-marker { width: 39px; height: 39px; }
-    .tha-moon-marker-core { width: 22px; height: 22px; font-size: .48rem; }
-    .tha-moon-marker-label { top: 35px; font-size: .39rem; }
-    .tha-moon-side-panel { grid-template-columns: 1fr; }
-    .tha-moon-audio-note { grid-column: auto; }
-    .tha-moon-footer { width: calc(100% - 26px); flex-wrap: wrap; font-size: .4rem; }
-    .tha-moon-footer span:nth-child(2) { order: 3; width: 100%; }
-}
-@media (prefers-reduced-motion: reduce) {
-    .tha-moon-screen *, .tha-moon-complete-screen *, .tha-moon-screen *::before, .tha-moon-screen *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+.tha-moon-record-count { color: var(--moon-green); }
+
+
+.tha-moon-map-frame {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 245px;
+  margin-top: 12px;
+  border: 1px solid rgba(196,218,205,.2);
+  background: #11191c;
 }
 
-/* =============================================================================
-   MOON UX PASS — clearer instructions, legible type, and responsive headers
-============================================================================= */
-.tha-moon-topbar {
-    padding-right: clamp(18px, 4.2vw, 58px);
-    flex-wrap: wrap;
-}
-.tha-page-identity-slot { display: flex; align-items: center; justify-content: flex-end; min-width: 0; }
-.tha-moon-intro { max-width: 760px; font-size: .88rem; line-height: 1.8; }
-.tha-moon-howto {
-    display: grid;
-    grid-template-columns: minmax(180px, .8fr) minmax(0, 2fr);
-    align-items: center;
-    gap: 14px 24px;
-    margin: 0 0 20px;
-    padding: 15px 17px;
-    border: 1px solid rgba(169,239,186,.2);
-    background: linear-gradient(110deg, rgba(13,34,19,.82), rgba(5,12,7,.84));
-}
-.tha-moon-howto-heading { display: grid; gap: 5px; }
-.tha-moon-howto-heading > span { color: #9bc6a3; font-size: .62rem; letter-spacing: .17em; }
-.tha-moon-howto-heading > strong { color: #effff1; font-size: .92rem; line-height: 1.4; }
-.tha-moon-howto ol { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
-.tha-moon-howto li { display: flex; align-items: flex-start; gap: 8px; color: #b5c6b8; font-size: .72rem; line-height: 1.55; }
-.tha-moon-howto li b { display: grid; place-items: center; flex: 0 0 23px; width: 23px; height: 23px; border: 1px solid rgba(169,239,186,.42); border-radius: 50%; color: #d9ffe0; font-family: var(--tha-font-display); font-size: .57rem; }
-.tha-moon-map-viewport { min-height: 0; }
-.tha-moon-map-note { font-size: .66rem; line-height: 1.7; }
-.tha-moon-panel-label { font-size: .62rem; }
-.tha-moon-next-card h2 { font-size: 1.06rem; }
-.tha-moon-next-card > p:not(.tha-moon-panel-label) { font-size: .76rem; line-height: 1.7; }
-.tha-moon-record-copy strong { font-size: .73rem; }
-.tha-moon-record-copy small { font-size: .58rem; }
-.tha-moon-record-index { font-size: .68rem; }
-.tha-moon-record-row { min-height: 60px; }
-.tha-moon-list-heading h2 { font-size: .72rem; }
-.tha-moon-audio-note { flex-wrap: wrap; }
-.tha-moon-audio-copy { flex: 1 1 150px; min-width: 0; }
-.tha-moon-audio-note strong { font-size: .65rem; }
-.tha-moon-audio-note small { font-size: .59rem; line-height: 1.55; }
-.tha-moon-audio-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 auto;
-    min-height: 40px;
-    padding: 8px 11px;
-    border: 1px solid rgba(169,239,186,.42);
-    color: #dfffe5;
-    background: rgba(24,65,36,.42);
-    font: inherit;
-    font-size: .57rem;
-    letter-spacing: .08em;
-    cursor: pointer;
-}
-.tha-moon-audio-button:hover { border-color: #e1ffe7; background: rgba(42,91,52,.58); }
-.tha-moon-audio-button:disabled { opacity: .55; cursor: wait; }
-.tha-moon-footer { font-size: .58rem; }
 
-/* The completion page begins in archive green, flashes white for one second,
-   and only then turns red for the hand-off to Mars, as the script specifies. */
-.tha-moon-complete-screen {
-    min-height: 100vh;
-    min-height: 100dvh;
-    padding: 28px clamp(16px, 4vw, 52px);
-    color: #effff1;
-    background:
-        radial-gradient(ellipse at 50% 42%, rgba(88,169,105,.2), transparent 52%),
-        linear-gradient(145deg, #08150c 0%, #061009 60%, #020604 100%);
-    transition: background 850ms ease;
-}
-.tha-moon-complete-screen.is-transition-red {
-    background:
-        radial-gradient(ellipse at 50% 42%, rgba(172,52,57,.32), transparent 54%),
-        linear-gradient(145deg, #170909 0%, #350b0e 65%, #080505 100%);
-}
-.tha-moon-complete-flash { z-index: 9; animation: thaMoonCompletionFlash 1s ease-out .95s both; }
-.tha-moon-complete-topbar {
-    position: absolute;
-    z-index: 4;
-    top: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    min-height: 66px;
-    padding: 10px clamp(16px, 4vw, 52px);
-    border-bottom: 1px solid rgba(169,239,186,.16);
-    background: rgba(3,10,5,.48);
-}
-.tha-moon-complete-topbar > span { color: #a8c4ad; font-size: .62rem; letter-spacing: .15em; }
-.tha-moon-complete-topbar i { color: #54765c; font-style: normal; }
-.tha-moon-complete-content { position: relative; z-index: 1; display: grid; justify-items: center; width: min(720px,100%); margin: 56px auto 0; }
-.tha-moon-complete-eyebrow { margin-bottom: 20px; color: #9fc4a6; font-size: .67rem; letter-spacing: .18em; line-height: 1.6; }
-.tha-moon-complete-emblem { width: 76px; height: 76px; border-color: rgba(191,255,202,.45); color: #dfffe5; background: rgba(87,158,99,.1); }
-.tha-moon-complete-label { color: #a9efba; font-size: .64rem; letter-spacing: .16em; line-height: 1.6; }
-.tha-moon-complete-screen h1 { font-size: clamp(1.55rem, 4vw, 2.8rem); line-height: 1.25; }
-.tha-moon-complete-count { display: flex; align-items: center; gap: 9px; font-size: 1.25rem; }
-.tha-moon-complete-count span { color: #78957d; }
-.tha-moon-complete-count b { color: #a9efba; font-size: 1rem; }
-.tha-moon-complete-story { max-width: 540px; color: #c0d0c2; font-size: .88rem; line-height: 1.8; }
-.tha-moon-complete-mantra { margin-top: 25px; color: #e3ffe8; font-size: clamp(.92rem, 2vw, 1.18rem); letter-spacing: .16em; line-height: 1.5; }
-.tha-moon-complete-next { max-width: 520px; margin: 13px 0 0; color: #9eb4a1; font-size: .78rem; line-height: 1.75; }
-.tha-moon-complete-actions { opacity: 0; transform: translateY(12px); pointer-events: none; }
-.tha-moon-complete-screen.is-transition-red .tha-moon-complete-actions { opacity: 1; transform: none; pointer-events: auto; }
-.tha-moon-complete-screen .tha-moon-primary-button { min-height: 48px; font-size: .68rem; }
-.tha-moon-complete-screen .tha-moon-secondary-button { min-height: 44px; font-size: .62rem; }
+.tha-moon-map-frame > .tha-lunar-map-svg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; transform: scale(1); transform-origin: var(--tha-zoom-x, 54.4%) var(--tha-zoom-y, 49%); transition: transform 2s cubic-bezier(.18,.72,.2,1), filter 2s ease; filter: saturate(.78) contrast(1.03); }
 
-@media (max-width: 1120px) {
-    .tha-moon-howto { grid-template-columns: 1fr; }
+
+.tha-moon-map-frame.is-zooming > .tha-lunar-map-svg { transform: scale(2.05); filter: saturate(.95) contrast(1.1) brightness(1.12); }
+
+
+.tha-moon-map-frame.is-zooming .tha-moon-marker {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(2.35);
+  transition: opacity 1.15s ease .55s, transform 2s cubic-bezier(.18,.72,.2,1);
 }
-@media (max-width: 900px) {
-    .tha-moon-topbar { padding-right: 16px; }
-    .tha-moon-layout { grid-template-columns: 1fr; }
-    .tha-moon-side-panel { grid-template-columns: repeat(2,minmax(0,1fr)); }
-    .tha-moon-audio-note { grid-column: 1 / -1; }
-    .tha-moon-howto ol { gap: 8px; }
+
+
+.tha-moon-map-frame.is-zooming .tha-map-hud { opacity: 0; transition: opacity .28s ease; }
+
+
+.tha-moon-map-frame.is-zooming .tha-map-scan-lines { opacity: .04; }
+
+
+.tha-map-scan-lines { position: absolute; inset: 0; z-index: 1; opacity: .14; pointer-events: none; background: repeating-linear-gradient(0deg, transparent 0 4px, rgba(210,241,223,.18) 5px); mix-blend-mode: screen; }
+
+
+.tha-map-vignette { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(ellipse at 51% 49%, transparent 16%, rgba(1,5,7,.13) 70%, rgba(1,5,7,.55) 100%); }
+
+
+.tha-moon-marker {
+  position: absolute;
+  z-index: 4;
+  left: 54.4%;
+  top: 49%;
+  width: 76px;
+  height: 76px;
+  padding: 0;
+  overflow: visible;
+  transform: translate(-50%, -50%);
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  isolation: isolate;
 }
-@media (max-width: 620px) {
-    .tha-moon-topbar { display: grid; grid-template-columns: minmax(0,1fr) auto; grid-template-areas: "brand identity" "back progress"; gap: 8px; min-height: auto; padding: 10px 12px; }
-    .tha-moon-brand { grid-area: brand; min-width: 0; font-size: .51rem; white-space: normal; }
-    .tha-moon-brand-mark { width: 27px; height: 27px; flex: 0 0 27px; }
-    .tha-moon-topbar > .tha-page-identity-slot { grid-area: identity; }
-    .tha-moon-back-button { grid-area: back; min-height: 35px; justify-self: start; font-size: .55rem; }
-    .tha-moon-progress { grid-area: progress; justify-self: end; font-size: .51rem; }
-    .tha-moon-main { width: calc(100% - 24px); padding-top: 24px; }
-    .tha-moon-heading-row { display: grid; gap: 14px; margin-bottom: 16px; }
-    .tha-moon-heading-row h1 { font-size: clamp(1.25rem, 6vw, 1.72rem); }
-    .tha-moon-intro { margin-top: 9px; font-size: .78rem; }
-    .tha-moon-signal-readout { width: 100%; min-width: 0; margin: 0; }
-    .tha-moon-howto { gap: 10px; margin-bottom: 14px; padding: 12px; }
-    .tha-moon-howto-heading > strong { font-size: .83rem; }
-    .tha-moon-howto ol { grid-template-columns: 1fr; gap: 8px; }
-    .tha-moon-howto li { align-items: center; font-size: .71rem; }
-    .tha-moon-map-panel { padding: 8px; }
-    .tha-moon-map-panel-top { flex-wrap: wrap; font-size: .45rem; line-height: 1.5; }
-    .tha-moon-map-viewport { aspect-ratio: 1.38; min-height: 210px; }
-    .tha-moon-map-caption { gap: 9px; font-size: .49rem; }
-    .tha-moon-side-panel { grid-template-columns: 1fr; }
-    .tha-moon-audio-note { grid-column: auto; }
-    .tha-moon-audio-button { width: 100%; }
-    .tha-moon-footer { flex-direction: column; gap: 6px; width: calc(100% - 24px); font-size: .49rem; }
-    .tha-moon-complete-topbar { min-height: 58px; padding: 8px 10px; }
-    .tha-moon-complete-topbar > span { max-width: 135px; font-size: .48rem; line-height: 1.5; }
-    .tha-moon-complete-content { margin-top: 54px; }
-    .tha-moon-complete-eyebrow { font-size: .54rem; }
-    .tha-moon-complete-emblem { width: 64px; height: 64px; font-size: 1.8rem; }
-    .tha-moon-complete-label { font-size: .54rem; }
-    .tha-moon-complete-story { font-size: .78rem; }
-    .tha-moon-complete-mantra { font-size: .85rem; letter-spacing: .1em; }
-    .tha-moon-complete-next { font-size: .72rem; }
+
+
+/* High-visibility beacon: a broad soft aura, two expanding rings and a hot white core. */
+.tha-moon-marker::before,
+.tha-moon-marker::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  pointer-events: none;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
 }
+
+
+.tha-moon-marker::before {
+  z-index: 0;
+  width: 132px;
+  height: 132px;
+  background: radial-gradient(circle, rgba(222,255,231,.72) 0%, rgba(163,255,190,.38) 17%, rgba(104,255,159,.16) 38%, rgba(104,255,159,0) 72%);
+  filter: blur(2px);
+  animation: thaMoonBeaconGlow 1.45s ease-in-out infinite;
+}
+
+
+.tha-moon-marker::after {
+  z-index: 1;
+  width: 20px;
+  height: 20px;
+  background: rgba(248,255,250,.9);
+  box-shadow: 0 0 9px 4px #f4fff6, 0 0 23px 12px rgba(159,255,184,.95), 0 0 48px 24px rgba(100,255,150,.46);
+  animation: thaMoonBeaconFlash 1.45s ease-in-out infinite;
+}
+
+
+.tha-marker-pulse,
+.tha-marker-core { position: absolute; left: 50%; top: 50%; border-radius: 50%; transform: translate(-50%,-50%); pointer-events: none; }
+
+
+.tha-marker-pulse { z-index: 2; width: 54px; height: 54px; border: 2px solid rgba(225,255,233,.98); box-shadow: 0 0 13px rgba(205,255,219,.72), inset 0 0 12px rgba(178,255,200,.2); animation: thaMoonPing 1.9s ease-out infinite; }
+
+
+.tha-marker-core { z-index: 3; width: 14px; height: 14px; background: #fff; border: 2px solid #c9ffda; box-shadow: 0 0 8px 4px #fff, 0 0 20px 10px rgba(174,255,196,.98), 0 0 43px 22px rgba(112,255,157,.7); animation: thaMoonCoreBlink 1.45s steps(2, end) infinite; }
+
+
+.tha-marker-label { position: absolute; z-index: 4; top: -2px; left: 48px; padding: 7px 9px; border: 1px solid rgba(214,255,224,.82); color: #f1fff4; background: rgba(2,12,7,.96); box-shadow: 0 0 18px rgba(126,255,160,.42); font-size: .56rem; font-weight: 600; letter-spacing: .1em; white-space: nowrap; }
+
+
+.tha-moon-marker:hover .tha-marker-label,
+.tha-moon-marker:focus-visible .tha-marker-label { background: rgba(12,42,23,.98); border-color: #fff; }
+
+
+.tha-map-hud { position: absolute; z-index: 3; inset: 12px 12px auto; display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; pointer-events: none; }
+
+
+.tha-map-tag,
+.tha-map-coordinates { padding: 5px 7px; color: #e1e9e4; background: rgba(2,8,10,.66); font-size: .49rem; letter-spacing: .08em; }
+
+
+.tha-map-coordinates { text-align: right; }
+
+
+.tha-vector-map-caption { padding: 8px 2px 1px; color: #82928b; font-size: .49rem; line-height: 1.6; letter-spacing: .07em; }
+
+
+.tha-image-credit { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 5px 10px; padding: 8px 2px 2px; color: #84958f; font-size: .5rem; line-height: 1.6; letter-spacing: .04em; }
+
+
+.tha-image-source { color: #c1e8cb; text-decoration: underline; text-decoration-color: rgba(193,232,203,.35); text-underline-offset: 3px; }
+
+
+.tha-image-source:hover { color: #fff; }
+
+
+.tha-moon-legend { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px 14px; margin-top: 13px; color: #9eb3a8; font-size: .54rem; letter-spacing: .07em; }
+
+
+.tha-moon-legend span:first-child { color: #c9f7d2; }
+
+
+.tha-moon-map-caption { margin: 15px 0 0; color: #b4c3bc; text-align: center; font-size: .61rem; letter-spacing: .09em; line-height: 1.7; }
+
+
+
+@keyframes thaMoonPing { 0% { opacity: 1; transform: translate(-50%,-50%) scale(.38); } 100% { opacity: 0; transform: translate(-50%,-50%) scale(2.65); } }
+
+
+@keyframes thaMoonBeaconGlow { 0%, 100% { opacity: .58; transform: translate(-50%,-50%) scale(.78); } 48% { opacity: 1; transform: translate(-50%,-50%) scale(1.18); } }
+
+
+@keyframes thaMoonBeaconFlash { 0%, 100% { opacity: .72; transform: translate(-50%,-50%) scale(.78); } 50% { opacity: 1; transform: translate(-50%,-50%) scale(1.22); } }
+
+
+@keyframes thaMoonCoreBlink { 0%, 100% { opacity: .78; filter: brightness(1); } 50% { opacity: 1; filter: brightness(1.65); } }

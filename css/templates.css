@@ -1,270 +1,214 @@
-/* =============================================================================
-   THE HUMAN ARCHIVE — RECORD TEMPLATES A + C
-   Reusable record display for Surface Map Explorer and Mission Identity Analyzer.
-============================================================================= */
+/* THE HUMAN ARCHIVE — RECORD TEMPLATES
+   Shared layer for reusable Template A, B and C mechanics.
+   Page-specific responsive adjustments remain scoped in moon.css. */
 
-.tha-record-screen { --record-green: #a9efba; --record-bright: #e2ffe8; --record-muted: #91a394; min-height: 100vh; min-height: 100dvh; padding: 0 0 44px; color: #e8eee7; background: radial-gradient(ellipse at 50% 15%, rgba(45,79,53,.2), transparent 44%), linear-gradient(145deg,#080d09 0%,#030604 62%,#020403 100%); font-family: var(--tha-font-mono); }
-.tha-record-topbar { position: relative; z-index: 5; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 18px; min-height: 64px; padding: 10px clamp(18px,4vw,56px); padding-right: clamp(270px,25vw,370px); border-bottom: 1px solid rgba(169,239,186,.14); background: rgba(3,9,5,.88); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
-.tha-record-back { display: inline-flex; align-items: center; gap: 8px; min-height: 37px; padding: 7px 10px; border: 1px solid rgba(169,239,186,.22); color: #c6dbc9; background: rgba(11,23,14,.65); font: inherit; font-size: .55rem; letter-spacing: .1em; cursor: pointer; }
-.tha-record-back:hover { border-color: rgba(169,239,186,.7); color: #e6ffe9; }
-.tha-record-back span { font-size: 1.1rem; }
-.tha-record-topbar-center { display: flex; justify-content: center; align-items: center; gap: 10px; min-width: 0; color: #778b7a; font-size: .53rem; letter-spacing: .15em; white-space: nowrap; }
-.tha-record-topbar-center i { color: #465d4a; font-style: normal; }
-.tha-record-topbar-code { color: #96ab99; font-size: .52rem; letter-spacing: .13em; white-space: nowrap; }
-.tha-record-main { width: min(1320px, calc(100% - clamp(32px,8vw,112px))); margin: 0 auto; padding: clamp(30px,5vh,55px) 0 0; }
-.tha-record-kicker { margin: 0 0 13px; color: #8aa08d; font-size: .58rem; letter-spacing: .18em; }
-.tha-record-kicker::first-letter { color: #b9f4c3; }
-.tha-record-title { max-width: 980px; margin: 0 0 28px; color: #eff5ed; font-family: var(--tha-font-display); font-size: clamp(1.4rem,3.4vw,2.55rem); font-weight: 700; letter-spacing: .045em; line-height: 1.22; }
-.tha-record-grid { display: grid; grid-template-columns: minmax(0,.9fr) minmax(0,1.1fr); align-items: start; gap: clamp(20px,3vw,40px); }
-.tha-record-visual-column, .tha-record-interaction-column { min-width: 0; }
-.tha-record-image-stack { display: grid; gap: 10px; }
-.tha-record-hero-image { overflow: hidden; margin: 0; border: 1px solid rgba(221,230,218,.18); background: #111711; box-shadow: 0 22px 55px rgba(0,0,0,.3); }
-.tha-record-hero-image img { display: block; width: 100%; max-height: 470px; aspect-ratio: 4 / 3; object-fit: cover; filter: saturate(.76) contrast(1.04); }
-.tha-record-hero-image figcaption, .tha-record-support-image figcaption { padding: 8px 10px; color: #7f9482; background: rgba(5,11,7,.94); font-size: .46rem; letter-spacing: .1em; line-height: 1.5; }
-.tha-record-support-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
-.tha-record-support-image { overflow: hidden; margin: 0; border: 1px solid rgba(221,230,218,.13); background: #111711; }
-.tha-record-support-image img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; filter: saturate(.7); }
-.tha-record-image-missing { display: grid; place-items: center; min-height: 270px; border: 1px dashed rgba(169,239,186,.25); color: #8a9d8d; background: rgba(8,15,9,.7); font-size: .58rem; letter-spacing: .15em; }
-.tha-detected-state { display: flex; align-items: center; gap: 12px; margin-top: 13px; padding: 13px 14px; border: 1px solid rgba(169,239,186,.15); background: rgba(7,15,9,.75); }
-.tha-detected-led { width: 8px; height: 8px; flex: 0 0 auto; border-radius: 50%; background: #a9efba; box-shadow: 0 0 10px rgba(169,239,186,.6); }
-.tha-detected-state div { display: flex; flex-direction: column; gap: 5px; }
-.tha-detected-state strong { color: #a8bca9; font-size: .54rem; letter-spacing: .14em; }
-.tha-detected-state small { color: #778e7b; font-size: .53rem; letter-spacing: .1em; line-height: 1.5; }
-.tha-detected-state.is-identified { border-color: rgba(169,239,186,.42); background: rgba(18,48,25,.45); }
-.tha-detected-state.is-identified .tha-detected-led { background: #e1ffe6; box-shadow: 0 0 14px rgba(169,239,186,.9); }
-.tha-interaction-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 40px; padding-bottom: 12px; border-bottom: 1px solid rgba(169,239,186,.15); color: #91a795; font-size: .52rem; letter-spacing: .13em; }
-.tha-interaction-heading strong { color: #c9e4cd; font-family: var(--tha-font-display); font-size: .56rem; white-space: nowrap; }
-.tha-record-instruction { margin: 14px 0 17px; color: #9ba99c; font-size: .73rem; line-height: 1.8; }
-.tha-clue-list { display: grid; gap: 9px; }
-.tha-clue-empty { display: grid; place-items: center; min-height: 125px; padding: 16px; border: 1px dashed rgba(169,239,186,.19); color: #748575; text-align: center; }
-.tha-clue-empty > span { color: #9ec6a5; font-size: 1.2rem; }
-.tha-clue-empty p { margin: 8px 0 4px; font-size: .52rem; letter-spacing: .16em; }
-.tha-clue-empty small { color: #647566; font-size: .53rem; }
-.tha-clue-card { padding: 15px 16px; border: 1px solid rgba(169,239,186,.15); background: linear-gradient(140deg,rgba(13,27,16,.83),rgba(5,10,6,.88)); animation: thaClueArrive .38s ease both; }
-@keyframes thaClueArrive { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
-.tha-clue-card-top { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 9px; color: #7e997f; font-size: .48rem; letter-spacing: .13em; }
-.tha-clue-unlocked { color: #a9efba; }
-.tha-clue-card h3 { margin: 0 0 7px; color: #e0eee0; font-family: var(--tha-font-display); font-size: .73rem; letter-spacing: .04em; }
-.tha-clue-card p { margin: 0; color: #aab6aa; font-size: .68rem; line-height: 1.75; }
 
-.tha-clue-toggle { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; padding: 0; border: 0; color: #e0eee0; background: transparent; text-align: left; cursor: pointer; }
-.tha-clue-toggle > span { display: flex; flex-direction: column; gap: 7px; }
-.tha-clue-toggle small { color: #7e997f; font: inherit; font-size: .46rem; letter-spacing: .13em; }
-.tha-clue-toggle strong { color: #e0eee0; font-family: var(--tha-font-display); font-size: .7rem; letter-spacing: .04em; }
-.tha-clue-toggle i { display: grid; place-items: center; width: 24px; height: 24px; flex: 0 0 auto; border: 1px solid rgba(169,239,186,.24); color: #b9eac1; font-size: .9rem; font-style: normal; }
-.tha-clue-body { display: grid; grid-template-rows: 1fr; opacity: 1; transition: grid-template-rows .24s ease, opacity .24s ease, margin-top .24s ease; margin-top: 10px; }
-.tha-clue-body p { min-height: 0; overflow: hidden; margin: 0; color: #aab6aa; font-size: .68rem; line-height: 1.75; }
-.tha-clue-card.is-collapsed .tha-clue-body { grid-template-rows: 0fr; opacity: 0; margin-top: 0; }
-.tha-dna-dot { width: 8px; height: 8px; flex: 0 0 auto; border: 1px solid #add6b4; transform: rotate(45deg); box-shadow: 0 0 8px rgba(169,239,186,.4); }
-.tha-object-dna-card { grid-column: 1 / -1; }
-.tha-object-dna-card .tha-data-row { grid-template-columns: minmax(145px,.34fr) minmax(0,1fr); }
-.tha-info-card { animation: thaFactCardArrive .48s ease both; }
-.tha-info-card:nth-child(2) { animation-delay: .08s; }
-.tha-info-card:nth-child(3) { animation-delay: .16s; }
-@keyframes thaFactCardArrive { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-.tha-template-primary-button, .tha-template-secondary-button { display: flex; justify-content: space-between; align-items: center; gap: 14px; width: 100%; min-height: 46px; margin-top: 15px; padding: 12px 15px; border: 1px solid rgba(169,239,186,.56); color: #e3ffe8; background: rgba(26,64,36,.4); font: inherit; font-size: .57rem; letter-spacing: .12em; text-align: left; cursor: pointer; transition: background .18s ease, border-color .18s ease, transform .18s ease; }
-.tha-template-primary-button:hover { border-color: #e4ffe8; background: rgba(43,91,53,.55); transform: translateY(-1px); }
-.tha-template-primary-button:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-.tha-template-secondary-button { justify-content: center; border-color: rgba(169,239,186,.22); color: #a4b8a7; background: transparent; }
-.tha-record-facts { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 16px; margin-top: 22px; animation: thaClueArrive .4s ease both; }
-.tha-record-facts[hidden] { display: none !important; }
-.tha-info-card { min-width: 0; padding: 18px; border: 1px solid rgba(169,239,186,.16); background: linear-gradient(145deg,rgba(8,18,10,.9),rgba(4,8,5,.96)); }
-.tha-info-card-heading { display: flex; align-items: center; gap: 9px; margin-bottom: 15px; padding-bottom: 12px; border-bottom: 1px solid rgba(169,239,186,.12); }
-.tha-info-card-heading h2 { margin: 0; color: #bce9c3; font-family: var(--tha-font-display); font-size: .68rem; letter-spacing: .12em; }
-.tha-info-card-code { margin-left: auto; color: #718575; font-size: .43rem; letter-spacing: .1em; }
-.tha-data-dot, .tha-story-dot { width: 8px; height: 8px; flex: 0 0 auto; border-radius: 50%; background: #a9efba; box-shadow: 0 0 9px rgba(169,239,186,.55); }
-.tha-story-dot { background: #b8a4e5; box-shadow: 0 0 9px rgba(184,164,229,.5); }
-.tha-story-card { border-color: rgba(184,164,229,.2); background: linear-gradient(145deg,rgba(18,13,27,.8),rgba(7,7,11,.94)); }
-.tha-story-card .tha-info-card-heading h2 { color: #d5c5f2; }
-.tha-data-list { display: grid; gap: 0; margin: 0; }
-.tha-data-row { display: grid; grid-template-columns: minmax(130px,.85fr) minmax(0,1.15fr); gap: 14px; padding: 10px 0; border-bottom: 1px solid rgba(169,239,186,.08); }
-.tha-data-row dt { color: #7e9882; font-size: .49rem; letter-spacing: .11em; line-height: 1.6; }
-.tha-data-row dd { margin: 0; color: #d7e6d9; font-size: .62rem; line-height: 1.65; overflow-wrap: anywhere; }
-.tha-source-link { display: inline-flex; align-items: center; gap: 10px; margin-top: 17px; color: #d7ffe0; font-size: .55rem; letter-spacing: .1em; text-decoration: none; }
-.tha-source-link:hover { color: #fff; text-decoration: underline; text-underline-offset: 4px; }
-.tha-source-note { margin: 12px 0 0; padding: 10px 12px; border-left: 2px solid rgba(224,190,132,.66); color: #c6b99e; background: rgba(67,48,22,.17); font-size: .53rem; line-height: 1.75; }
-.tha-story-lead { margin: 0 0 11px; color: #e2d9f4; font-family: var(--tha-font-display); font-size: .7rem; line-height: 1.65; }
-.tha-story-copy { margin: 0; color: #b9b0ca; font-size: .66rem; line-height: 1.85; }
-.tha-record-complete-row { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 15px 18px; border: 1px solid rgba(169,239,186,.17); background: rgba(6,15,8,.78); }
-.tha-record-complete-row > span { color: #a9efba; font-size: .55rem; letter-spacing: .15em; white-space: nowrap; }
-.tha-record-complete-row .tha-template-primary-button { width: auto; min-width: 230px; margin: 0; }
+/* Apollo evidence and four-step decoding game. */
+.tha-object-status { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; color: #9eb4a8; font-size: .58rem; letter-spacing: .1em; }
 
-/* Laser Retroreflector special simulation */
-.tha-laser-grid .tha-record-hero-image img { object-fit: cover; }
-.tha-simulation-disclaimer { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; padding: 13px 14px; border: 1px solid rgba(218,174,105,.24); background: rgba(46,31,13,.24); }
-.tha-simulation-disclaimer strong { color: #e8c58f; font-size: .52rem; letter-spacing: .16em; }
-.tha-simulation-disclaimer span { color: #bea984; font-size: .58rem; line-height: 1.65; }
-.tha-laser-stage { position: relative; overflow: hidden; margin: 18px 0 10px; padding: 12px 4px 30px; border: 1px solid rgba(169,239,186,.14); background: radial-gradient(ellipse at 50% 55%,rgba(99,121,102,.1),transparent 58%),#040906; }
-.tha-laser-stage svg { display: block; width: 100%; height: auto; }
-.tha-laser-stage text { fill: #9eb3a1; font-family: var(--tha-font-mono); font-size: 15px; letter-spacing: 3px; }
-.tha-laser-track { fill: none; stroke: rgba(189,205,190,.18); stroke-width: 2; stroke-dasharray: 4 9; }
-.tha-laser-outbound, .tha-laser-return { fill: none; stroke-width: 5; stroke-linecap: round; stroke-dasharray: 536; stroke-dashoffset: 536; filter: drop-shadow(0 0 7px currentColor); }
-.tha-laser-outbound { stroke: #e55a5a; color: #e55a5a; }
-.tha-laser-return { stroke: #78df8b; color: #78df8b; }
-.tha-laser-stage.is-running .tha-laser-outbound { animation: thaLaserOutbound 2s linear forwards; }
-.tha-laser-stage.is-returning .tha-laser-outbound { stroke-dashoffset: 0; }
-.tha-laser-stage.is-returning .tha-laser-return { animation: thaLaserReturn 2s linear forwards; }
-@keyframes thaLaserOutbound { to { stroke-dashoffset: 0; } }
-@keyframes thaLaserReturn { to { stroke-dashoffset: 0; } }
-.tha-laser-earth, .tha-laser-moon { stroke: rgba(227,239,226,.5); stroke-width: 2; }
-.tha-laser-phase { position: absolute; left: 0; right: 0; bottom: 12px; color: #8ca18f; font-size: .47rem; letter-spacing: .13em; text-align: center; }
-.tha-laser-result-display { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin: 18px 0; }
-.tha-laser-result-display > div { display: flex; flex-direction: column; gap: 9px; min-height: 90px; justify-content: center; padding: 14px; border: 1px solid rgba(169,239,186,.2); background: rgba(10,25,13,.7); }
-.tha-laser-result-display span { color: #84a08a; font-size: .49rem; letter-spacing: .1em; }
-.tha-laser-result-display strong { color: #e3ffe8; font-family: var(--tha-font-display); font-size: clamp(.85rem,2vw,1.15rem); }
-.tha-simulation-disclaimer-inline { grid-column: 1 / -1; margin: 0 0 16px; padding: 11px 13px; border-left: 2px solid #d1a76c; color: #c9b48f; background: rgba(53,38,20,.24); font-size: .59rem; line-height: 1.7; }
 
-/* Mission Identity Analyzer choices */
-.tha-identity-choice-panel { margin-top: 18px; padding: 16px; border: 1px solid rgba(184,164,229,.23); background: linear-gradient(145deg,rgba(19,14,28,.83),rgba(7,8,11,.95)); }
-.tha-identity-choice-panel[hidden] { display: none !important; }
-.tha-choice-question { margin: 0 0 15px; color: #e5dcf5; font-family: var(--tha-font-display); font-size: .84rem; line-height: 1.6; }
-.tha-choice-buttons { display: grid; gap: 9px; }
-.tha-identity-choice { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 44px; padding: 10px 13px; border: 1px solid rgba(196,177,235,.3); color: #e0d7f0; background: rgba(49,37,68,.2); font: inherit; font-size: .57rem; letter-spacing: .12em; text-align: left; cursor: pointer; transition: border-color .18s ease, background .18s ease; }
-.tha-identity-choice:hover:not(:disabled) { border-color: rgba(221,207,248,.8); background: rgba(83,62,112,.3); }
-.tha-identity-choice:disabled { opacity: .56; cursor: default; }
-.tha-identity-choice.is-selected { border-color: #d3c1f5; background: rgba(95,69,128,.34); }
-.tha-identity-choice i { color: #bea9e8; font-style: normal; }
-.tha-no-correct-answer { margin: 13px 0 0; color: #ad9ecb; font-size: .47rem; letter-spacing: .12em; line-height: 1.6; }
-.tha-choice-feedback { margin: 13px 0 0; padding: 10px 12px; border-left: 2px solid #c7b2ea; color: #d9cbed; background: rgba(82,63,108,.2); font-size: .59rem; line-height: 1.7; }
-.tha-choice-feedback.is-incorrect { border-color: #d2a56d; color: #d6be9b; background: rgba(80,55,23,.2); }
+.tha-object-status strong { margin-left: auto; color: #f1d89c; font-weight: 500; }
 
-@media (max-width: 1040px) {
-    .tha-record-topbar { padding-right: 270px; }
-    .tha-record-main { width: min(100% - 42px, 1160px); }
-}
-@media (max-width: 850px) {
-    .tha-record-topbar { padding-right: clamp(220px, 30vw, 320px); grid-template-columns: auto 1fr; }
-    .tha-record-topbar-center { display: none; }
-    .tha-record-topbar-code { justify-self: end; }
-    .tha-record-grid { grid-template-columns: 1fr; }
-    .tha-record-visual-column { max-width: 720px; }
-    .tha-record-facts { grid-template-columns: 1fr; }
-}
-@media (max-width: 600px) {
-    .tha-record-topbar { min-height: 96px; gap: 8px; padding: 55px 12px 8px; grid-template-columns: 1fr; }
-    .tha-record-topbar-code { justify-self: start; }
-    .tha-record-back { min-height: 34px; padding: 6px 8px; font-size: .48rem; }
-    .tha-record-topbar-code { font-size: .44rem; }
-    .tha-record-main { width: calc(100% - 26px); padding-top: 28px; }
-    .tha-record-kicker { font-size: .48rem; line-height: 1.7; }
-    .tha-record-title { font-size: clamp(1.15rem,6vw,1.65rem); margin-bottom: 20px; }
-    .tha-record-hero-image img { aspect-ratio: 4 / 3; }
-    .tha-record-interaction-column { padding-top: 3px; }
-    .tha-interaction-heading { font-size: .43rem; }
-    .tha-record-instruction { font-size: .65rem; }
-    .tha-record-facts { gap: 11px; }
-    .tha-info-card { padding: 14px; }
-    .tha-info-card-code { display: none; }
-    .tha-data-row { grid-template-columns: 1fr; gap: 5px; }
-    .tha-record-complete-row { flex-direction: column; align-items: stretch; gap: 12px; padding: 13px; }
-    .tha-record-complete-row .tha-template-primary-button { min-width: 0; width: 100%; }
-    .tha-laser-result-display { grid-template-columns: 1fr; }
-    .tha-record-support-grid { grid-template-columns: 1fr 1fr; }
-}
-@media (prefers-reduced-motion: reduce) {
-    .tha-record-screen *, .tha-record-screen *::before, .tha-record-screen *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
-}
 
-/* =============================================================================
-   RECORD UX PASS — clearer actions, readable text, consistent archive green
-============================================================================= */
-.tha-record-topbar {
-    padding-right: clamp(14px, 3vw, 40px);
-    flex-wrap: wrap;
-}
-.tha-record-topbar-code { margin-left: auto; }
-.tha-page-identity-slot { display: flex; align-items: center; justify-content: flex-end; min-width: 0; }
-.tha-record-main { padding-top: clamp(28px, 4vw, 48px); }
-.tha-record-kicker { font-size: .64rem; line-height: 1.7; }
-.tha-record-title { font-size: clamp(1.5rem, 3vw, 2.3rem); line-height: 1.25; }
-.tha-interaction-heading { font-size: .58rem; }
-.tha-interaction-heading strong { font-size: .68rem; }
-.tha-record-instruction { margin: 13px 0; color: #b9d2bd; font-size: .75rem; line-height: 1.65; }
-.tha-record-howto {
-    margin: 12px 0 14px;
-    padding: 13px 15px;
-    border: 1px solid rgba(169,239,186,.22);
-    border-left: 3px solid #a9efba;
-    background: linear-gradient(110deg, rgba(13,36,20,.86), rgba(5,12,7,.85));
-}
-.tha-record-howto > strong { display: block; margin-bottom: 5px; color: #a9efba; font-size: .62rem; letter-spacing: .16em; }
-.tha-record-howto p { margin: 0; color: #d3e4d5; font-size: .79rem; line-height: 1.75; }
-.tha-clue-empty p { font-size: .7rem; }
-.tha-clue-empty small { font-size: .68rem; }
-.tha-clue-toggle { min-height: 52px; font-size: .7rem; }
-.tha-clue-toggle small { font-size: .58rem; }
-.tha-clue-toggle strong { font-size: .75rem; }
-.tha-clue-body p { font-size: .8rem; line-height: 1.8; }
-.tha-template-primary-button, .tha-template-secondary-button { min-height: 50px; font-size: .68rem; letter-spacing: .09em; }
-.tha-info-card-heading h2 { font-size: .78rem; }
-.tha-info-card-code { font-size: .54rem; }
-.tha-data-row dt { font-size: .61rem; }
-.tha-data-row dd { font-size: .77rem; line-height: 1.7; }
-.tha-source-link { font-size: .66rem; }
-.tha-source-note { font-size: .68rem; line-height: 1.7; }
-.tha-story-dot { background: #a9efba; box-shadow: 0 0 9px rgba(169,239,186,.45); }
-.tha-story-card { border-color: rgba(169,239,186,.18); background: linear-gradient(145deg,rgba(9,24,13,.92),rgba(4,10,6,.97)); }
-.tha-story-card .tha-info-card-heading h2 { color: #c7f4cf; }
-.tha-story-lead { color: #e0ffe5; font-size: .86rem; }
-.tha-story-copy { color: #c4d5c6; font-size: .8rem; line-height: 1.85; }
-.tha-record-complete-row > span { font-size: .64rem; }
-.tha-record-howto + .tha-record-instruction { margin-top: 11px; }
-.tha-laser-step-guide { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin: 12px 0; }
-.tha-laser-step-guide span { padding: 10px; border: 1px solid rgba(169,239,186,.15); color: #c9ddcc; background: rgba(7,19,10,.7); font-size: .61rem; line-height: 1.55; }
-.tha-laser-step-guide b { display: inline-grid; place-items: center; width: 22px; height: 22px; margin-right: 5px; border: 1px solid rgba(169,239,186,.35); color: #dfffe5; font-family: var(--tha-font-display); font-size: .58rem; }
-.tha-laser-explanation { color: #b8cdbb; font-size: .72rem; line-height: 1.7; }
-.tha-laser-explanation strong { color: #dfffe5; font-weight: 600; }
-.tha-laser-phase { font-size: .59rem; letter-spacing: .08em; }
-.tha-laser-result-display span { font-size: .6rem; line-height: 1.55; }
-.tha-laser-result-display strong { font-size: clamp(1rem,2vw,1.25rem); }
-.tha-simulation-disclaimer span { font-size: .7rem; }
-.tha-simulation-disclaimer strong { font-size: .62rem; }
-.tha-simulation-disclaimer-inline { font-size: .74rem; }
-.tha-identity-choice-panel {
-    border-color: rgba(169,239,186,.22);
-    background: linear-gradient(145deg,rgba(10,27,14,.94),rgba(4,10,6,.97));
-}
-.tha-choice-question { color: #e2ffe7; font-size: .95rem; }
-.tha-identity-choice { min-height: 50px; border-color: rgba(169,239,186,.28); color: #dfffe5; background: rgba(28,67,38,.2); font-size: .68rem; letter-spacing: .09em; }
-.tha-identity-choice:hover:not(:disabled) { border-color: rgba(199,255,208,.78); background: rgba(43,91,53,.38); }
-.tha-identity-choice.is-selected { border-color: #b7f7c3; background: rgba(45,100,56,.42); }
-.tha-identity-choice i { color: #a9efba; }
-.tha-no-correct-answer { color: #a9c9af; font-size: .6rem; letter-spacing: .08em; }
-.tha-choice-feedback { border-color: #a9efba; color: #dfffe5; background: rgba(24,65,36,.25); font-size: .73rem; }
-.tha-record-mantra {
-    grid-column: 1 / -1;
-    display: grid;
-    justify-items: center;
-    gap: 9px;
-    margin: 4px 0;
-    padding: clamp(22px,4vw,38px) 18px;
-    border-top: 1px solid rgba(169,239,186,.22);
-    border-bottom: 1px solid rgba(169,239,186,.22);
-    background: radial-gradient(ellipse at center, rgba(46,91,54,.18), transparent 68%);
-    text-align: center;
-}
-.tha-record-mantra p { margin: 0; color: #e2ffe8; font-family: var(--tha-font-display); font-size: clamp(1rem,2.5vw,1.45rem); letter-spacing: .12em; line-height: 1.5; }
-.tha-record-mantra small { color: #9ebba3; font-size: .6rem; letter-spacing: .1em; line-height: 1.7; }
+.tha-apollo-visual { position: relative; overflow: hidden; height: clamp(210px, 34vw, 360px); margin: 12px 0 0; border: 1px solid rgba(174,207,190,.2); background: #081014; }
 
-@media (max-width: 850px) {
-    .tha-record-topbar { padding-right: 14px; }
-    .tha-record-main { width: min(100% - 34px, 1160px); }
-}
-@media (max-width: 600px) {
-    .tha-record-topbar { display: grid; grid-template-columns: minmax(0,1fr) auto; grid-template-areas: "back identity" "code code"; min-height: auto; gap: 8px; padding: 10px 12px; }
-    .tha-record-back { grid-area: back; align-self: center; }
-    .tha-record-topbar-code { grid-area: code; justify-self: start; margin: 0; }
-    .tha-record-topbar > .tha-page-identity-slot { grid-area: identity; }
-    .tha-record-main { width: calc(100% - 24px); padding-top: 24px; }
-    .tha-record-title { margin-bottom: 17px; font-size: clamp(1.32rem,6.5vw,1.75rem); }
-    .tha-record-howto p { font-size: .74rem; }
-    .tha-laser-step-guide { grid-template-columns: 1fr; }
-    .tha-record-facts { grid-template-columns: 1fr; }
-    .tha-record-complete-row { padding: 13px; }
-    .tha-record-complete-row > span { white-space: normal; line-height: 1.5; }
-    .tha-record-support-grid { grid-template-columns: 1fr 1fr; }
-    .tha-data-row { grid-template-columns: 1fr; gap: 4px; }
-    .tha-info-card-code { display: none; }
-    .tha-record-mantra { padding: 24px 12px; }
-    .tha-record-mantra p { font-size: .98rem; }
-}
+
+.tha-apollo-visual > svg { display: block; width: 100%; height: 100%; filter: grayscale(.42) brightness(.84) contrast(1.08); }
+
+
+.tha-visual-reticle { position: absolute; right: 10px; top: 10px; padding: 5px 7px; border: 1px solid rgba(188,240,200,.5); color: #d9ffe0; background: rgba(0,0,0,.58); font-size: .5rem; letter-spacing: .1em; }
+
+
+.tha-record-intro { max-width: 690px; margin: 22px auto 23px; text-align: center; }
+
+
+.tha-record-intro h1 { margin: 0; color: #f1f3f0; font-family: var(--tha-font-display, Georgia, serif); font-size: clamp(1.7rem, 5.3vw, 3.1rem); font-weight: 500; line-height: 1.12; letter-spacing: .035em; }
+
+
+.tha-record-intro > p:last-child { max-width: 57ch; margin: 10px auto 0; color: #b6c2c5; font-size: .78rem; line-height: 1.7; }
+
+
+.tha-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding-bottom: 10px; border-bottom: 1px solid var(--moon-line); color: #c9e5d0; font-size: .65rem; letter-spacing: .1em; }
+
+
+.tha-section-heading small { color: #849b91; font-size: .52rem; }
+
+
+.tha-clues { display: grid; gap: 8px; margin-top: 12px; }
+
+
+.tha-clue { overflow: hidden; border: 1px solid rgba(157,194,172,.2); background: rgba(12,21,23,.74); transition: border-color .2s, background .2s, opacity .2s; }
+
+
+.tha-clue.is-locked { opacity: .54; }
+
+
+.tha-clue.is-revealed { border-color: rgba(165,236,182,.48); background: rgba(25,48,35,.48); opacity: 1; }
+
+
+.tha-clue-trigger { display: flex; align-items: center; gap: 11px; width: 100%; min-height: 56px; padding: 13px 12px; border: 0; color: #e2e9e4; background: transparent; text-align: left; font: inherit; cursor: pointer; }
+
+
+.tha-clue-trigger:disabled { cursor: not-allowed; }
+
+
+.tha-clue-number { flex: 0 0 28px; color: #9ed7aa; font-size: .62rem; }
+
+
+.tha-clue-title { flex: 1; font-size: .61rem; letter-spacing: .07em; }
+
+
+.tha-clue-state { color: #8b9d94; font-size: .49rem; letter-spacing: .07em; white-space: nowrap; }
+
+
+.tha-clue-body { display: grid; grid-template-columns: minmax(110px, .65fr) minmax(0, 1.35fr); align-items: center; gap: 13px; padding: 2px 13px 15px 12px; color: #bdc9c4; font-size: .76rem; line-height: 1.7; animation: thaClueReveal .3s ease both; }
+
+
+.tha-clue-body[hidden] { display: none !important; }
+
+
+.tha-clue-body p { margin: 0; }
+
+
+.tha-clue-visual { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 4px; min-height: 75px; padding: 7px; border: 1px solid rgba(177,220,194,.12); background: rgba(3,10,12,.52); }
+
+
+.tha-clue-visual:has(.tha-clue-evidence-figure) { display: block; min-height: 0; padding: 0; border: 0; background: transparent; }
+
+
+.tha-clue-evidence-figure { overflow: hidden; margin: 0; border: 1px solid rgba(177,220,194,.18); background: #080e10; }
+
+
+.tha-clue-evidence-figure img { display: block; width: 100%; height: clamp(104px, 12vw, 154px); object-fit: contain; background: #05090b; filter: grayscale(.28) contrast(1.04); }
+
+
+.tha-clue-image-credit { padding: 6px 7px; color: #93a59b; font-size: .43rem; line-height: 1.55; letter-spacing: .025em; }
+
+
+.tha-clue-visual-symbol { color: #d4efdb; font-size: 1.45rem; line-height: 1.15; }
+
+
+.tha-clue-visual-3 .tha-clue-visual-symbol { font-size: 1.05rem; letter-spacing: .12em; }
+
+
+.tha-clue-visual-label { color: #8eaaa0; text-align: center; font-size: .43rem; letter-spacing: .08em; }
+
+
+.tha-clue-visual svg { width: 100%; height: auto; max-height: 85px; }
+
+
+.tha-clue-progress { height: 3px; margin: 14px 0 4px; background: rgba(180,220,192,.12); }
+
+
+.tha-clue-progress-fill { display: block; width: 0; height: 100%; background: #a8eab7; box-shadow: 0 0 12px rgba(168,234,183,.6); transition: width .35s ease; }
+
+
+.tha-clue-progress-label { margin: 0 0 20px; color: #84978d; text-align: right; font-size: .48rem; letter-spacing: .1em; }
+
+
+
+/* Identification unlock: NASA data, story, diagram and photo credits remain distinct. */
+
+.tha-apollo-answer[hidden] { display: none !important; }
+.tha-apollo-answer { padding-top: 22px; border-top: 1px solid rgba(179,230,192,.25); opacity: 0; transform: translateY(14px); transition: opacity .55s ease, transform .55s ease; scroll-margin-top: 86px; }
+
+
+.tha-apollo-answer.is-visible { opacity: 1; transform: none; }
+
+
+.tha-identification-header { margin-bottom: 16px; }
+
+
+.tha-identification-kicker { color: #b7f4c5; font-size: .58rem; letter-spacing: .14em; }
+
+
+.tha-identification-header h2 { margin: 7px 0 0; color: #f1f4ef; font-family: var(--tha-font-display, Georgia, serif); font-size: clamp(1.45rem, 4.5vw, 2.55rem); font-weight: 500; line-height: 1.15; }
+
+
+.tha-identified-subtitle { margin: 7px 0 0; color: #b8efc4; font-size: .7rem; letter-spacing: .2em; }
+
+
+.tha-nasa-data,
+.tha-story-card,
+.tha-why-card,
+.tha-photo-evidence { margin-top: 15px; padding: clamp(13px, 2.4vw, 19px); border: 1px solid rgba(170,210,184,.22); background: rgba(7,15,17,.8); }
+
+
+.tha-data-label,
+.tha-story-label { display: block; margin-bottom: 11px; color: #a9e8b7; font-size: .58rem; letter-spacing: .12em; }
+
+
+.tha-data-row { display: flex; justify-content: space-between; gap: 13px; padding: 9px 0; border-top: 1px solid rgba(180,210,190,.1); font-size: .68rem; line-height: 1.5; }
+
+
+.tha-data-row span { color: #9aaba3; }
+
+
+.tha-data-row strong { color: #e3eee6; text-align: right; font-weight: 500; }
+
+
+.tha-moon-source-link { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; margin-top: 13px; padding: 10px 13px; border: 1px solid rgba(165,210,177,.42); color: #dcffe3; background: rgba(20,47,29,.32); text-decoration: none; font-size: .58rem; letter-spacing: .08em; }
+
+
+.tha-moon-source-link:hover { border-color: #c8ffd2; background: rgba(62,111,76,.24); }
+
+
+.tha-story-card { border-color: rgba(190,157,232,.26); background: rgba(28,21,38,.42); }
+
+
+.tha-story-card .tha-story-label { color: #cbb1ee; }
+
+
+.tha-story-card p { margin: 0; color: #e1e3e4; font-family: var(--tha-font-display, Georgia, serif); font-size: clamp(1.06rem, 2.7vw, 1.42rem); line-height: 1.55; }
+
+
+.tha-story-card .tha-story-secondary { margin-top: 8px; color: #bfc0c8; font-family: var(--tha-font-mono, Consolas, monospace); font-size: .76rem; }
+
+
+.tha-story-card .tha-story-context { margin-top: 12px; color: #c9cad0; font-family: var(--tha-font-mono, Consolas, monospace); font-size: .72rem; line-height: 1.75; }
+
+
+.tha-nasa-source-name { margin: 11px 0 0; color: #9fb7a8; font-size: .58rem; line-height: 1.6; letter-spacing: .04em; }
+
+
+.tha-why-card p { margin: 0; color: #bac8c0; font-size: .77rem; line-height: 1.75; }
+
+
+.tha-stage-diagram { margin: 2px 0 12px; padding: 9px; border: 1px solid rgba(177,220,194,.13); background: rgba(3,10,12,.52); }
+
+
+.tha-stage-diagram svg { display: block; width: 100%; height: auto; }
+
+
+.tha-diagram-caption { margin-top: 4px; color: #71847b; text-align: center; font-size: .48rem; letter-spacing: .06em; }
+
+
+.tha-photo-evidence .tha-section-heading { margin-bottom: 10px; }
+
+
+.tha-record-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 11px; margin-top: 18px; }
+
+
+.tha-next-button,
+.tha-back-button { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 11px 15px; border: 1px solid rgba(178,230,191,.42); color: #d8f5df; background: rgba(11,25,19,.72); font: inherit; font-size: .6rem; letter-spacing: .08em; cursor: pointer; }
+
+
+.tha-next-button:hover,
+.tha-back-button:hover { border-color: #baf5c6; background: rgba(62,111,76,.24); }
+
+
+@keyframes thaClueReveal { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Template B / Template C reusable controls (used as later records are added). */
+.tha-template-b, .tha-template-c { margin-top: 15px; padding: clamp(13px, 2.4vw, 19px); border: 1px solid rgba(170,210,184,.22); background: rgba(7,15,17,.8); }
+.tha-template-kicker { margin: 0 0 8px; color: #a9e8b7; font-size: .56rem; letter-spacing: .12em; }
+.tha-template-question { margin: 0 0 12px; color: #edf1ef; font-size: 1rem; font-weight: 500; }
+.tha-chrono-slider input[type="range"] { width: 100%; accent-color: #a9e8b7; }
+.tha-chrono-stop h3 { margin: 5px 0; color: #edf1ef; }
+.tha-chrono-stop p { color: #b9c5c1; line-height: 1.6; }
+.tha-template-choices { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 9px; }
+.tha-template-choice { min-height: 44px; padding: 10px; border: 1px solid rgba(165,210,177,.35); color: #dcffe3; background: rgba(20,47,29,.32); font: inherit; cursor: pointer; }
+.tha-template-choice:disabled { opacity: .65; cursor: default; }
+.tha-template-choice.is-selected { border-color: #c8ffd2; background: rgba(62,111,76,.35); }
+.tha-template-feedback { color: #cbb1ee; line-height: 1.6; }
+@media (max-width: 560px) { .tha-template-choices { grid-template-columns: 1fr; } }

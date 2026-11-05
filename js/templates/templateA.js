@@ -1,216 +1,264 @@
-// =============================================================================
-// THE HUMAN ARCHIVE — TEMPLATE A: SURFACE MAP EXPLORER
-// Moon records supported here: Apollo 11 clue reveal + Laser Retroreflector sim.
-// The renderer is data-driven so Sojourner and Spirit can reuse Template A later.
-// =============================================================================
+/* ============================================================================
+   THE HUMAN ARCHIVE — TEMPLATE A
+   Surface Map Explorer: SVG map, trace marker, zoom hand-off and clue sequence.
+   Reusable mechanics are kept here; page copy/data remains in pages + records.js.
+   ============================================================================ */
+(() => {
+  "use strict";
 
-function renderTemplateA(recordId) {
-    const app = document.getElementById("app");
-    const recordsApi = window.THA?.records;
-    const ui = window.THATemplateUI;
-    const record = recordsApi?.getRecord(recordId);
-    if (!app || !ui || !record || record.template !== "A") {
-        if (app) app.innerHTML = `<section class="tha-template-error"><h1>RECORD UNAVAILABLE</h1><p>Template A could not load this record from records.js.</p><button type="button" data-action="back-map">RETURN TO MOON MAP</button></section>`;
-        app?.querySelector("[data-action='back-map']")?.addEventListener("click", () => window.THANavigation?.goTo("menu"));
-        return;
+  const el = (tag, className, text) => {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined && text !== null) node.textContent = String(text);
+    return node;
+  };
+  const button = (label, className, onClick) => {
+    const node = el("button", className, label);
+    node.type = "button";
+    node.addEventListener("click", onClick);
+    return node;
+  };
+  const externalLink = (label, url, className) => {
+    const link = el("a", className, label);
+    link.href = url;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    return link;
+  };
+
+  function makeMapFigure(record, options) {
+    const location = record?.location || {};
+    const figure = el("figure", "tha-moon-map-figure");
+    const frame = el("div", "tha-moon-map-frame");
+    const map = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    map.classList.add("tha-lunar-map-svg");
+    map.setAttribute("viewBox", "0 0 1000 560");
+    map.setAttribute("preserveAspectRatio", "xMidYMid slice");
+    map.setAttribute("role", "img");
+    const recordNumber = Number(record?.number || 1);
+    const traceLabel = `TRACE ${String(recordNumber).padStart(2, "0")}`;
+    const targetPoint = recordNumber === 3 ? { x: 72, y: 61 } : recordNumber === 2 ? { x: 62, y: 46 } : { x: 54.4, y: 49 };
+    map.setAttribute("aria-label", `Custom drawn schematic lunar surface map with craters, coordinate grid and a blinking marker for ${record?.title || "a lunar trace"}`);
+    map.innerHTML = `
+      <defs>
+        <radialGradient id="thaMoonGround" cx="48%" cy="42%" r="78%">
+          <stop offset="0" stop-color="#777a78"/><stop offset=".48" stop-color="#4b5151"/><stop offset="1" stop-color="#20292b"/>
+        </radialGradient>
+        <radialGradient id="thaCraterFloor"><stop offset="0" stop-color="#343b3c"/><stop offset=".72" stop-color="#596060"/><stop offset="1" stop-color="#8d918b"/></radialGradient>
+        <linearGradient id="thaRim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c2c2b5"/><stop offset=".5" stop-color="#747a76"/><stop offset="1" stop-color="#353e40"/></linearGradient>
+        <pattern id="thaRegolith" width="42" height="42" patternUnits="userSpaceOnUse"><circle cx="5" cy="8" r="1.2" fill="#e2e0d3" opacity=".17"/><circle cx="29" cy="25" r="1" fill="#111a1b" opacity=".32"/><circle cx="18" cy="37" r=".8" fill="#f0eee0" opacity=".13"/></pattern>
+        <filter id="thaMapGlow"><feGaussianBlur stdDeviation="14"/></filter>
+      </defs>
+      <rect width="1000" height="560" fill="url(#thaMoonGround)"/>
+      <rect width="1000" height="560" fill="url(#thaRegolith)"/>
+      <g opacity=".24" stroke="#d3d8d0" stroke-width="1" stroke-dasharray="4 10">
+        <path d="M0 112H1000M0 224H1000M0 336H1000M0 448H1000"/>
+        <path d="M125 0V560M250 0V560M375 0V560M500 0V560M625 0V560M750 0V560M875 0V560"/>
+      </g>
+      <g fill="none" stroke="#c5c8bd" opacity=".14" stroke-width="2">
+        <path d="M-30 105C105 22 180 52 280 105S470 175 585 98 830 38 1040 128"/>
+        <path d="M-40 395C75 323 190 360 290 420S520 500 650 405 875 330 1035 395"/>
+        <path d="M58 560C150 480 255 492 342 540M640 0C690 72 804 86 920 40"/>
+      </g>
+      <g opacity=".88">
+        <ellipse cx="160" cy="145" rx="86" ry="64" fill="url(#thaCraterFloor)" stroke="url(#thaRim)" stroke-width="13"/>
+        <ellipse cx="160" cy="145" rx="65" ry="45" fill="none" stroke="#d0d0c3" opacity=".28" stroke-width="3"/>
+        <ellipse cx="835" cy="150" rx="112" ry="78" fill="url(#thaCraterFloor)" stroke="url(#thaRim)" stroke-width="15"/>
+        <ellipse cx="835" cy="150" rx="83" ry="55" fill="none" stroke="#d0d0c3" opacity=".24" stroke-width="3"/>
+        <ellipse cx="110" cy="445" rx="118" ry="74" fill="url(#thaCraterFloor)" stroke="url(#thaRim)" stroke-width="14"/>
+        <ellipse cx="110" cy="445" rx="86" ry="49" fill="none" stroke="#d0d0c3" opacity=".2" stroke-width="3"/>
+        <ellipse cx="900" cy="438" rx="64" ry="49" fill="url(#thaCraterFloor)" stroke="url(#thaRim)" stroke-width="10"/>
+        <ellipse cx="900" cy="438" rx="43" ry="31" fill="none" stroke="#d0d0c3" opacity=".2" stroke-width="3"/>
+        <ellipse cx="360" cy="82" rx="38" ry="27" fill="url(#thaCraterFloor)" stroke="#999f98" stroke-width="7"/>
+        <ellipse cx="690" cy="360" rx="48" ry="34" fill="url(#thaCraterFloor)" stroke="#9ca29b" stroke-width="8"/>
+        <ellipse cx="410" cy="470" rx="31" ry="22" fill="url(#thaCraterFloor)" stroke="#a4a69b" stroke-width="6"/>
+        <ellipse cx="555" cy="105" rx="25" ry="18" fill="url(#thaCraterFloor)" stroke="#a4a69b" stroke-width="5"/>
+      </g>
+      <path d="M292 205C354 166 430 164 493 186C550 206 618 190 686 222C735 246 751 306 709 345C668 384 596 388 532 365C470 343 421 366 360 340C301 315 260 251 292 205Z" fill="#414849" opacity=".78" stroke="#a5aaa0" stroke-width="3" stroke-dasharray="8 7"/>
+      <path d="M326 235C395 198 457 205 512 223S625 222 682 256" fill="none" stroke="#b9bdb1" stroke-width="2" opacity=".2"/>
+      <path d="M337 300C405 326 470 292 528 314S632 344 683 310" fill="none" stroke="#d6d4c8" stroke-width="2" opacity=".13"/>
+      <g fill="#e0e3d8" font-family="monospace" letter-spacing="3">
+        <text x="42" y="48" font-size="17" opacity=".82">LUNAR SURFACE / ARCHIVE GRID</text>
+        <text x="42" y="76" font-size="12" opacity=".62">NEAR-SIDE SCHEMATIC // NOT TO SCALE</text>
+        <text x="734" y="518" font-size="13" opacity=".72">0° LATITUDE BAND</text>
+      </g>
+      <g stroke="#e2e5d9" opacity=".62" fill="none"><path d="M50 495h70m-70 -7v14m70 -14v14"/><path d="M938 45v42m-6 -36h12m-12 30h12"/></g>
+      <g fill="#e1e5d9" font-family="monospace" font-size="12" opacity=".76"><text x="50" y="484">SCHEMATIC SCALE</text><text x="952" y="105" text-anchor="end">N</text></g>
+      <circle cx="544" cy="275" r="39" fill="#b9f4c7" opacity=".10" filter="url(#thaMapGlow)"/>
+      <path d="M544 232V318M501 275H587" stroke="#d7eadb" stroke-dasharray="3 7" opacity=".22"/>
+    `;
+    frame.append(map, el("div", "tha-map-scan-lines"), el("div", "tha-map-vignette"));
+
+    frame.style.setProperty("--tha-zoom-x", `${targetPoint.x}%`);
+    frame.style.setProperty("--tha-zoom-y", `${targetPoint.y}%`);
+    const target = button("", "tha-moon-marker", () => {
+      options.onTrace?.(frame, target);
+    });
+    target.style.left = `${targetPoint.x}%`;
+    target.style.top = `${targetPoint.y}%`;
+    if (targetPoint.x > 58) target.classList.add("tha-marker-label-left");
+    target.setAttribute("aria-label", `Investigate ${record?.title || "the lunar trace"}`);
+    target.append(el("span", "tha-marker-pulse"), el("span", "tha-marker-core"), el("span", "tha-marker-label", traceLabel));
+    frame.append(target);
+
+    const placeLabel = record?.id === "laser-retroreflectors"
+      ? "LUNAR LASER ARRAYS"
+      : record?.id === "fallen-astronaut"
+        ? "HADLEY RILLE"
+        : "MARE TRANQUILLITATIS";
+    const coordinateLabel = record?.id === "laser-retroreflectors"
+      ? "APOLLO 11 / 14 / 15 SITES"
+      : location.coordinateDisplay || location.display || "LUNAR ARCHIVE GRID";
+    const mapHud = el("div", "tha-map-hud");
+    mapHud.append(
+      el("span", "tha-map-tag", placeLabel),
+      el("span", "tha-map-coordinates", coordinateLabel)
+    );
+    frame.append(mapHud);
+    const mapCaption = el("figcaption", "tha-vector-map-caption", `${location.display || location.name || "LUNAR SURFACE"} · SCHEMATIC MAP`);
+    figure.append(frame, mapCaption);
+    return figure;
+  }
+
+  function makeMapPanel(record, options) {
+    const panel = el("section", "tha-moon-map-panel tha-template-a-map");
+    const recordNumber = Number(record?.number || 1);
+    panel.setAttribute("aria-label", `Custom vector Moon map with detected trace ${recordNumber}`);
+    const top = el("div", "tha-moon-panel-top");
+    const shortMapName = record?.id === "laser-retroreflectors"
+      ? "LASER ARRAYS"
+      : record?.id === "fallen-astronaut"
+        ? "HADLEY RILLE"
+        : "MARE TRANQUILLITATIS";
+    top.append(
+      el("span", "tha-moon-kicker", `LUNAR SURFACE // ${shortMapName}`),
+      el("span", "tha-moon-record-count", `RECORD DETECTED: ${recordNumber}`)
+    );
+    panel.append(top, makeMapFigure(record, options));
+    const legend = el("div", "tha-moon-legend");
+    legend.append(
+      el("span", "", `● ${`TRACE ${String(recordNumber).padStart(2, "0")}`} — TAP TO INVESTIGATE`),
+      el("span", "", "○ CRATER FIELD · LUNAR SURFACE")
+    );
+    panel.append(legend);
+    return panel;
+  }
+
+  function makeClueVisual(index, options) {
+    const visual = el("div", `tha-clue-visual tha-clue-visual-${index + 1}`);
+    const icons = ["▧", "⌖", "1969", "⇧"];
+    const labels = ["PHOTO EVIDENCE", "LANDING SITE", "MISSION LOG", "TWO-STAGE MODULE"];
+    if (index === 0 || index === 1) {
+      const figure = el("figure", "tha-clue-evidence-figure");
+      const image = document.createElement("img");
+      image.src = index === 0 ? options.imagePaths.eva : options.imagePaths.lro;
+      image.alt = index === 0
+        ? "Apollo 11 lunar surface mission photograph, NASA image AS11-40-5927."
+        : "Lunar Reconnaissance Orbiter landing-site view marking the Apollo 11 descent stage location.";
+      image.loading = "lazy";
+      image.decoding = "async";
+      figure.append(image);
+      const caption = el("figcaption", "tha-clue-image-credit");
+      caption.append(
+        el("span", "", index === 0 ? "NASA / JSC" : "NASA/Goddard Space Flight Center/Arizona State University"),
+        document.createTextNode(" · "),
+        externalLink(index === 0 ? "NASA IMAGE ↗" : "NASA LANDING-SITE IMAGE ↗", index === 0 ? options.official.eva : options.official.lro, "tha-image-source")
+      );
+      figure.append(caption);
+      visual.append(figure);
+      return visual;
+    }
+    visual.append(el("span", "tha-clue-visual-symbol", icons[index]), el("span", "tha-clue-visual-label", labels[index]));
+    if (index === 3) {
+      const diagram = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      diagram.setAttribute("viewBox", "0 0 260 84");
+      diagram.setAttribute("role", "img");
+      diagram.setAttribute("aria-label", "Diagram showing the ascent stage leaving while the descent stage remains on the Moon");
+      diagram.innerHTML = `
+        <path d="M18 68 H242" stroke="#87999a" stroke-width="1" stroke-dasharray="3 5" />
+        <path d="M72 62 L88 42 L104 62 Z" fill="#b8b8aa" stroke="#e7e2ce" />
+        <rect x="83" y="55" width="10" height="7" fill="#d3b879" />
+        <path d="M153 34 L165 17 L177 34 L172 43 H158 Z" fill="#d8c28f" stroke="#fff0c8" />
+        <path d="M166 44 C170 51 177 54 184 58" stroke="#b6eac2" fill="none" stroke-width="1.5" stroke-dasharray="3 3" />
+        <path d="M145 14 L154 5 M154 5 L165 5" stroke="#b6eac2" fill="none" />
+        <text x="42" y="80" fill="#c5d1c9" font-size="8">DESCENT STAGE STAYS</text>
+        <text x="177" y="14" fill="#c5d1c9" font-size="8">ASCENT STAGE LEAVES</text>`;
+      visual.append(diagram);
+    }
+    return visual;
+  }
+
+  function makeClueCard(clue, index, onReveal, options) {
+    const card = el("article", "tha-clue is-locked");
+    if (index === 0) card.classList.remove("is-locked");
+    const trigger = button("", "tha-clue-trigger", () => onReveal(index, card));
+    trigger.disabled = index !== 0;
+    trigger.setAttribute("aria-expanded", "false");
+    trigger.append(
+      el("span", "tha-clue-number", `0${index + 1}`),
+      el("span", "tha-clue-title", clue.title),
+      el("span", "tha-clue-state", index === 0 ? "OPEN CLUE" : "LOCKED")
+    );
+    const body = el("div", "tha-clue-body");
+    body.hidden = true;
+    body.append(makeClueVisual(index, options), el("p", "", clue.text));
+    card.append(trigger, body);
+    return card;
+  }
+
+  function createClueSequence({ record, imagePaths, official, onComplete }) {
+    const root = el("div", "tha-template-a-clue-flow");
+    const heading = el("div", "tha-section-heading");
+    heading.append(el("span", "", "DECODE THE EVIDENCE"), el("small", "", "4 CLUES // OPEN IN SEQUENCE"));
+    const clues = el("div", "tha-clues");
+    const clueData = Array.isArray(record?.clues) && record.clues.length === 4 ? record.clues : [
+      { title: "MISSION PHOTOGRAPHS", text: "A black-and-white image. Two astronauts. The lunar surface. A flag. A vehicle." },
+      { title: "LOCATION DATA", text: "Mare Tranquillitatis. The Moon. 0.67408° N, 23.47297° E." },
+      { title: "MISSION INFORMATION", text: "Apollo 11. 1969. The first crewed Moon landing." },
+      { title: "SCIENTIFIC EXPLANATION", text: "The descent stage could not return to Earth. The ascent stage separated and later crashed into the Moon. The descent stage remained there. Its empty mass was 2,034 kg." }
+    ];
+    const revealed = new Set();
+    const progress = el("div", "tha-clue-progress");
+    const progressFill = el("span", "tha-clue-progress-fill");
+    progress.append(progressFill);
+    const progressLabel = el("p", "tha-clue-progress-label", "0 / 4 CLUES DECODED");
+
+    function revealClue(index, card) {
+      if (revealed.has(index) || index !== revealed.size) return;
+      revealed.add(index);
+      card.classList.remove("is-locked");
+      card.classList.add("is-revealed");
+      const trigger = card.querySelector(".tha-clue-trigger");
+      trigger.setAttribute("aria-expanded", "true");
+      trigger.querySelector(".tha-clue-state").textContent = "DECODED";
+      const body = card.querySelector(".tha-clue-body");
+      body.hidden = false;
+      body.classList.add("is-open");
+      progressFill.style.width = `${(revealed.size / clueData.length) * 100}%`;
+      progressLabel.textContent = `${revealed.size} / 4 CLUES DECODED`;
+      const next = clues.querySelectorAll(".tha-clue-trigger")[index + 1];
+      if (next) {
+        next.disabled = false;
+        next.closest(".tha-clue")?.classList.remove("is-locked");
+        next.querySelector(".tha-clue-state").textContent = "OPEN CLUE";
+      }
+      if (revealed.size === clueData.length) {
+        progressLabel.textContent = "4 / 4 — IDENTIFICATION UNLOCKED";
+        window.setTimeout(() => onComplete?.(), 480);
+      }
     }
 
-    window.THAMoonAudio?.stopAll();
-    if (record.mechanic === "laser-simulation" || record.interaction?.type === "laser-ranging-simulation") {
-        renderTHALaserRecord(app, record, ui);
-    } else {
-        renderTHAMapClueRecord(app, record, ui);
-    }
-}
+    const options = { imagePaths, official };
+    clueData.forEach((clue, index) => clues.append(makeClueCard(clue, index, revealClue, options)));
+    root.append(heading, clues, progress, progressLabel);
+    return { element: root, get revealedCount() { return revealed.size; } };
+  }
 
-function renderTHAMapClueRecord(app, record, ui) {
-    const sourceClues = Array.isArray(record.clues) ? record.clues : [];
-    const isTraceMechanic = record.mechanic === "map-traces";
-    const clues = sourceClues.length ? sourceClues : (record.interaction?.focus ? [{ order: 1, title: "MISSION TRACE", text: record.interaction.focus }] : []);
-    const revealNoun = isTraceMechanic ? "TRACE" : "CLUE";
-    let revealedCount = 0;
-    let identified = false;
-
-    const initialBody = `
-        <div class="tha-record-grid">
-            <section class="tha-record-visual-column">
-                ${ui.renderRecordImages(record)}
-                <div class="tha-detected-state"><span class="tha-detected-led" aria-hidden="true"></span><div><strong>OBJECT DETECTED</strong><small>${ui.escapeHTML(record.objectIdentification?.detectedLabel || "UNIDENTIFIED")}</small></div></div>
-            </section>
-            <section class="tha-record-interaction-column">
-                <div class="tha-interaction-heading"><span>FIELD ANALYSIS // ${revealNoun} SEQUENCE</span><strong id="thaClueCounter">0 / ${clues.length} ${revealNoun}S</strong></div>
-                <div class="tha-record-howto">
-                    <strong>WHAT TO DO</strong>
-                    <p>Reveal all ${clues.length} clues one at a time. Each clue gives you one piece of evidence. After the last clue, press IDENTIFY OBJECT to see the NASA facts and human story.</p>
-                </div>
-                <p class="tha-record-instruction">STEP 1 OF 2 · REVEAL THE CLUES</p>
-                <div class="tha-clue-list" id="thaClueList" aria-live="polite">
-                    <div class="tha-clue-empty"><span aria-hidden="true">⌖</span><p>NO CLUES DECLASSIFIED</p><small>Begin the evidence sequence.</small></div>
-                </div>
-                <button type="button" class="tha-template-primary-button" id="thaRevealClueButton">REVEAL ${revealNoun} 01 <span aria-hidden="true">＋</span></button>
-                <button type="button" class="tha-template-secondary-button" id="thaIdentifyButton" hidden>IDENTIFY OBJECT <span aria-hidden="true">↗</span></button>
-            </section>
-        </div>
-        <div class="tha-record-facts" id="thaRecordFacts" hidden></div>`;
-
-    app.innerHTML = ui.renderRecordFrame(record, "OBJECT DETECTED // UNIDENTIFIED", initialBody);
-    ui.bindRecordBack(app);
-
-    const clueList = app.querySelector("#thaClueList");
-    const counter = app.querySelector("#thaClueCounter");
-    const revealButton = app.querySelector("#thaRevealClueButton");
-    const identifyButton = app.querySelector("#thaIdentifyButton");
-    const facts = app.querySelector("#thaRecordFacts");
-
-    revealButton.addEventListener("click", () => {
-        if (identified || revealedCount >= clues.length) return;
-        const clue = clues[revealedCount];
-        if (!clue) return;
-        const card = document.createElement("article");
-        card.className = "tha-clue-card is-revealed";
-        card.innerHTML = `
-            <button type="button" class="tha-clue-toggle" aria-expanded="true">
-                <span><small>${revealNoun} ${String(clue.order || revealedCount + 1).padStart(2, "0")}</small><strong>${ui.escapeHTML(clue.title || `${revealNoun} ${revealedCount + 1}`)}</strong></span>
-                <i aria-hidden="true">−</i>
-            </button>
-            <div class="tha-clue-body"><p>${ui.escapeHTML(clue.text)}</p></div>`;
-        const toggle = card.querySelector(".tha-clue-toggle");
-        toggle.addEventListener("click", () => {
-            const collapsed = card.classList.toggle("is-collapsed");
-            toggle.setAttribute("aria-expanded", String(!collapsed));
-            toggle.querySelector("i").textContent = collapsed ? "+" : "−";
-        });
-        clueList.querySelector(".tha-clue-empty")?.remove();
-        clueList.appendChild(card);
-        revealedCount += 1;
-        counter.textContent = `${revealedCount} / ${clues.length} ${revealNoun}S`;
-        if (revealedCount < clues.length) {
-            revealButton.innerHTML = `REVEAL ${revealNoun} ${String(revealedCount + 1).padStart(2, "0")} <span aria-hidden="true">＋</span>`;
-        } else {
-            revealButton.hidden = true;
-            identifyButton.hidden = false;
-            const instruction = app.querySelector(".tha-record-instruction");
-            if (instruction) instruction.textContent = "STEP 2 OF 2 · IDENTIFY THE OBJECT TO REVEAL THE STORY";
-            identifyButton.focus();
-        }
-    });
-
-    identifyButton.addEventListener("click", () => {
-        if (identified || revealedCount !== clues.length) return;
-        identified = true;
-        identifyButton.hidden = true;
-        const detected = app.querySelector(".tha-detected-state small");
-        if (detected) detected.textContent = record.objectIdentification?.identifiedLabel || record.title.toUpperCase();
-        const detectedState = app.querySelector(".tha-detected-state");
-        detectedState?.classList.add("is-identified");
-        const title = app.querySelector(".tha-record-title");
-        if (title) title.textContent = record.objectIdentification?.identifiedLabel || record.screenTitle || record.title;
-        const kicker = app.querySelector(".tha-record-kicker");
-        if (kicker) kicker.textContent = "OBJECT IDENTIFIED · NASA DATA + STORY REVEALED";
-        facts.hidden = false;
-        facts.innerHTML = `${ui.renderNASAData(record)}${ui.renderStory(record)}${ui.renderObjectDNA(record)}
-            <div class="tha-record-complete-row"><span>RECORD RECOVERED ✓</span><button type="button" class="tha-template-primary-button" data-action="return-map">RETURN TO ${ui.escapeHTML(ui.getBackLabel(record.chapter))} <span aria-hidden="true">↗</span></button></div>`;
-        ui.markRecordComplete(record);
-        window.THAMoonAudio?.playPianoNote(1150);
-        facts.scrollIntoView({ behavior: "smooth", block: "start" });
-        facts.querySelector('[data-action="return-map"]')?.addEventListener("click", () => window.THANavigation?.goTo(ui.getBackRoute(record.chapter)));
-    });
-}
-
-function renderTHALaserRecord(app, record, ui) {
-    let simulationStarted = false;
-    let simulationComplete = false;
-    const interaction = record.interaction || {};
-    const outboundMs = Number(interaction.outbound?.durationMs) || 2000;
-    const returnMs = Number(interaction.return?.durationMs) || 2000;
-    const totalMs = Number(interaction.totalDurationMs) || outboundMs + returnMs;
-
-    const body = `
-        <div class="tha-record-grid tha-laser-grid">
-            <section class="tha-record-visual-column">
-                ${ui.renderRecordImages(record)}
-                <div class="tha-detected-state"><span class="tha-detected-led" aria-hidden="true"></span><div><strong>OBJECT DETECTED</strong><small>${ui.escapeHTML(interaction.detectedLabel || "TYPE: SCIENTIFIC INSTRUMENT")}</small></div></div>
-                <div class="tha-simulation-disclaimer"><strong>SIMULATION ONLY</strong><span>${ui.escapeHTML(interaction.disclaimer || "This is a simulation, not a real measurement.")}</span></div>
-            </section>
-            <section class="tha-record-interaction-column">
-                <div class="tha-interaction-heading"><span>LIVE EXPERIMENT // LASER RANGING</span><strong>4.0 SEC</strong></div>
-                <div class="tha-record-howto">
-                    <strong>WHAT TO DO</strong>
-                    <p>Press START SIMULATION. Watch the red beam travel to the Moon for 2 seconds, then watch the green signal return for 2 seconds. You are watching an illustration of the method, not taking a real measurement.</p>
-                </div>
-                <div class="tha-laser-step-guide" aria-label="Simulation sequence">
-                    <span><b>01</b> RED · EARTH TO MOON · 2 SEC</span>
-                    <span><b>02</b> GREEN · MOON TO EARTH · 2 SEC</span>
-                </div>
-                <p class="tha-record-instruction">TOTAL TIME · 4 SECONDS</p>
-                <div class="tha-laser-stage" id="thaLaserStage">
-                    <svg viewBox="0 0 760 240" role="img" aria-label="Simulated red laser travelling from Earth to Moon and green return signal">
-                        <defs>
-                            <radialGradient id="thaEarthGlow"><stop offset="0" stop-color="#b3c8d0"/><stop offset="1" stop-color="#263d48"/></radialGradient>
-                            <radialGradient id="thaMoonGlow"><stop offset="0" stop-color="#f0f0e7"/><stop offset="1" stop-color="#777a72"/></radialGradient>
-                        </defs>
-                        <path class="tha-laser-track" d="M112 118 H648" />
-                        <path class="tha-laser-outbound" d="M112 118 H648" />
-                        <path class="tha-laser-return" d="M648 139 H112" />
-                        <circle class="tha-laser-earth" cx="90" cy="128" r="43" fill="url(#thaEarthGlow)" />
-                        <path d="M64 107 Q84 88 105 99 Q127 108 119 132 Q104 143 96 161 Q74 157 64 138Z" fill="#8ba78f" opacity=".5" />
-                        <circle class="tha-laser-moon" cx="670" cy="128" r="35" fill="url(#thaMoonGlow)" />
-                        <circle cx="657" cy="116" r="7" fill="#454a43" opacity=".42"/><circle cx="680" cy="141" r="9" fill="#454a43" opacity=".36"/>
-                        <text x="90" y="202" text-anchor="middle">EARTH</text>
-                        <text x="670" y="202" text-anchor="middle">MOON</text>
-                    </svg>
-                    <div class="tha-laser-phase" id="thaLaserPhase">AWAITING SIMULATION</div>
-                </div>
-                <button type="button" class="tha-template-primary-button" id="thaStartLaserButton">${ui.escapeHTML(interaction.startButtonLabel || "START SIMULATION")} <span aria-hidden="true">↗</span></button>
-                <p class="tha-laser-explanation">${ui.escapeHTML(interaction.requiredExplanation || "Scientists use this method to measure.")} <strong>You are not measuring anything in this simulation.</strong></p>
-            </section>
-        </div>
-        <div class="tha-record-facts" id="thaLaserResults" hidden></div>`;
-
-    app.innerHTML = ui.renderRecordFrame(record, "TEMPLATE A // SPECIAL SIMULATION", body);
-    ui.bindRecordBack(app);
-
-    const stage = app.querySelector("#thaLaserStage");
-    const phase = app.querySelector("#thaLaserPhase");
-    const startButton = app.querySelector("#thaStartLaserButton");
-    const results = app.querySelector("#thaLaserResults");
-
-    startButton.addEventListener("click", () => {
-        if (simulationStarted || simulationComplete) return;
-        simulationStarted = true;
-        startButton.disabled = true;
-        stage.classList.add("is-running");
-        phase.textContent = "RED LASER // EARTH → MOON // 00:02";
-        window.THAMoonAudio?.playLaserCue();
-
-        window.setTimeout(() => {
-            if (!stage.isConnected) return;
-            stage.classList.add("is-returning");
-            phase.textContent = "STEP 2 OF 2 · GREEN RETURN · MOON → EARTH";
-        }, outboundMs);
-
-        window.setTimeout(() => {
-            if (!stage.isConnected) return;
-            simulationComplete = true;
-            stage.classList.add("is-complete");
-            phase.textContent = "SIMULATION COMPLETE · 4 SECONDS";
-            results.hidden = false;
-            results.innerHTML = `
-                <section class="tha-laser-result-display" aria-label="Simulation reference values">
-                    <div><span>AVERAGE EARTH–MOON DISTANCE</span><strong>${ui.escapeHTML(record.nasaData.averageEarthMoonDistance || "~384,400 km")}</strong></div>
-                    <div><span>LASER MEASUREMENTS</span><strong>${ui.escapeHTML(record.nasaData.laserMeasurements || "Centimeter-level precision")}</strong></div>
-                </section>
-                <p class="tha-simulation-disclaimer-inline">This is a simulation, not a real measurement. ${ui.escapeHTML(interaction.requiredExplanation || "Scientists use this method to measure.")}</p>
-                ${ui.renderNASAData(record)}
-                ${ui.renderStory(record)}
-                ${ui.renderObjectDNA(record)}
-                <div class="tha-record-complete-row"><span>RECORD RECOVERED ✓</span><button type="button" class="tha-template-primary-button" data-action="return-map">RETURN TO ${ui.escapeHTML(ui.getBackLabel(record.chapter))} <span aria-hidden="true">↗</span></button></div>`;
-            ui.markRecordComplete(record);
-            // The script calls for a long silence after the laser sequence, then one note.
-            window.setTimeout(() => {
-                if (results.isConnected) window.THAMoonAudio?.playPianoNote(1250);
-            }, 1400);
-            results.querySelector('[data-action="return-map"]')?.addEventListener("click", () => window.THANavigation?.goTo(ui.getBackRoute(record.chapter)));
-        }, totalMs);
-    });
-}
+  window.THATemplates = window.THATemplates || {};
+  window.THATemplates.TemplateA = Object.freeze({
+    id: "A",
+    name: "Surface Map Explorer",
+    createMapPanel({ record, onTrace }) { return makeMapPanel(record, { onTrace }); },
+    createClueSequence
+  });
+})();

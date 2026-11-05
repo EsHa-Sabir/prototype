@@ -1,3 +1,4 @@
+
 // =============================================================================
 // THE HUMAN ARCHIVE — SHARED NAVIGATION
 // Every opening screen uses this one entry point for SPA transitions.

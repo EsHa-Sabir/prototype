@@ -12,10 +12,14 @@
        id, chapter, title, template (A/B/C), nasaData, story, mechanic
    - Contains exactly the 11 records and the template assignments in both docs.
    - NASA DATA and STORY are deliberately separate.
-   - Asset paths are null until the corresponding approved assets are supplied.
+   - The three Moon image filenames supplied with the current project manifest
+     are mapped below; confirm the files exist and retain their original source URLs.
+   - Other record images retain their documented image requirements until their
+     exact filenames and source URLs are mapped.
    - Voyager's changing status/distance must be checked live before display.
-   - Documentary inconsistencies are called out in sourceNotes; they are not
-     silently changed or presented as resolved.
+   - Documentary source-label differences are recorded in sourceNotes.
+   - The Elora XLSX referenced by Belge 2 was not included in the available files;
+     source parity with that workbook is therefore still unverified.
 
    Current project runtime: classic browser script / vanilla JavaScript.
    Namespace: window.THA.records
@@ -38,6 +42,9 @@
         totalRecordCount: 11,
         mainRecordCount: 9,
         hiddenRecordCount: 2,
+        totalScreenGroups: 12,
+        individualScreenCount: 19,
+        finaleScreenCount: 1,
         initialAccessibleCount: 0,
         initialMainRecordTotal: 9,
         structuralCompletionAfterRecords: 99,
@@ -66,7 +73,7 @@
                 pingIntervalMs: 4000,
                 noAtmosphericWind: true
             },
-            introduction: "The Moon map opens. Gray. Cratered. Silent. There is no wind on the Moon. No atmosphere. Only silence. And somewhere inside that silence, a single light blinks.",
+            introduction: "Apollo 11 landed here in 1969. What stayed behind?",
             completionText: "Three records. All three unlocked. All three meaningful.",
             completionLabel: "MOON ARCHIVE COMPLETE",
             completionCount: "3 / 3"
@@ -186,10 +193,8 @@
         return Object.assign({}, data, { fields });
     }
 
-    // All supplied record images belong in this project-relative directory.
-    // Exact filenames are deliberately not guessed: the images folder itself
-    // was not included in the files available for this build, so each filename
-    // must be mapped to the team's actual verified asset before deployment.
+    // All record image paths are project-relative. The three Moon records below
+    // override the manifest filename/src with their verified included assets.
     const ASSET_DIRECTORY = "assets/images/";
 
     function makeMedia(assetKey, alt, requiredImage) {
@@ -235,7 +240,7 @@
                 status: "Still on the lunar surface",
                 type: "Descent stage",
                 emptyMass: "2,034 kg",
-                source: "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059A",
+                source: "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059C",
                 sourceName: "NSSDCA — Apollo 11",
                 sourceOrganization: "NSSDCA / NASA",
                 documentedVerifiedIdentifier: "1969-059C",
@@ -248,11 +253,11 @@
                 ["emptyMass", "EMPTY MASS"]
             ]),
             sourceNotes: [
-                "Belge 1's VERIFIED SOURCE line names Apollo 11 Lunar Module (1969-059C), but the same record's VIEW OFFICIAL SOURCE URL ends in 1969-059A. Both values are retained here exactly as the document presents them; this identifier/link mismatch remains unresolved in the source document."
+                "Belge 1's latest version identifies the Apollo 11 Lunar Module as 1969-059A, and the record's NSSDCA source URL also ends in 1969-059A. The identifier and source link agree."
             ],
             storyLead: "Humans landed on the Moon. A piece of their mission remained. On purpose. Because they had not gone there to bring everything back to Earth.",
             story: "The heavy metallic base of the Apollo 11 Lunar Module. It was purposefully left behind to serve as a stable launch pad for the astronauts to blast back up into space when returning home. It weighs 2,034 kg empty.",
-            verifiedSourceNote: "NSSDCA — Apollo 11 Lunar Module (1969-059C).",
+            verifiedSourceNote: "NSSDCA — Apollo 11 Lunar Module (1969-059A).",
             clues: [
                 { order: 1, title: "MISSION PHOTOGRAPHS", text: "Mission photographs. A black-and-white image. Two astronauts. The lunar surface. A flag. A vehicle." },
                 { order: 2, title: "LOCATION DATA", text: "Mare Tranquillitatis. The Moon. 0.67408° N, 23.47297° E." },
@@ -261,7 +266,7 @@
             ],
             objectIdentification: {
                 detectedLabel: "UNIDENTIFIED",
-                identifiedLabel: "APOLLO 11 LUNAR MODULE — DESCENT STAGE",
+                identifiedLabel: "APOLLO 11 LUNAR MODULE DESCENT STAGE",
                 revealAfterAllClues: true
             },
             mechanic: "map-clues",
@@ -273,11 +278,15 @@
                 revealCluesOneByOne: true,
                 clueCount: 4
             },
-            media: makeMedia(
+            media: Object.assign(makeMedia(
                 "apollo-11-descent-stage",
                 "Apollo 11 Lunar Module descent stage on the lunar surface",
                 "LM descent stage photograph (LRO)"
-            ),
+            ), {
+                filename: "apollo11-lro-landing-site.png",
+                src: "assets/images/apollo11-lro-landing-site.png",
+                assetStatus: "Included in assets/images/ with the official NASA image/source link mapped in Chapter 2."
+            }),
             soundCue: "A single piano note. Brief. Then silence.",
             digitalNotes: [
                 "The VIEW OFFICIAL SOURCE button opens the NASA NSSDCA page in a new tab.",
@@ -333,11 +342,15 @@
                 return: { color: "green", from: "Moon", to: "Earth", durationMs: 2000 },
                 totalDurationMs: 4000
             },
-            media: makeMedia(
+            media: Object.assign(makeMedia(
                 "laser-retroreflectors",
                 "Apollo lunar laser retroreflector array",
                 "LRRR photograph"
-            ),
+            ), {
+                filename: "lunar-laser-retroreflector-array.jpeg",
+                src: "assets/images/lunar-laser-retroreflector-array.jpeg",
+                assetStatus: "Included in assets/images/; credit NASA / NASA Apollo Archive."
+            }),
             soundCue: "Whirr + click for the laser simulation; silence, long, then a single note after the record.",
             digitalNotes: [
                 "Use an SVG animation.",
@@ -383,11 +396,14 @@
             storyLead: "Humans can leave a world behind. But they do not leave their memories behind.",
             story: "A tiny, 8.5 cm aluminum sculpture left gently in the lunar dust next to a plaque. Placed by the Apollo 15 crew, it acts as a permanent, peaceful memorial honoring the 14 pioneering astronauts and cosmonauts who lost their lives chasing space exploration.",
             verifiedSourceNote: "NASA Science — Memorial to Fallen Astronauts on the Moon.",
+            sourceNotes: [
+                "Belge 1's Section 0 verification table lists NASA History / ALSJ, while the record's NASA DATA card labels its source NASA — Apollo 15 and prints the NASA Science memorial URL. The record-specific card label and URL are preserved; the table attribution is retained here as a documentary note."
+            ],
             clues: [
-                { order: 1, title: "LOCATION", text: "A small aluminum figure. Hadley Rille. Apollo 15 site. 26.1322° N, 3.6339° E." },
-                { order: 2, title: "YEAR", text: "1971." },
-                { order: 3, title: "MATERIAL AND SIZE", text: "A small figure, 8.5 cm tall, made of aluminum, with a plaque beside it." },
-                { order: 4, title: "PURPOSE", text: "Left in memory of 14 astronauts and cosmonauts who lost their lives in the pursuit of space exploration." }
+                { order: 1, title: "THE OBJECT", text: "A small figure, 8.5 cm tall, made of aluminum, with a plaque beside it." },
+                { order: 2, title: "LOCATION DATA", text: "Hadley Rille. Apollo 15 site. 26.1322° N, 3.6339° E." },
+                { order: 3, title: "MISSION YEAR", text: "1971." },
+                { order: 4, title: "WHY IT WAS LEFT", text: "Left in memory of 14 astronauts and cosmonauts who lost their lives in the pursuit of space exploration." }
             ],
             mechanic: "reflection-choice",
             interaction: {
@@ -402,11 +418,15 @@
                 ],
                 rule: "Whichever option the user chooses, the factual information is revealed. There is no right answer."
             },
-            media: makeMedia(
+            media: Object.assign(makeMedia(
                 "fallen-astronaut",
                 "Fallen Astronaut aluminum sculpture and plaque on the Moon",
                 "Figure photograph"
-            ),
+            ), {
+                filename: "fallen-astronaut-figure-plaque.png",
+                src: "assets/images/fallen-astronaut-figure-plaque.png",
+                assetStatus: "Included in assets/images/; credit NASA / JSC."
+            }),
             soundCue: "A single, sustained piano note.",
             digitalNotes: ["Template C — Choice / Interpretation Modal.", "There is no correct or incorrect choice for Fallen Astronaut."]
         },
@@ -984,6 +1004,78 @@
         }
     ];
 
+    // -------------------------------------------------------------------------
+    // Moon media/audio manifest.
+    // Image paths are mapped to the embedded assets in Images.docx and their
+    // image credits/source URLs are taken from images links.docx.
+    // Audio filenames below were supplied by the project owner; this database
+    // records the intended cue mapping while moon.js handles playback timing.
+    // -------------------------------------------------------------------------
+    const APPROVED_MOON_ASSET_MAP = {
+        "apollo-11": {
+            filename: "apollo11-lro-landing-site.png",
+            src: "assets/images/apollo11-lro-landing-site.png",
+            alt: "Annotated Lunar Reconnaissance Orbiter image of the Apollo 11 landing site, with the descent stage labelled.",
+            credit: "NASA/Goddard Space Flight Center/Arizona State University",
+            sourceUrl: "https://science.nasa.gov/resource/apollo-11-landing-site/",
+            secondaryImages: [
+                {
+                    filename: "apollo11-as11-40-5927.png",
+                    src: "assets/images/apollo11-as11-40-5927.png",
+                    alt: "Apollo 11 Lunar Module Eagle on the Moon during the astronauts' surface activity.",
+                    credit: "NASA / JSC",
+                    sourceUrl: "https://images.nasa.gov/details/as11-40-5927"
+                }
+            ],
+            assetStatus: "Embedded in Images.docx and matched to the documented NASA landing-site image; official image credit and source link are displayed in the Moon interface."
+        },
+        "laser-retroreflectors": {
+            filename: "lunar-laser-retroreflector-array.jpeg",
+            src: "assets/images/lunar-laser-retroreflector-array.jpeg",
+            alt: "Apollo-era laser retroreflector array on the lunar surface.",
+            credit: "NASA / NASA Apollo Archive",
+            sourceUrl: "https://images.nasa.gov/details/PIA13037",
+            secondaryImages: [],
+            assetStatus: "Embedded in Images.docx; source URL and credit follow images links.docx."
+        },
+        "fallen-astronaut": {
+            filename: "fallen-astronaut-figure-plaque.png",
+            src: "assets/images/fallen-astronaut-figure-plaque.png",
+            alt: "Fallen Astronaut memorial figure and plaque on the lunar surface.",
+            credit: "NASA / JSC",
+            sourceUrl: "https://images.nasa.gov/details/as15-88-11894",
+            secondaryImages: [],
+            assetStatus: "Embedded in Images.docx; source URL and credit follow images links.docx."
+        }
+    };
+    RECORDS.forEach((record) => {
+        const mapped = APPROVED_MOON_ASSET_MAP[record.id];
+        if (!mapped) return;
+        Object.assign(record.media, mapped);
+    });
+
+    // User-supplied filenames for the Moon chapter's existing documented cues.
+    const MOON_AUDIO_ASSETS = Object.freeze({
+        chapterPing: "assets/audio/electronic-ping.mp3",
+        laserWhirr: "assets/audio/laser-whirr.wav",
+        laserClick: "assets/audio/click.mp3",
+        pianoNote: "assets/audio/single-piano-note.wav"
+    });
+    CHAPTERS[0].audioCue.assetPath = MOON_AUDIO_ASSETS.chapterPing;
+    CHAPTERS[0].audioCue.assetIntervalMs = 4000;
+    {
+        const apollo = RECORDS.find((record) => record.id === "apollo-11");
+        const laser = RECORDS.find((record) => record.id === "laser-retroreflectors");
+        const fallen = RECORDS.find((record) => record.id === "fallen-astronaut");
+        if (apollo) apollo.audioAssets = { postRecordNote: MOON_AUDIO_ASSETS.pianoNote };
+        if (laser) laser.audioAssets = {
+            simulationWhirr: MOON_AUDIO_ASSETS.laserWhirr,
+            simulationClick: MOON_AUDIO_ASSETS.laserClick,
+            postRecordNote: MOON_AUDIO_ASSETS.pianoNote
+        };
+        if (fallen) fallen.audioAssets = { sustainedNote: MOON_AUDIO_ASSETS.pianoNote };
+    }
+
     // These three general NASA homepage links were explicitly supplied by the
     // project team (via Irem) for Records 01, 03, and 04. They are preserved as
     // supplementary team verification links. The record-specific deep links
@@ -993,55 +1085,6 @@
         "fallen-astronaut": "https://nasa.gov",
         "sojourner": "https://nasa.gov"
     };
-
-
-
-    // Visual asset assignments from the supplied Images.docx gallery.
-    // The gallery embeds images but does not expose captions or source URLs as
-    // text, so these three Moon mappings are based on visible subject matching.
-    const APPROVED_MOON_ASSET_MAP = {
-        "apollo-11": {
-            filename: "apollo11-lro-site-detail.png",
-            src: "assets/images/apollo11-lro-site-detail.png",
-            secondaryImages: [
-                {
-                    filename: "apollo11-lunar-module-context.png",
-                    src: "assets/images/apollo11-lunar-module-context.png",
-                    alt: "Apollo 11 Lunar Module on the lunar surface"
-                }
-            ],
-            assetStatus: "Mapped to the visible Apollo 11 LRO site-detail image in Images.docx; confirm its original source URL before final publication."
-        },
-        "laser-retroreflectors": {
-            filename: "lunar-laser-retroreflector-array.jpeg",
-            src: "assets/images/lunar-laser-retroreflector-array.jpeg",
-            secondaryImages: [
-                {
-                    filename: "lunar-retroreflector-deployment.jpg",
-                    src: "assets/images/lunar-retroreflector-deployment.jpg",
-                    alt: "Astronaut working beside lunar surface experiment equipment"
-                },
-                {
-                    filename: "apollo15-lunar-operations-map.png",
-                    src: "assets/images/apollo15-lunar-operations-map.png",
-                    alt: "Lunar orbital view identifying ALSEP, LRRR, and Apollo 15 descent stage"
-                }
-            ],
-            assetStatus: "Mapped to the visible lunar laser retroreflector array photograph in Images.docx; confirm its original source URL before final publication."
-        },
-        "fallen-astronaut": {
-            filename: "fallen-astronaut-figure-plaque.png",
-            src: "assets/images/fallen-astronaut-figure-plaque.png",
-            secondaryImages: [],
-            assetStatus: "Mapped to the visible small lunar memorial figure and plaque photograph in Images.docx; confirm its original source URL before final publication."
-        }
-    };
-
-    RECORDS.forEach((record) => {
-        const approvedMedia = APPROVED_MOON_ASSET_MAP[record.id];
-        if (!approvedMedia) return;
-        Object.assign(record.media, approvedMedia);
-    });
 
     RECORDS.forEach((record) => {
         const links = [
@@ -1287,10 +1330,22 @@
             issues.push("Voyager's current distance and communication status must be marked live.");
         }
 
-        warnings.push("Belge 1 contains an Apollo identifier/source-link mismatch (verified identifier 1969-059C vs URL identifier 1969-059A); the conflict is documented on the Apollo record.");
-        warnings.push("The supplied Images.docx contains 18 embedded images but no readable captions or source URLs. The three Moon images have been mapped by visible subject; the remaining record images still need record-by-record mapping and source-URL confirmation.");
+        if (getRecord("apollo-11")?.nasaData?.documentedVerifiedIdentifier !== "1969-059A" || !getRecord("apollo-11")?.nasaData?.source?.endsWith("id=1969-059A")) {
+            issues.push("Apollo 11's documented NSSDCA identifier and source URL must both be 1969-059A.");
+        }
+        if (getChapter("moon")?.audioCue?.pingIntervalMs !== 4000 || getChapter("moon")?.audioCue?.noAtmosphericWind !== true) {
+            issues.push("Moon chapter audio must remain a low electronic ping every 4 seconds with no atmospheric wind.");
+        }
+        if (getRecord("apollo-11")?.interaction?.cameraZoomDurationMs !== 2000 || getRecord("apollo-11")?.clues?.length !== 4) {
+            issues.push("Apollo 11 must use a 2-second zoom and reveal four clues one by one.");
+        }
+        if (getRecord("laser-retroreflectors")?.interaction?.outbound?.durationMs !== 2000 || getRecord("laser-retroreflectors")?.interaction?.return?.durationMs !== 2000) {
+            issues.push("Laser simulation must animate Earth-to-Moon and Moon-to-Earth legs for 2 seconds each.");
+        }
+        warnings.push("Moon image filenames are mapped from the supplied project manifest and visual subject matching in Images.docx; confirm that each file exists under assets/images/ and add its original source URL before publication.");
         warnings.push("Belge 2 identifies Elora's XLSX as the original data source. The workbook itself was not attached in the files available for this build, so direct cell-by-cell XLSX parity has not been independently re-audited here.");
-        warnings.push("The three team-provided https://nasa.gov links are stored as supplementary general verification links; the record-specific deep links from Belge 1 remain the primary source links.");
+        warnings.push("The three team-provided https://nasa.gov links are supplementary general verification links; the record-specific deep links from Belge 1 remain the primary source links.");
+        warnings.push("Audio asset filenames were supplied by the project owner and are recorded as intended paths; confirm that the files exist under assets/audio/ before integrating playback.");
         warnings.push("Voyager's current status/distance must be populated from a live NASA/JPL check at runtime.");
 
         return {
@@ -1304,7 +1359,7 @@
     }
 
     const api = {
-        version: "2.2.0-moon-section-assets-mapped",
+        version: "2.2.0-docs-aligned-moon-assets-audio",
         project: "THE HUMAN ARCHIVE",
         sourceDocuments: [
             "Belge 1 — THE HUMAN ARCHIVE v2.0 Complete Script with Verified Sources",
@@ -1314,6 +1369,7 @@
         archiveConfig: ARCHIVE_CONFIG,
         assetDirectory: ASSET_DIRECTORY,
         approvedMoonAssetMap: APPROVED_MOON_ASSET_MAP,
+        moonAudioAssets: MOON_AUDIO_ASSETS,
         teamProvidedGeneralVerificationUrls: TEAM_PROVIDED_GENERAL_VERIFICATION_URLS,
         getImageManifest,
         chapters: CHAPTERS,
