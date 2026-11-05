@@ -287,7 +287,6 @@
   .tha-back-label { font-size: .4rem; }
 }
 
-
 /* FINAL MOBILE-FIRST OVERRIDES — field footer and the remaining Moon records. */
 .tha-moon-content { padding-bottom: 124px; }
 .tha-moon-stage.is-record-view { min-height: 0; }
@@ -679,7 +678,6 @@
   .tha-moon-completion .tha-replay-button { width: 100%; margin: 8px 0 0; }
 }
 
-
 /* Chapter 2 v8 polish: per-record subtitle, timed completion, calm red hand-off. */
 .tha-moon-subtitle { transition: opacity .22s ease, color .35s ease; }
 .tha-record-actions[hidden] { display: none !important; }
@@ -742,4 +740,175 @@
   .tha-mars-handoff,
   .tha-moon-screen.is-red-shift { animation: none !important; transition: none !important; }
   .tha-moon-completion-flash { transition: none !important; }
+}
+
+/* =====================================================================
+   MOBILE + DESKTOP READABILITY PATCH — preserve the existing visual theme
+   The source styles used many 0.4–0.6rem labels, which are too small for
+   school-age users on phones. These scoped overrides keep the same layout.
+   ===================================================================== */
+.tha-moon-screen { font-size: 16px; }
+.tha-moon-screen .tha-moon-eyebrow,
+.tha-moon-screen .tha-moon-kicker,
+.tha-moon-screen .tha-moon-record-count,
+.tha-moon-screen .tha-moon-status,
+.tha-moon-screen .tha-moon-progress,
+.tha-moon-screen .tha-section-heading,
+.tha-moon-screen .tha-identification-kicker,
+.tha-moon-screen .tha-data-label,
+.tha-moon-screen .tha-story-label,
+.tha-moon-screen .tha-nasa-source-name,
+.tha-moon-screen .tha-laser-status,
+.tha-moon-screen .tha-template-kicker,
+.tha-moon-screen .tha-completion-label,
+.tha-moon-screen .tha-mars-handoff-kicker {
+  font-size: .76rem;
+  line-height: 1.55;
+}
+.tha-moon-screen .tha-moon-subtitle,
+.tha-moon-screen .tha-map-caption,
+.tha-moon-screen .tha-vector-map-caption,
+.tha-moon-screen .tha-record-explanation,
+.tha-moon-screen .tha-clue-body,
+.tha-moon-screen .tha-story-context,
+.tha-moon-screen .tha-why-card p,
+.tha-moon-screen .tha-laser-disclaimer,
+.tha-moon-screen .tha-completion-story,
+.tha-moon-screen .tha-mars-handoff p {
+  font-size: .92rem;
+  line-height: 1.7;
+}
+.tha-moon-screen .tha-clue-title { font-size: .82rem; line-height: 1.45; }
+.tha-moon-screen .tha-clue-state,
+.tha-moon-screen .tha-clue-number,
+.tha-moon-screen .tha-clue-progress-label { font-size: .68rem; }
+.tha-moon-screen .tha-data-row { font-size: .86rem; line-height: 1.55; }
+.tha-moon-screen .tha-data-row strong { overflow-wrap: anywhere; }
+.tha-moon-screen .tha-story-card .tha-story-secondary { font-size: .86rem; line-height: 1.6; }
+.tha-moon-screen .tha-story-card .tha-story-context { font-size: .84rem; }
+.tha-moon-screen .tha-moon-source-link,
+.tha-moon-screen .tha-next-button,
+.tha-moon-screen .tha-back-button,
+.tha-moon-screen .tha-template-choice { font-size: .78rem; line-height: 1.4; }
+.tha-moon-screen .tha-identified-subtitle { font-size: .82rem; line-height: 1.5; }
+.tha-moon-screen .tha-completion-count { font-size: clamp(1.15rem, 4vw, 1.8rem); }
+
+@media (max-width: 700px) {
+  .tha-moon-screen { font-size: 16px; }
+  .tha-moon-screen .tha-moon-content { padding-inline: 14px !important; }
+  .tha-moon-screen .tha-moon-eyebrow,
+  .tha-moon-screen .tha-moon-kicker,
+  .tha-moon-screen .tha-moon-record-count,
+  .tha-moon-screen .tha-moon-status,
+  .tha-moon-screen .tha-moon-progress,
+  .tha-moon-screen .tha-section-heading,
+  .tha-moon-screen .tha-identification-kicker,
+  .tha-moon-screen .tha-data-label,
+  .tha-moon-screen .tha-story-label,
+  .tha-moon-screen .tha-nasa-source-name,
+  .tha-moon-screen .tha-laser-status,
+  .tha-moon-screen .tha-template-kicker,
+  .tha-moon-screen .tha-completion-label,
+  .tha-moon-screen .tha-mars-handoff-kicker { font-size: .72rem; }
+  .tha-moon-screen .tha-moon-subtitle,
+  .tha-moon-screen .tha-map-caption,
+  .tha-moon-screen .tha-vector-map-caption,
+  .tha-moon-screen .tha-record-explanation,
+  .tha-moon-screen .tha-clue-body,
+  .tha-moon-screen .tha-story-context,
+  .tha-moon-screen .tha-why-card p,
+  .tha-moon-screen .tha-laser-disclaimer,
+  .tha-moon-screen .tha-completion-story,
+  .tha-moon-screen .tha-mars-handoff p { font-size: .9rem; line-height: 1.68; }
+  .tha-moon-screen .tha-clue-trigger { min-height: 58px; padding: 14px 11px; gap: 9px; }
+  .tha-moon-screen .tha-clue-title { font-size: .8rem; }
+  .tha-moon-screen .tha-clue-state,
+  .tha-moon-screen .tha-clue-number,
+  .tha-moon-screen .tha-clue-progress-label { font-size: .68rem; }
+  .tha-moon-screen .tha-clue-body { grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 3px 12px 15px; }
+  .tha-moon-screen .tha-clue-visual { min-height: 88px; }
+  .tha-moon-screen .tha-clue-evidence-figure img { height: clamp(150px, 48vw, 220px); object-fit: contain; }
+  .tha-moon-screen .tha-clue-image-credit { font-size: .68rem; }
+  .tha-moon-screen .tha-data-row { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 8px; font-size: .84rem; }
+  .tha-moon-screen .tha-data-row strong { text-align: right; }
+  .tha-moon-screen .tha-story-card p { font-size: 1.08rem; line-height: 1.55; }
+  .tha-moon-screen .tha-story-card .tha-story-secondary,
+  .tha-moon-screen .tha-story-card .tha-story-context { font-size: .84rem; }
+  .tha-moon-screen .tha-moon-source-link,
+  .tha-moon-screen .tha-next-button,
+  .tha-moon-screen .tha-back-button,
+  .tha-moon-screen .tha-template-choice { min-height: 46px; font-size: .78rem; }
+  .tha-moon-screen .tha-record-actions { display: grid; grid-template-columns: 1fr; }
+  .tha-moon-screen .tha-record-actions > button,
+  .tha-moon-screen .tha-record-actions > a { width: 100%; }
+  .tha-moon-screen .tha-completion-story { font-size: .9rem; }
+}
+
+/* FINAL POLISH: trace controls stay on one line; readable type without crowding. */
+.tha-moon-screen .tha-trace-cta {
+  white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: normal;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .35em;
+  max-width: 100%;
+  min-width: 0;
+  font-size: clamp(.66rem, 1.15vw, .78rem);
+  letter-spacing: .035em;
+  line-height: 1.2;
+  padding-inline: clamp(8px, 1.5vw, 16px);
+}
+.tha-moon-screen .tha-story-card p {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-size: clamp(.92rem, 1.15vw, 1rem);
+  line-height: 1.62;
+}
+.tha-moon-screen .tha-data-row,
+.tha-moon-screen .tha-clue-body,
+.tha-moon-screen .tha-record-explanation,
+.tha-moon-screen .tha-laser-disclaimer,
+.tha-moon-screen .tha-story-context,
+.tha-moon-screen .tha-why-card p,
+.tha-moon-screen .tha-completion-story {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+.tha-moon-screen .tha-data-row strong { min-width: 0; }
+
+@media (max-width: 700px) {
+  .tha-moon-screen .tha-trace-cta {
+    width: 100%;
+    min-height: 44px;
+    font-size: clamp(.57rem, 2.45vw, .68rem);
+    letter-spacing: .015em;
+    padding-inline: 5px;
+  }
+  .tha-moon-screen .tha-story-card p {
+    font-size: .94rem;
+    line-height: 1.58;
+  }
+  .tha-moon-screen .tha-story-card .tha-story-secondary,
+  .tha-moon-screen .tha-story-card .tha-story-context {
+    font-size: .82rem;
+    line-height: 1.55;
+  }
+  .tha-moon-screen .tha-data-row {
+    grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+    gap: 7px;
+    font-size: .82rem;
+    line-height: 1.5;
+  }
+  .tha-moon-screen .tha-data-row strong { overflow-wrap: anywhere; }
+  .tha-moon-screen .tha-moon-content,
+  .tha-moon-screen .tha-moon-stage,
+  .tha-moon-screen .tha-record-panel,
+  .tha-moon-screen .tha-laser-results,
+  .tha-moon-screen .tha-fallen-reveal-slot { min-width: 0; max-width: 100%; }
+}
+@media (max-width: 360px) {
+  .tha-moon-screen .tha-trace-cta { font-size: .55rem; letter-spacing: 0; }
 }

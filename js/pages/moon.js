@@ -46,6 +46,8 @@
   let audioSession = 0;
   let activePianoCancel = null;
   let completionAudioContext = null;
+  let pianoBufferPromise = null;
+  let activePianoSource = null;
 
   const isMuted = () => window.THA?.audioMuted === true;
 
@@ -149,6 +151,7 @@
     if (!AudioContextClass) return null;
     try {
       if (!completionAudioContext) completionAudioContext = new AudioContextClass();
+      preloadPianoBuffer(completionAudioContext);
       if (completionAudioContext.state === "suspended") {
         // Called directly from the student's choice click to unlock Web Audio.
         completionAudioContext.resume().catch(() => {});
@@ -157,6 +160,23 @@
     } catch (_) {
       return null;
     }
+  }
+
+  function preloadPianoBuffer(context = completionAudioContext) {
+    if (!context || pianoBufferPromise) return pianoBufferPromise;
+    const url = new URL(AUDIO.piano, document.baseURI || window.location.href).href;
+    pianoBufferPromise = fetch(url)
+      .then((response) => {
+        if (!response.ok) throw new Error(`Piano audio request failed: ${response.status}`);
+        return response.arrayBuffer();
+      })
+      .then((bytes) => context.decodeAudioData(bytes))
+      .catch((error) => {
+        console.info("THE HUMAN ARCHIVE: piano buffer unavailable; using HTMLAudio fallback.", error);
+        pianoBufferPromise = null;
+        return null;
+      });
+    return pianoBufferPromise;
   }
 
   function playCompletionChord() {
@@ -212,70 +232,79 @@
   }
 
   function playPianoNote({ durationMs = null, resumePings = true, onComplete = null } = {}) {
-    // Honour the shared mute preference; do not block the story if muted.
     if (isMuted()) {
       stopPings();
       onComplete?.(false);
       return Promise.resolve(false);
     }
-    // Make a deliberate quiet gap before the piano cue, then resume the
-    // four-second Moon ping cycle after the scripted note duration finishes.
     stopPings();
+    const context = primeCompletionAudioContext();
     pianoAudio = pianoAudio || makeAudio(AUDIO.piano, 0.62);
-    if (!pianoAudio) {
-      if (resumePings && readProgress() < 3) startMoonPings({ immediate: false });
-      onComplete?.(false);
-      return Promise.resolve(false);
-    }
 
-    stopTrack(pianoAudio);
-    pianoAudio.loop = false;
     return new Promise((resolve) => {
       let settled = false;
       let fallbackTimer = null;
-      const cleanup = () => {
-        pianoAudio.removeEventListener("ended", handleEnded);
-        pianoAudio.removeEventListener("error", handleError);
-        if (fallbackTimer) window.clearTimeout(fallbackTimer);
-        if (activePianoCancel === cancelPlayback) activePianoCancel = null;
-      };
       const finish = (played, cancelled = false) => {
         if (settled) return;
         settled = true;
-        cleanup();
+        if (fallbackTimer) window.clearTimeout(fallbackTimer);
+        if (activePianoSource) {
+          try { activePianoSource.onended = null; activePianoSource.stop(); } catch (_) { /* already ended */ }
+          activePianoSource = null;
+        }
         if (!cancelled) {
-          if (resumePings && readProgress() < 3 && activeRoot?.isConnected) {
-            startMoonPings({ immediate: false });
-          }
+          if (resumePings && readProgress() < 3 && activeRoot?.isConnected) startMoonPings({ immediate: false });
           onComplete?.(played);
         }
+        if (activePianoCancel === cancelPlayback) activePianoCancel = null;
         resolve(played);
       };
-      const handleEnded = () => finish(true, false);
-      const handleError = () => finish(false, false);
       const cancelPlayback = () => finish(false, true);
       activePianoCancel = cancelPlayback;
-      pianoAudio.addEventListener("ended", handleEnded, { once: true });
-      pianoAudio.addEventListener("error", handleError, { once: true });
 
-      const knownDuration = Number.isFinite(pianoAudio.duration) && pianoAudio.duration > 0
-        ? Math.ceil(pianoAudio.duration * 1000 + 300)
-        : PIANO_FALLBACK_MS;
-      const cueDuration = Number.isFinite(durationMs) && durationMs > 0
-        ? Math.min(durationMs, knownDuration)
-        : knownDuration;
-      fallbackTimer = window.setTimeout(() => {
-        if (Number.isFinite(durationMs) && durationMs > 0) stopTrack(pianoAudio);
-        finish(true, false);
-      }, cueDuration);
-      try {
-        const playPromise = pianoAudio.play();
-        if (playPromise && typeof playPromise.catch === "function") {
-          playPromise.catch(() => finish(false, false));
+      const playDecoded = async () => {
+        try {
+          const buffer = await preloadPianoBuffer(context);
+          if (settled) return;
+          if (buffer && context) {
+            if (context.state === "suspended") await context.resume();
+            const source = context.createBufferSource();
+            const gain = context.createGain();
+            source.buffer = buffer;
+            gain.gain.value = 0.62;
+            source.connect(gain);
+            gain.connect(context.destination);
+            activePianoSource = source;
+            source.onended = () => finish(true, false);
+            source.start();
+            const naturalDuration = Math.ceil(buffer.duration * 1000 + 150);
+            const requestedDuration = Number.isFinite(durationMs) && durationMs > 0
+              ? Math.min(durationMs, naturalDuration)
+              : naturalDuration;
+            fallbackTimer = window.setTimeout(() => finish(true, false), requestedDuration);
+            if (requestedDuration < naturalDuration) {
+              window.setTimeout(() => { try { source.stop(); } catch (_) {} }, requestedDuration - 40);
+            }
+            return;
+          }
+        } catch (error) {
+          console.info("THE HUMAN ARCHIVE: Web Audio piano playback failed; trying HTMLAudio.", error);
         }
-      } catch (_) {
-        finish(false, false);
-      }
+        if (!pianoAudio) { finish(false, false); return; }
+        stopTrack(pianoAudio);
+        pianoAudio.loop = false;
+        const onEnded = () => { pianoAudio.removeEventListener("ended", onEnded); finish(true, false); };
+        const onError = () => { pianoAudio.removeEventListener("error", onError); finish(false, false); };
+        pianoAudio.addEventListener("ended", onEnded, { once: true });
+        pianoAudio.addEventListener("error", onError, { once: true });
+        const fallbackDuration = Number.isFinite(durationMs) && durationMs > 0 ? durationMs : PIANO_FALLBACK_MS;
+        fallbackTimer = window.setTimeout(() => finish(true, false), fallbackDuration);
+        try {
+          const playing = pianoAudio.play();
+          if (playing?.catch) playing.catch(() => finish(false, false));
+        } catch (_) { finish(false, false); }
+      };
+      playDecoded();
     });
   }
 
@@ -584,14 +613,17 @@
     );
     const actions = el("div", "tha-record-actions");
     actions.hidden = true;
-    actions.append(button("RETURN TO MOON MAP // TRACE 02 →", "tha-next-button", () => {
+    actions.append(button("RETURN TO MOON MAP // TRACE 02 →", "tha-next-button tha-trace-cta", () => {
       const count = markProgress(1);
       showMapForNextRecord(root, root.querySelector(".tha-moon-stage"), count);
     }));
     container.append(header, makeNASADataCard(record), makeStoryCard(record), why, actions);
     markProgress(1);
-    // Apollo's script calls for a brief piano note, not the full sustained file.
-    playPianoNote({ durationMs: 1600, resumePings: true, onComplete: () => { actions.hidden = false; } });
+    // Unlock Web Audio in the final clue interaction before the brief note.
+    primeCompletionAudioContext();
+    // Play the complete supplied piano WAV, matching the Laser trace cue.
+    // The source file is 7.1 seconds; null lets Web Audio use its natural duration.
+    playPianoNote({ durationMs: null, resumePings: true, onComplete: () => { actions.hidden = false; } });
     setHUD(root, "OBJECT IDENTIFIED // APOLLO 11 DESCENT STAGE", 1);
     container.scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -631,6 +663,7 @@
       start.disabled = true;
       start.textContent = "SIMULATION RUNNING…";
       primePianoPlaybackFromGesture();
+      primeCompletionAudioContext();
       stopPings();
       view.classList.remove("is-complete");
       view.classList.add("is-running");
@@ -657,7 +690,7 @@
           results.classList.add("is-visible");
           results.append(
             el("p", "tha-laser-disclaimer", "The signal returned. Continue to the next lunar trace."),
-            button("CONTINUE TO A DECISION // TRACE 03 →", "tha-next-button tha-next-record-button", () => {
+            button("CONTINUE TO A DECISION // TRACE 03 →", "tha-next-button tha-next-record-button tha-trace-cta", () => {
               markProgress(2);
               showMapForNextRecord(root, root.querySelector(".tha-moon-stage"), 2);
             })
@@ -687,7 +720,7 @@
     const nextPrompt = el("p", "tha-next-trace-prompt", "SIGNAL RECOVERED // THE THIRD LUNAR TRACE IS READY.");
     const actions = el("div", "tha-record-actions tha-laser-next-actions");
     actions.hidden = true;
-    actions.append(button("CONTINUE TO A DECISION // TRACE 03 →", "tha-next-button tha-next-record-button", () => {
+    actions.append(button("CONTINUE TO A DECISION // TRACE 03 →", "tha-next-button tha-next-record-button tha-trace-cta", () => {
       const count = markProgress(2);
       showMapForNextRecord(root, root.querySelector(".tha-moon-stage"), count);
     }));
@@ -701,14 +734,14 @@
     );
     markProgress(2);
     setHUD(root, "SIGNAL RETURNED // LASER REFLECTOR VERIFIED", 2);
-    // The source script calls for a long silence before the single note.
-    // Keep the next-trace control unavailable until that cue has completed,
-    // so a quick tap cannot skip the record's audio moment.
-    later(() => playPianoNote({
-      durationMs: 2500,
+    // Start the single piano note as soon as the simulation ends. NASA DATA,
+    // the story and the next-trace control appear in the same reveal; the
+    // control becomes usable when the note has finished.
+    playPianoNote({
+      durationMs: null,
       resumePings: true,
       onComplete: () => { actions.hidden = false; }
-    }), 2200);
+    });
     container.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
@@ -737,6 +770,11 @@
     if (!approved) return;
 
     stopAllMoonAudio();
+    // Completion tint belongs only to the completed state; replay restores the
+    // original lunar palette before rebuilding trace 01 on the same root.
+    root?.classList.remove("is-red-shift");
+    root?.querySelectorAll(".tha-moon-completion-flash").forEach((node) => node.remove());
+    root?.querySelectorAll(".tha-moon-completion.is-red-shift").forEach((node) => node.classList.remove("is-red-shift"));
     try {
       const saved = JSON.parse(window.localStorage.getItem(PROGRESS_KEY) || "{}");
       saved.moon = 0;
@@ -810,17 +848,14 @@
     if (!slot || slot.dataset.revealed === "true") return;
     slot.dataset.revealed = "true";
     slot.classList.add("is-visible");
-    // Prime Web Audio synchronously in the student's choice gesture so the
-    // final scripted chord can play after the sustained piano note.
+    // The choice is the final clue gesture: unlock audio here, then start the
+    // piano cue immediately while NASA DATA and the story reveal underneath.
     primeCompletionAudioContext();
-    primePianoPlaybackFromGesture();
-    slot.append(makeNASADataCard(record), makeStoryCard(record));
     markProgress(3);
     setHUD(root, "FINAL TRACE RECOVERED // 3 OF 3", 3);
     stopPings();
-    // Wait in silence, play the full sustained piano note, then reveal the
-    // archive motto and completion scene only after the note ends.
-    later(() => playPianoNote({
+    slot.append(makeNASADataCard(record), makeStoryCard(record));
+    playPianoNote({
       durationMs: 7000,
       resumePings: false,
       onComplete: () => {
@@ -829,7 +864,7 @@
         completion.scrollIntoView({ behavior: "smooth", block: "center" });
         runMoonEndTransition(root, completion);
       }
-    }), 1100);
+    });
     slot.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
@@ -923,6 +958,9 @@
 
   function renderMoonMap() {
     stopAllMoonAudio();
+    // Pre-fetch/decode the piano WAV while the map is open; resume the context
+    // only from an actual student interaction to respect browser audio policy.
+    try { preloadPianoBuffer(primeCompletionAudioContext()); } catch (_) { /* optional audio */ }
     const progress = readProgress();
     const nextRecord = progress < 3 ? getMoonRecord(progress) : null;
     const current = makeShell({
