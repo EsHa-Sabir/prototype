@@ -253,11 +253,11 @@
                 ["emptyMass", "EMPTY MASS"]
             ]),
             sourceNotes: [
-                "Belge 1's latest version identifies the Apollo 11 Lunar Module as 1969-059A, and the record's NSSDCA source URL also ends in 1969-059A. The identifier and source link agree."
+                "Belge 1 identifies the Apollo 11 Lunar Module as 1969-059C; the NSSDCA source URL and documentedVerifiedIdentifier both use 1969-059C."
             ],
             storyLead: "Humans landed on the Moon. A piece of their mission remained. On purpose. Because they had not gone there to bring everything back to Earth.",
             story: "The heavy metallic base of the Apollo 11 Lunar Module. It was purposefully left behind to serve as a stable launch pad for the astronauts to blast back up into space when returning home. It weighs 2,034 kg empty.",
-            verifiedSourceNote: "NSSDCA — Apollo 11 Lunar Module (1969-059A).",
+            verifiedSourceNote: "NSSDCA — Apollo 11 Lunar Module (1969-059C).",
             clues: [
                 { order: 1, title: "MISSION PHOTOGRAPHS", text: "Mission photographs. A black-and-white image. Two astronauts. The lunar surface. A flag. A vehicle." },
                 { order: 2, title: "LOCATION DATA", text: "Mare Tranquillitatis. The Moon. 0.67408° N, 23.47297° E." },
@@ -283,8 +283,8 @@
                 "Apollo 11 Lunar Module descent stage on the lunar surface",
                 "LM descent stage photograph (LRO)"
             ), {
-                filename: "apollo11-lro-landing-site.png",
-                src: "assets/images/apollo11-lro-landing-site.png",
+                filename: "apollo-11-lro-landing-site.webp",
+                src: "assets/images/apollo-11-lro-landing-site.webp",
                 assetStatus: "Included in assets/images/ with the official NASA image/source link mapped in Chapter 2."
             }),
             soundCue: "A single piano note. Brief. Then silence.",
@@ -317,8 +317,8 @@
                 laserMeasurements: "Centimeter-level precision",
                 currentUse: "Laser retroreflectors at the Apollo 11, 14, and 15 landing sites are still used by scientists for measurements.",
                 sourceOrganization: "NASA / GSFC",
-                sourceName: "NASA / GSFC — Laser Reflecting Instrument",
-                source: "https://science.nasa.gov/centers-and-facilities/goddard/nasa-laser-reflecting-instrument-makes-gps-satellite-more-accurate/",
+                sourceName: "NASA — Laser Beams Reflected Between Earth and Moon",
+                source: "https://www.nasa.gov/missions/lro/laser-beams-reflected-between-earth-and-moon-boost-science/",
                 sourceStatus: "Marked verified in Belge 1"
             }, [
                 ["type", "TYPE"],
@@ -329,7 +329,12 @@
             storyLead: "These were not abandoned. Some are still being used in scientific measurements today.",
             story: "Special arrays of tiny, high-tech mirror prisms left by the Apollo crews. Even though the missions ended decades ago, these mirrors are still actively used by scientists on Earth today! We bounce powerful lasers off them to calculate the exact distance to the Moon down to the centimeter.",
             verifiedSourceNote: "NASA / GSFC — Laser retroreflectors at the Apollo 11, 14, and 15 landing sites are still used by scientists for measurements.",
-            clues: [],
+            clues: [
+                { order: 1, title: "A TINY SIGNAL TARGET", text: "The instrument is only a few centimeters across. Look closely: this small object can send a light signal back toward Earth." },
+                { order: 2, title: "MIRROR PRISMS", text: "It is an array of tiny, high-tech mirror prisms left by the Apollo crews. They reflect laser light back toward its source." },
+                { order: 3, title: "THE TWO-WAY TRACE", text: "A laser pulse travels from Earth to the Moon. The reflected signal returns from the Moon to Earth." },
+                { order: 4, title: "STILL ANSWERING", text: "Arrays at the Apollo 11, 14, and 15 landing sites are still used by scientists. The measurements can reach centimeter-level precision." }
+            ],
             mechanic: "laser-simulation",
             interaction: {
                 type: "laser-ranging-simulation",
@@ -347,11 +352,11 @@
                 "Apollo lunar laser retroreflector array",
                 "LRRR photograph"
             ), {
-                filename: "lunar-laser-retroreflector-array.jpeg",
-                src: "assets/images/lunar-laser-retroreflector-array.jpeg",
-                assetStatus: "Included in assets/images/; credit NASA / NASA Apollo Archive."
+                filename: "apollo-14-laser-retroreflector-closeup-as14-67-9386.webp",
+                src: "assets/images/apollo-14-laser-retroreflector-closeup-as14-67-9386.webp",
+                assetStatus: "JPL article carousel close-up photo (AS14-67-9386), NASA credit; separate clue image is lunar-laser-retroreflector-array.webp."
             }),
-            soundCue: "Whirr + click for the laser simulation; silence, long, then a single note after the record.",
+            soundCue: "One whirr as the red beam travels Earth to Moon; one click at reflection; the green return is silent. Then silence, long, then a single note after the record.",
             digitalNotes: [
                 "Use an SVG animation.",
                 "The red line travels Earth to Moon for 2 seconds; the green line returns Moon to Earth for 2 seconds.",
@@ -423,8 +428,8 @@
                 "Fallen Astronaut aluminum sculpture and plaque on the Moon",
                 "Figure photograph"
             ), {
-                filename: "fallen-astronaut-figure-plaque.png",
-                src: "assets/images/fallen-astronaut-figure-plaque.png",
+                filename: "fallen-astronaut-as15-88-11894.webp",
+                src: "assets/images/fallen-astronaut-as15-88-11894.webp",
                 assetStatus: "Included in assets/images/; credit NASA / JSC."
             }),
             soundCue: "A single, sustained piano note.",
@@ -1013,15 +1018,15 @@
     // -------------------------------------------------------------------------
     const APPROVED_MOON_ASSET_MAP = {
         "apollo-11": {
-            filename: "apollo11-lro-landing-site.png",
-            src: "assets/images/apollo11-lro-landing-site.png",
+            filename: "apollo-11-lro-landing-site.webp",
+            src: "assets/images/apollo-11-lro-landing-site.webp",
             alt: "Annotated Lunar Reconnaissance Orbiter image of the Apollo 11 landing site, with the descent stage labelled.",
             credit: "NASA/Goddard Space Flight Center/Arizona State University",
             sourceUrl: "https://science.nasa.gov/resource/apollo-11-landing-site/",
             secondaryImages: [
                 {
-                    filename: "apollo11-as11-40-5927.png",
-                    src: "assets/images/apollo11-as11-40-5927.png",
+                    filename: "apollo-11-as11-40-5927.webp",
+                    src: "assets/images/apollo-11-as11-40-5927.webp",
                     alt: "Apollo 11 Lunar Module Eagle on the Moon during the astronauts' surface activity.",
                     credit: "NASA / JSC",
                     sourceUrl: "https://images.nasa.gov/details/as11-40-5927"
@@ -1030,17 +1035,17 @@
             assetStatus: "Embedded in Images.docx and matched to the documented NASA landing-site image; official image credit and source link are displayed in the Moon interface."
         },
         "laser-retroreflectors": {
-            filename: "lunar-laser-retroreflector-array.jpeg",
-            src: "assets/images/lunar-laser-retroreflector-array.jpeg",
+            filename: "apollo-11-laser-retroreflector-as11-40-5952.webp",
+            src: "assets/images/apollo-11-laser-retroreflector-as11-40-5952.webp",
             alt: "Apollo-era laser retroreflector array on the lunar surface.",
-            credit: "NASA / NASA Apollo Archive",
-            sourceUrl: "https://images.nasa.gov/details/PIA13037",
+            credit: "NASA",
+            sourceUrl: "https://www.nasa.gov/wp-content/uploads/2020/08/apollo_reflector.jpg",
             secondaryImages: [],
             assetStatus: "Embedded in Images.docx; source URL and credit follow images links.docx."
         },
         "fallen-astronaut": {
-            filename: "fallen-astronaut-figure-plaque.png",
-            src: "assets/images/fallen-astronaut-figure-plaque.png",
+            filename: "fallen-astronaut-as15-88-11894.webp",
+            src: "assets/images/fallen-astronaut-as15-88-11894.webp",
             alt: "Fallen Astronaut memorial figure and plaque on the lunar surface.",
             credit: "NASA / JSC",
             sourceUrl: "https://images.nasa.gov/details/as15-88-11894",
@@ -1330,8 +1335,8 @@
             issues.push("Voyager's current distance and communication status must be marked live.");
         }
 
-        if (getRecord("apollo-11")?.nasaData?.documentedVerifiedIdentifier !== "1969-059A" || !getRecord("apollo-11")?.nasaData?.source?.endsWith("id=1969-059A")) {
-            issues.push("Apollo 11's documented NSSDCA identifier and source URL must both be 1969-059A.");
+        if (getRecord("apollo-11")?.nasaData?.documentedVerifiedIdentifier !== "1969-059C" || !getRecord("apollo-11")?.nasaData?.source?.endsWith("id=1969-059C")) {
+            issues.push("Apollo 11's documented NSSDCA identifier and source URL must both be 1969-059C.");
         }
         if (getChapter("moon")?.audioCue?.pingIntervalMs !== 4000 || getChapter("moon")?.audioCue?.noAtmosphericWind !== true) {
             issues.push("Moon chapter audio must remain a low electronic ping every 4 seconds with no atmospheric wind.");
@@ -1342,10 +1347,13 @@
         if (getRecord("laser-retroreflectors")?.interaction?.outbound?.durationMs !== 2000 || getRecord("laser-retroreflectors")?.interaction?.return?.durationMs !== 2000) {
             issues.push("Laser simulation must animate Earth-to-Moon and Moon-to-Earth legs for 2 seconds each.");
         }
-        warnings.push("Moon image filenames are mapped from the supplied project manifest and visual subject matching in Images.docx; confirm that each file exists under assets/images/ and add its original source URL before publication.");
+        if (getRecord("laser-retroreflectors")?.clues?.length !== 4) {
+            issues.push("Laser Retroreflectors must use four sequential Template A clue cards.");
+        }
+        warnings.push("Moon WebP image paths were checked against the packaged assets/images/ folder; original PNG copies remain in the package and source links follow images links.docx.");
         warnings.push("Belge 2 identifies Elora's XLSX as the original data source. The workbook itself was not attached in the files available for this build, so direct cell-by-cell XLSX parity has not been independently re-audited here.");
         warnings.push("The three team-provided https://nasa.gov links are supplementary general verification links; the record-specific deep links from Belge 1 remain the primary source links.");
-        warnings.push("Audio asset filenames were supplied by the project owner and are recorded as intended paths; confirm that the files exist under assets/audio/ before integrating playback.");
+        warnings.push("All four Moon audio paths were checked against assets/audio/; the large piano WAV is retained as the original, while playback uses a compressed MP3 copy.");
         warnings.push("Voyager's current status/distance must be populated from a live NASA/JPL check at runtime.");
 
         return {
@@ -1359,7 +1367,7 @@
     }
 
     const api = {
-        version: "2.2.0-docs-aligned-moon-assets-audio",
+        version: "2.3.0-moon-template-a-laser-clues-audio",
         project: "THE HUMAN ARCHIVE",
         sourceDocuments: [
             "Belge 1 — THE HUMAN ARCHIVE v2.0 Complete Script with Verified Sources",

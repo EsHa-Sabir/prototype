@@ -20,12 +20,14 @@
     return node;
   };
 
-  function createClueSequence({ record, onComplete } = {}) {
-    const root = el("section", "tha-template-c-clue-flow");
+  function createClueSequence({ record, onComplete, imagePath, imageSource, imageCredit = "NASA / JSC" } = {}) {
+    // Reuse Template A's clue-card structure and CSS so Fallen Astronaut has
+    // the same accordion appearance, spacing, progress treatment and reveal motion.
+    const root = el("section", "tha-template-a-clue-flow tha-template-c-clue-flow");
     const heading = el("div", "tha-section-heading");
     heading.append(
-      el("span", "", "READ THE MEMORIAL CLUES"),
-      el("small", "", "4 CLUES // OPEN IN SEQUENCE")
+      el("span", "", "FIELD PUZZLE // RECOVER THE EVIDENCE"),
+      el("small", "", "4 CLUES // SCAN IN SEQUENCE")
     );
     const clues = el("div", "tha-clues");
     const data = Array.isArray(record?.clues) ? record.clues : [];
@@ -35,6 +37,40 @@
     progress.append(fill);
     const label = el("p", "tha-clue-progress-label", `0 / ${data.length} CLUES DECODED`);
 
+    function makeVisual(index) {
+      const visual = el("div", `tha-clue-visual tha-clue-visual-${index + 1}`);
+      if (index === 0 && imagePath) {
+        const figure = el("figure", "tha-clue-evidence-figure");
+        const image = document.createElement("img");
+        image.src = imagePath;
+        image.alt = "Fallen Astronaut aluminum memorial figure and plaque at the Apollo 15 Hadley Rille site.";
+        image.loading = "lazy";
+        image.decoding = "async";
+        figure.append(image);
+        const caption = el("figcaption", "tha-clue-image-credit");
+        caption.append(el("span", "", imageCredit));
+        if (imageSource) {
+          const link = document.createElement("a");
+          link.href = imageSource;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.className = "tha-image-source";
+          link.textContent = " · NASA IMAGE ↗";
+          caption.append(link);
+        }
+        figure.append(caption);
+        visual.append(figure);
+        return visual;
+      }
+      const symbols = ["⌖", "1971", "8.5 cm", "14"];
+      const labels = ["HADLEY RILLE", "MISSION YEAR", "ALUMINUM FIGURE", "REMEMBRANCE"];
+      visual.append(
+        el("span", "tha-clue-visual-symbol", symbols[index] || "•"),
+        el("span", "tha-clue-visual-label", labels[index] || "ARCHIVE CLUE")
+      );
+      return visual;
+    }
+
     function reveal(index, card) {
       if (revealed.has(index) || index !== revealed.size) return;
       revealed.add(index);
@@ -42,7 +78,7 @@
       card.classList.add("is-revealed");
       const trigger = card.querySelector(".tha-clue-trigger");
       trigger.setAttribute("aria-expanded", "true");
-      trigger.querySelector(".tha-clue-state").textContent = "DECODED";
+      trigger.querySelector(".tha-clue-state").textContent = "RECOVERED";
       const body = card.querySelector(".tha-clue-body");
       body.hidden = false;
       body.classList.add("is-open");
@@ -52,32 +88,27 @@
       if (next) {
         next.disabled = false;
         next.closest(".tha-clue")?.classList.remove("is-locked");
-        next.querySelector(".tha-clue-state").textContent = "OPEN CLUE";
+        next.querySelector(".tha-clue-state").textContent = "SCAN CLUE";
       }
       if (revealed.size === data.length) {
-        label.textContent = `${data.length} / ${data.length} — INTERPRETATION UNLOCKED`;
-        window.setTimeout(() => onComplete?.(), 420);
+        label.textContent = `${data.length} / ${data.length} — YOUR INTERPRETATION IS UNLOCKED`;
+        window.setTimeout(() => onComplete?.(), 480);
       }
     }
 
     data.forEach((clue, index) => {
-      const card = el("article", `tha-clue tha-template-c-clue ${index ? "is-locked" : ""}`.trim());
+      const card = el("article", `tha-clue ${index ? "is-locked" : ""}`.trim());
       const trigger = makeButton("", "tha-clue-trigger", () => reveal(index, card));
       trigger.disabled = index !== 0;
       trigger.setAttribute("aria-expanded", "false");
       trigger.append(
         el("span", "tha-clue-number", `0${index + 1}`),
         el("span", "tha-clue-title", clue.title || `CLUE ${index + 1}`),
-        el("span", "tha-clue-state", index === 0 ? "OPEN CLUE" : "LOCKED")
+        el("span", "tha-clue-state", index === 0 ? "SCAN CLUE" : "LOCKED")
       );
       const body = el("div", "tha-clue-body");
       body.hidden = true;
-      const visual = el("div", `tha-clue-visual tha-clue-visual-${index + 1}`);
-      visual.append(
-        el("span", "tha-clue-visual-symbol", ["⌖", "1971", "8.5 cm", "14"][index] || "•"),
-        el("span", "tha-clue-visual-label", ["HADLEY RILLE", "MISSION YEAR", "ALUMINUM FIGURE", "REMEMBRANCE"][index] || "ARCHIVE CLUE")
-      );
-      body.append(visual, el("p", "", clue.text || ""));
+      body.append(makeVisual(index), el("p", "", clue.text || ""));
       card.append(trigger, body);
       clues.append(card);
     });

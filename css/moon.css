@@ -912,3 +912,81 @@
 @media (max-width: 360px) {
   .tha-moon-screen .tha-trace-cta { font-size: .55rem; letter-spacing: 0; }
 }
+
+
+/* 2026 mobile readability pass: metadata stays legible instead of shrinking to microtype. */
+.tha-moon-map-title {
+  max-width: 100%;
+  font-size: clamp(1.65rem, 5vw, 3.2rem) !important;
+  line-height: 1.16 !important;
+  letter-spacing: .045em !important;
+  overflow-wrap: anywhere;
+}
+.tha-moon-status { font-size: .68rem; line-height: 1.5; }
+.tha-moon-map-caption { font-size: .72rem; line-height: 1.6; }
+.tha-vector-map-caption { font-size: .62rem; line-height: 1.55; }
+.tha-map-tag, .tha-map-coordinates { font-size: .58rem; line-height: 1.5; }
+.tha-moon-legend { font-size: .62rem; line-height: 1.55; }
+.tha-image-credit { font-size: .58rem; line-height: 1.55; }
+.tha-image-source { font-size: .58rem; }
+.tha-clue-image-credit { font-size: .55rem; line-height: 1.55; }
+.tha-clue-trigger { min-height: 58px; }
+.tha-clue-number { font-size: .7rem; }
+.tha-clue-title { font-size: .72rem; line-height: 1.4; }
+.tha-clue-state { font-size: .62rem; }
+.tha-clue-body { font-size: .86rem; line-height: 1.65; }
+.tha-section-heading { font-size: .72rem; line-height: 1.5; }
+.tha-section-heading small { font-size: .62rem; }
+.tha-data-row { font-size: .8rem; line-height: 1.55; }
+.tha-data-row strong { font-size: .8rem; }
+.tha-data-label, .tha-story-label { font-size: .7rem; }
+.tha-story-card .tha-story-context { font-size: .82rem; line-height: 1.65; }
+.tha-why-card p, .tha-record-explanation { font-size: .86rem; line-height: 1.7; }
+.tha-next-button, .tha-back-button, .tha-moon-source-link { min-height: 46px; font-size: .72rem; }
+.tha-evidence-figure img { min-height: 180px; }
+
+@media (max-width: 700px) {
+  .tha-moon-map-title { font-size: clamp(1.45rem, 6.5vw, 2.1rem) !important; letter-spacing: .025em !important; }
+  .tha-moon-hud { align-items: flex-start; font-size: .68rem; line-height: 1.55; }
+  .tha-moon-status { font-size: .68rem; }
+  .tha-moon-progress { font-size: .68rem; }
+  .tha-map-tag, .tha-map-coordinates { font-size: .62rem; padding: 6px 7px; }
+  .tha-moon-legend { font-size: .62rem; gap: 8px; }
+  .tha-moon-map-caption, .tha-vector-map-caption { font-size: .68rem; }
+  .tha-clue-title { font-size: .72rem; letter-spacing: .02em; }
+  .tha-clue-state { font-size: .62rem; }
+  .tha-clue-body { font-size: .86rem; }
+  .tha-clue-visual-label, .tha-clue-image-credit { font-size: .58rem; }
+  .tha-data-row, .tha-data-row strong { font-size: .78rem; }
+  .tha-story-card .tha-story-context { font-size: .82rem; }
+  .tha-section-heading, .tha-section-heading small { font-size: .68rem; }
+  .tha-record-intro > p:last-child { font-size: .86rem; }
+  .tha-object-status { font-size: .68rem; }
+  .tha-moon-footer > span { font-size: .6rem; letter-spacing: .02em; }
+  .tha-moon-footer .tha-back-button { font-size: .62rem; }
+  .tha-evidence-figure img { max-height: 300px; min-height: 170px; }
+}
+@media (max-width: 380px) {
+  .tha-moon-content { padding-left: 12px; padding-right: 12px; }
+  .tha-moon-map-title { font-size: 1.38rem !important; }
+  .tha-moon-hud { gap: 6px; }
+  .tha-map-tag, .tha-map-coordinates { font-size: .56rem; padding: 5px; }
+  .tha-clue-title { font-size: .68rem; }
+  .tha-clue-state { font-size: .58rem; }
+  .tha-data-row, .tha-data-row strong { font-size: .74rem; }
+  .tha-moon-footer > span { font-size: .56rem; }
+  .tha-moon-footer .tha-back-button { font-size: .58rem; padding-inline: 8px; }
+}
+
+@media (max-width: 700px) {
+  .tha-moon-brand-copy strong { font-size: .66rem !important; line-height: 1.35; }
+  .tha-moon-brand-copy small { font-size: .54rem !important; line-height: 1.35; }
+  .tha-moon-identity-slot .tha-global-identity-badge .tha-global-badge-copy { font-size: .5rem !important; line-height: 1.35; }
+  .tha-moon-identity-slot .tha-global-identity-badge.is-in-menu-header { max-width: 168px; }
+  .tha-moon-header { min-height: 62px; }
+}
+@media (max-width: 380px) {
+  .tha-moon-brand-copy strong { font-size: .62rem !important; }
+  .tha-moon-brand-copy small { font-size: .5rem !important; }
+  .tha-moon-identity-slot .tha-global-identity-badge .tha-global-badge-copy { font-size: .46rem !important; }
+}

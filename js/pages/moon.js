@@ -13,17 +13,18 @@
     click: "assets/audio/click.mp3"
   });
   const IMAGE = Object.freeze({
-    apolloLro: "assets/images/apollo-11-landing-site.png",
-    apolloMission: "assets/images/apollo-11-as11-40-5927.png",
-    retroreflector: "assets/images/lunar-laser-retroreflector-array.png",
-    fallenAstronaut: "assets/images/fallen-astronaut-figure-plaque.png"
+    apolloLro: "assets/images/apollo-11-lro-landing-site.webp",
+    apolloMission: "assets/images/apollo-11-as11-40-5927.webp",
+    retroreflector: "assets/images/lunar-laser-retroreflector-array.webp",
+    retroreflectorHero: "assets/images/apollo-14-laser-retroreflector-closeup-as14-67-9386.webp",
+    fallenAstronaut: "assets/images/fallen-astronaut-as15-88-11894.webp"
   });
   const SOURCE = Object.freeze({
     apollo: "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059C",
     apolloLroImage: "https://science.nasa.gov/resource/apollo-11-landing-site/",
     apolloMissionImage: "https://images.nasa.gov/details/as11-40-5927",
-    retroreflectorImage: "https://www.jpl.nasa.gov/news/the-apollo-experiment-that-keeps-on-giving/#carousel-dffc9761-6e04-4b75-bced-fc071407341c-2",
-    retroreflectorLpi: "https://www.lpi.usra.edu/resources/apollo/frame/?AS11-40-5952",
+    retroreflectorNasa: "https://www.nasa.gov/wp-content/uploads/2020/08/apollo_reflector.jpg",
+    retroreflectorJpl: "https://www.jpl.nasa.gov/news/the-apollo-experiment-that-keeps-on-giving/#carousel-dffc9761-6e04-4b75-bced-fc071407341c-2",
     retroreflectorData: "https://science.nasa.gov/centers-and-facilities/goddard/nasa-laser-reflecting-instrument-makes-gps-satellite-more-accurate/",
     fallenImage: "https://images.nasa.gov/details/as15-88-11894",
     fallenData: "https://science.nasa.gov/resource/memorial-to-fallen-astronauts-on-the-moon/"
@@ -31,7 +32,11 @@
 
   const PING_INTERVAL_MS = 4000;
   const CAMERA_ZOOM_MS = 2000;
-  const PIANO_FALLBACK_MS = 7600; // the supplied single-piano-note.wav is about 7 seconds
+  const APOLLO_PIANO_DURATION_MS = 950; // brief cue, even though the supplied WAV is longer
+  const LASER_POST_SIMULATION_SILENCE_MS = 5000; // documented long silence
+  const FALLEN_PRE_NOTE_SILENCE_MS = 5000; // silence before the sustained memorial note
+  const FALLEN_PIANO_DURATION_MS = 7000;
+  const PIANO_FALLBACK_MS = 7600;
   const PROGRESS_KEY = "thaProgress";
   const LEGACY_APOLLO_KEY = "thaApollo11Recovered";
   const RECORD_IDS = ["apollo-11", "laser-retroreflectors", "fallen-astronaut"];
@@ -121,6 +126,36 @@
     if (!track) return;
     track.pause();
     try { track.currentTime = 0; } catch (_) { /* optional media */ }
+  }
+
+  function primeTrackFromGesture(track) {
+    if (!track || isMuted()) return;
+    const originalVolume = track.volume;
+    track.volume = 0;
+    try {
+      const attempt = track.play();
+      const restore = () => {
+        stopTrack(track);
+        track.volume = originalVolume;
+      };
+      if (attempt && typeof attempt.then === "function") {
+        attempt.then(restore).catch(() => { track.volume = originalVolume; });
+      } else {
+        window.setTimeout(restore, 80);
+      }
+    } catch (_) {
+      track.volume = originalVolume;
+    }
+  }
+
+  function primeMoonAudioFromGesture() {
+    if (isMuted()) return;
+    pingAudio = pingAudio || makeAudio(AUDIO.ping, 0.34);
+    clickAudio = clickAudio || makeAudio(AUDIO.click, 0.72);
+    laserAudio = laserAudio || makeAudio(AUDIO.laser, 0.72);
+    pianoAudio = pianoAudio || makeAudio(AUDIO.piano, 0.62);
+    [pingAudio, clickAudio, laserAudio, pianoAudio].forEach(primeTrackFromGesture);
+    primeCompletionAudioContext();
   }
 
   function stopPings() {
@@ -252,6 +287,9 @@
           try { activePianoSource.onended = null; activePianoSource.stop(); } catch (_) { /* already ended */ }
           activePianoSource = null;
         }
+        // Also trim the HTMLAudio fallback; mobile browsers may not support
+        // the Web Audio decode path, but the cue must still stay brief.
+        if (pianoAudio) stopTrack(pianoAudio);
         if (!cancelled) {
           if (resumePings && readProgress() < 3 && activeRoot?.isConnected) startMoonPings({ immediate: false });
           onComplete?.(played);
@@ -405,12 +443,12 @@
     const heading = el("section", "tha-moon-heading");
     heading.append(
       el("p", "tha-moon-eyebrow", "CHAPTER 02 // THE MOON"),
-      el("h1", "", "THE MOON"),
+      el("h1", "tha-moon-map-title", "MOON — LOST OBJECT MAP"),
       el("p", "tha-moon-subtitle", subtitle)
     );
     const hud = el("div", "tha-moon-hud");
     hud.append(
-      el("span", "tha-moon-status", status || "SIGNAL DETECTED // OBJECT UNKNOWN"),
+      el("span", "tha-moon-status", status || "STATUS: UNKNOWN"),
       (() => {
         const item = el("span", "tha-moon-progress");
         item.append(document.createTextNode("MOON ARCHIVE "), el("strong", "tha-moon-progress-value", `${progress ?? readProgress()} / 3`));
@@ -456,10 +494,7 @@
     }));
     root.querySelector(".tha-moon-map-caption").textContent = mapCaptionFor(nextRecord);
     setChapterSubtitle(root, nextRecord);
-    const status = nextRecord.number === 1
-      ? "SIGNAL DETECTED // OBJECT UNKNOWN"
-      : `SIGNAL ${String(nextRecord.number).padStart(2, "0")} DETECTED // ${nextRecord.objectType.toUpperCase()}`;
-    setHUD(root, status, completedCount);
+    setHUD(root, "STATUS: UNKNOWN", completedCount);
     startMoonPings();
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
   }
@@ -472,6 +507,48 @@
       rows.append(row);
     });
     return rows;
+  }
+
+  function makeObjectDNACard(record) {
+    const card = el("section", "tha-object-dna");
+    card.setAttribute("aria-label", `Object DNA educational facts for ${record?.title || "the recovered object"}`);
+    card.append(
+      el("div", "tha-object-dna-heading", "OBJECT DNA // DECODE THE HARDWARE"),
+      el("p", "tha-object-dna-intro", "Three quick facts. One real piece of space history.")
+    );
+
+    const facts = {
+      "apollo-11": [
+        { icon: "⌑", label: "HARDWARE", value: "DESCENT STAGE", note: "The lower section of the Lunar Module stayed on the Moon." },
+        { icon: "⚖", label: "EMPTY MASS", value: "2,034 kg", note: "The mass recorded for the Apollo 11 descent stage." },
+        { icon: "↥", label: "MISSION ROLE", value: "LAUNCH PLATFORM", note: "It supported the astronauts' return journey; the ascent stage separated." }
+      ],
+      "laser-retroreflectors": [
+        { icon: "◇", label: "HARDWARE", value: "MIRROR PRISMS", note: "Tiny high-tech mirror prisms reflect laser light back toward its source." },
+        { icon: "↔", label: "DISTANCE", value: "~384,400 km", note: "The average Earth–Moon distance shown in the archive record." },
+        { icon: "⌖", label: "SCIENCE", value: "CENTIMETER-LEVEL", note: "Scientists still use the arrays for precise lunar measurements." }
+      ],
+      "fallen-astronaut": [
+        { icon: "♙", label: "MATERIAL", value: "ALUMINUM", note: "A small memorial figure made from aluminum." },
+        { icon: "↕", label: "SIZE", value: "8.5 cm TALL", note: "The figure rests beside a commemorative plaque." },
+        { icon: "✧", label: "MEANING", value: "14 EXPLORERS", note: "It honors 14 astronauts and cosmonauts who lost their lives." }
+      ]
+    }[record?.id] || [];
+
+    const grid = el("div", "tha-object-dna-grid");
+    facts.forEach((fact, index) => {
+      const tile = el("article", "tha-object-dna-tile");
+      tile.style.setProperty("--dna-index", String(index));
+      tile.append(
+        el("span", "tha-object-dna-icon", fact.icon),
+        el("span", "tha-object-dna-label", fact.label),
+        el("strong", "tha-object-dna-value", fact.value),
+        el("p", "tha-object-dna-note", fact.note)
+      );
+      grid.append(tile);
+    });
+    card.append(grid);
+    return card;
   }
 
   function makeNASADataCard(record) {
@@ -500,8 +577,9 @@
     const image = document.createElement("img");
     image.src = src;
     image.alt = alt;
-    image.loading = "lazy";
+    image.loading = "eager";
     image.decoding = "async";
+    image.fetchPriority = "high";
     const caption = el("figcaption", "tha-image-credit");
     caption.append(el("span", "", credit), document.createTextNode(" · "), externalLink(linkLabel || "OFFICIAL IMAGE ↗", link, "tha-image-source"));
     figure.append(image, caption);
@@ -617,13 +695,15 @@
       const count = markProgress(1);
       showMapForNextRecord(root, root.querySelector(".tha-moon-stage"), count);
     }));
-    container.append(header, makeNASADataCard(record), makeStoryCard(record), why, actions);
+    container.append(header, makeNASADataCard(record), makeObjectDNACard(record), makeStoryCard(record), why, actions);
     markProgress(1);
-    // Unlock Web Audio in the final clue interaction before the brief note.
+    // The source WAV is longer than the documented cue; trim it to a brief note.
     primeCompletionAudioContext();
-    // Play the complete supplied piano WAV, matching the Laser trace cue.
-    // The source file is 7.1 seconds; null lets Web Audio use its natural duration.
-    playPianoNote({ durationMs: null, resumePings: true, onComplete: () => { actions.hidden = false; } });
+    playPianoNote({
+      durationMs: APOLLO_PIANO_DURATION_MS,
+      resumePings: true,
+      onComplete: () => { actions.hidden = false; }
+    });
     setHUD(root, "OBJECT IDENTIFIED // APOLLO 11 DESCENT STAGE", 1);
     container.scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -670,10 +750,14 @@
       status.textContent = "OUTBOUND BEAM // EARTH → MOON";
       laserAudio = laserAudio || makeAudio(AUDIO.laser, 0.72);
       clickAudio = clickAudio || makeAudio(AUDIO.click, 0.72);
+      // Belge 2: one whirr accompanies the outbound red beam only.
+      // At the Moon, one click marks reflection; the green return is silent.
+      laserAudio.loop = false;
       playTrack(laserAudio);
       const outboundDuration = record?.interaction?.outbound?.durationMs || 2000;
       const returnDuration = record?.interaction?.return?.durationMs || 2000;
       later(() => {
+        stopTrack(laserAudio);
         status.textContent = "REFLECTED // RETURN BEAM → EARTH";
         playTrack(clickAudio);
       }, outboundDuration);
@@ -690,7 +774,7 @@
           results.classList.add("is-visible");
           results.append(
             el("p", "tha-laser-disclaimer", "The signal returned. Continue to the next lunar trace."),
-            button("CONTINUE TO A DECISION // TRACE 03 →", "tha-next-button tha-next-record-button tha-trace-cta", () => {
+            button("RETURN TO MOON MAP // TRACE 03 →", "tha-next-button tha-trace-cta", () => {
               markProgress(2);
               showMapForNextRecord(root, root.querySelector(".tha-moon-stage"), 2);
             })
@@ -718,9 +802,9 @@
     const methodExplanation = record?.interaction?.requiredExplanation || "Scientists use this method to measure.";
     const disclaimer = el("p", "tha-laser-disclaimer", `${baseDisclaimer} ${methodExplanation}`);
     const nextPrompt = el("p", "tha-next-trace-prompt", "SIGNAL RECOVERED // THE THIRD LUNAR TRACE IS READY.");
-    const actions = el("div", "tha-record-actions tha-laser-next-actions");
+    const actions = el("div", "tha-record-actions");
     actions.hidden = true;
-    actions.append(button("CONTINUE TO A DECISION // TRACE 03 →", "tha-next-button tha-next-record-button tha-trace-cta", () => {
+    actions.append(button("RETURN TO MOON MAP // TRACE 03 →", "tha-next-button tha-trace-cta", () => {
       const count = markProgress(2);
       showMapForNextRecord(root, root.querySelector(".tha-moon-stage"), count);
     }));
@@ -728,20 +812,24 @@
       stats,
       disclaimer,
       makeNASADataCard(record),
+      makeObjectDNACard(record),
       makeStoryCard(record),
       nextPrompt,
       actions
     );
     markProgress(2);
     setHUD(root, "SIGNAL RETURNED // LASER REFLECTOR VERIFIED", 2);
-    // Start the single piano note as soon as the simulation ends. NASA DATA,
-    // the story and the next-trace control appear in the same reveal; the
-    // control becomes usable when the note has finished.
-    playPianoNote({
-      durationMs: null,
-      resumePings: true,
-      onComplete: () => { actions.hidden = false; }
-    });
+    // Belge 1: reveal the science first, hold a long, absolute silence,
+    // then play one piano note. Pings remain off throughout the silence.
+    stopPings();
+    later(() => {
+      if (!root?.isConnected || !container.isConnected) return;
+      playPianoNote({
+        durationMs: APOLLO_PIANO_DURATION_MS,
+        resumePings: true,
+        onComplete: () => { actions.hidden = false; }
+      });
+    }, LASER_POST_SIMULATION_SILENCE_MS);
     container.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
@@ -751,15 +839,45 @@
     status.append(el("span", "tha-status-dot"), el("span", "", "OBJECT DETECTED"), el("strong", "", "SCIENTIFIC INSTRUMENT"));
     const intro = makeRecordIntro("AN UNEXPECTED ANSWER // TRACE 02", "THE MOON'S MIRROR", "A tiny instrument. A signal that travels both ways.");
     const image = makeImageEvidence({
-      src: IMAGE.retroreflector,
-      alt: "Apollo lunar laser ranging retroreflector array on the Moon",
-      credit: "NASA / NASA Apollo Archive",
-      link: SOURCE.retroreflectorImage,
-      linkLabel: "NASA IMAGE ↗"
+      src: IMAGE.retroreflectorHero,
+      alt: "Close-up view of the Apollo 14 Laser Ranging Retro-Reflector (LR3), photographed on February 5, 1971; NASA image AS14-67-9386.",
+      credit: "NASA",
+      link: SOURCE.retroreflectorNasa,
+      linkLabel: "NASA OFFICIAL PHOTO ↗"
     });
+    const imageCaption = image.querySelector(".tha-image-credit");
+    if (imageCaption) {
+      imageCaption.append(
+        document.createTextNode(" · "),
+        externalLink("JPL EXPERIMENT STORY ↗", SOURCE.retroreflectorJpl, "tha-image-source")
+      );
+    }
     const explanation = el("p", "tha-record-explanation", "This is a measuring instrument. Scientists send laser pulses from Earth and detect the light that returns from the Moon.");
-    const simulation = makeLaserBeamSimulation(record, root);
-    section.append(status, intro, image, explanation, simulation);
+    let simulation = null;
+    const clues = window.THATemplates.TemplateA.createClueSequence({
+      record,
+      imagePaths: { retroreflector: IMAGE.retroreflector },
+      official: { retroreflector: SOURCE.retroreflectorNasa },
+      onComplete: () => {
+        const start = simulation?.querySelector(".tha-laser-start");
+        const laserStatus = simulation?.querySelector(".tha-laser-status");
+        if (start) {
+          start.disabled = false;
+          start.textContent = "▶ START SIMULATION";
+          start.classList.add("is-unlocked");
+        }
+        if (laserStatus) laserStatus.textContent = "ALL FOUR CLUES DECODED // RUN THE TWO-WAY SIGNAL SIMULATION.";
+      }
+    });
+    simulation = makeLaserBeamSimulation(record, root);
+    const simulationStart = simulation.querySelector(".tha-laser-start");
+    const simulationStatus = simulation.querySelector(".tha-laser-status");
+    if (simulationStart) {
+      simulationStart.disabled = true;
+      simulationStart.textContent = "DECODE ALL 4 CLUES TO UNLOCK";
+    }
+    if (simulationStatus) simulationStatus.textContent = "LOCKED // RECOVER ALL FOUR CLUES TO UNLOCK THE SIGNAL.";
+    section.append(status, intro, image, explanation, clues.element, simulation);
     return section;
   }
 
@@ -786,7 +904,7 @@
     window.THA?.setProgress?.("moon", 0);
     const stage = root?.querySelector(".tha-moon-stage");
     if (stage) showMapForNextRecord(root, stage, 0);
-    setHUD(root, "SIGNAL DETECTED // OBJECT UNKNOWN", 0);
+    setHUD(root, "STATUS: UNKNOWN", 0);
     const caption = root?.querySelector(".tha-moon-map-caption");
     if (caption) caption.textContent = mapCaptionFor(getMoonRecord(0));
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
@@ -848,24 +966,29 @@
     if (!slot || slot.dataset.revealed === "true") return;
     slot.dataset.revealed = "true";
     slot.classList.add("is-visible");
-    // The choice is the final clue gesture: unlock audio here, then start the
-    // piano cue immediately while NASA DATA and the story reveal underneath.
-    primeCompletionAudioContext();
+    // The choice tap unlocks playback, but the memorial cue must not begin yet.
+    // Belge 1 calls for silence first, followed by one sustained piano note.
+    primeMoonAudioFromGesture();
     markProgress(3);
     setHUD(root, "FINAL TRACE RECOVERED // 3 OF 3", 3);
     stopPings();
-    slot.append(makeNASADataCard(record), makeStoryCard(record));
-    playPianoNote({
-      durationMs: 7000,
-      resumePings: false,
-      onComplete: () => {
-        const completion = makeFallenCompletion(record, root, { holdControls: true });
-        slot.append(completion);
-        completion.scrollIntoView({ behavior: "smooth", block: "center" });
-        runMoonEndTransition(root, completion);
-      }
-    });
+    slot.append(makeNASADataCard(record), makeObjectDNACard(record), makeStoryCard(record));
+    slot.append(el("p", "tha-memorial-silence", "SILENCE // REMEMBER THE PEOPLE BEHIND THE EXPLORATION."));
     slot.scrollIntoView({ behavior: "smooth", block: "start" });
+    later(() => {
+      if (!root?.isConnected || !slot.isConnected) return;
+      slot.querySelector(".tha-memorial-silence")?.classList.add("is-complete");
+      playPianoNote({
+        durationMs: FALLEN_PIANO_DURATION_MS,
+        resumePings: false,
+        onComplete: () => {
+          const completion = makeFallenCompletion(record, root, { holdControls: true });
+          slot.append(completion);
+          completion.scrollIntoView({ behavior: "smooth", block: "center" });
+          runMoonEndTransition(root, completion);
+        }
+      });
+    }, FALLEN_PRE_NOTE_SILENCE_MS);
   }
 
   function makeFallenRecord(record, root) {
@@ -882,6 +1005,9 @@
     });
     const clues = window.THATemplates.TemplateC.createClueSequence({
       record,
+      imagePath: IMAGE.fallenAstronaut,
+      imageSource: SOURCE.fallenImage,
+      imageCredit: "NASA / JSC",
       onComplete: () => {
         choiceSlot.hidden = false;
         const interaction = record?.interaction || {};
@@ -908,6 +1034,11 @@
     if (!stage) return;
     const marker = frame.querySelector(".tha-moon-marker");
     if (marker) marker.disabled = true;
+    // This tap is the browser's trusted gesture: unlock every chapter cue now,
+    // before the 2-second camera animation and later scripted sounds.
+    primeCompletionAudioContext();
+    clickAudio = clickAudio || makeAudio(AUDIO.click, 0.72);
+    playTrack(clickAudio);
     frame.classList.add("is-zooming");
     root.querySelector(".tha-moon-status").textContent = `TRACE ${String(record.number).padStart(2, "0")} // CAMERA APPROACHING`;
     later(() => {
@@ -965,7 +1096,7 @@
     const nextRecord = progress < 3 ? getMoonRecord(progress) : null;
     const current = makeShell({
       subtitle: progress >= 3 ? "Three lunar traces recovered. The next signal waits on Mars." : subtitleFor(nextRecord),
-      status: progress >= 3 ? "MOON ARCHIVE COMPLETE // 3 OF 3" : progress ? `TRACE ${String(progress + 1).padStart(2, "0")} READY // NEXT SIGNAL DETECTED` : "SIGNAL DETECTED // OBJECT UNKNOWN",
+      status: progress >= 3 ? "MOON ARCHIVE COMPLETE // 3 OF 3" : "STATUS: UNKNOWN",
       progress
     });
     if (progress >= 3) {
@@ -984,5 +1115,9 @@
     return current.root;
   }
 
+  window.THAMoonAudio = Object.assign(window.THAMoonAudio || {}, {
+    stopAll: stopAllMoonAudio,
+    primeFromGesture: primeMoonAudioFromGesture
+  });
   window.renderMoonMap = renderMoonMap;
 })();

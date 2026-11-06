@@ -305,6 +305,11 @@ function renderMenu() {
         button.addEventListener("click", () => {
             if (button.disabled) return;
             button.classList.add("is-selected");
+            // Unlock Moon chapter audio inside the actual tap gesture so live
+            // GitHub Pages/mobile browsers can play the scheduled cues later.
+            if (button.dataset.thaMenuRoute === "moon") {
+                window.THAMoonAudio?.primeFromGesture?.();
+            }
             const navigated = navigateTHAMenuRoute(button.dataset.thaMenuRoute);
             if (navigated) button.disabled = true;
             else button.classList.remove("is-selected");

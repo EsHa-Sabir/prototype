@@ -212,3 +212,231 @@
 .tha-template-choice.is-selected { border-color: #c8ffd2; background: rgba(62,111,76,.35); }
 .tha-template-feedback { color: #cbb1ee; line-height: 1.6; }
 @media (max-width: 560px) { .tha-template-choices { grid-template-columns: 1fr; } }
+
+
+/* Object DNA: compact visual learning cards required by the implementation brief. */
+.tha-object-dna {
+  margin-top: 15px;
+  padding: clamp(13px, 2.4vw, 19px);
+  border: 1px solid rgba(167, 211, 183, .27);
+  background: linear-gradient(135deg, rgba(11, 27, 23, .94), rgba(8, 15, 20, .94));
+}
+.tha-object-dna-heading {
+  color: #b9f2c6;
+  font-size: .66rem;
+  letter-spacing: .13em;
+  font-weight: 600;
+}
+.tha-object-dna-intro {
+  margin: 7px 0 13px;
+  color: #aebeb5;
+  font-size: .78rem;
+  line-height: 1.55;
+}
+.tha-object-dna-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.tha-object-dna-tile {
+  min-width: 0;
+  min-height: 150px;
+  padding: 12px 11px;
+  border: 1px solid rgba(171, 215, 187, .18);
+  background: rgba(2, 10, 12, .68);
+  opacity: 0;
+  transform: translateY(14px);
+  animation: thaObjectDNAIn .55s cubic-bezier(.2,.7,.2,1) forwards;
+  animation-delay: calc(var(--dna-index, 0) * 110ms);
+}
+.tha-object-dna-icon { display: block; color: #c4f3ce; font-size: 1.5rem; line-height: 1.2; }
+.tha-object-dna-label { display: block; margin-top: 8px; color: #8eaaa0; font-size: .58rem; letter-spacing: .11em; }
+.tha-object-dna-value { display: block; margin-top: 5px; color: #edf6ef; font-size: .78rem; line-height: 1.35; overflow-wrap: anywhere; }
+.tha-object-dna-note { margin: 7px 0 0; color: #aebdb5; font-size: .7rem; line-height: 1.55; }
+.tha-memorial-silence {
+  margin: 17px 0 4px;
+  padding: 17px 12px;
+  border-top: 1px solid rgba(203, 177, 238, .28);
+  border-bottom: 1px solid rgba(203, 177, 238, .28);
+  color: #cbb8e5;
+  text-align: center;
+  font-size: .68rem;
+  letter-spacing: .12em;
+  animation: thaSilencePulse 2.8s ease-in-out infinite;
+}
+.tha-memorial-silence.is-complete { animation: none; color: #f2e9ff; }
+@keyframes thaObjectDNAIn { to { opacity: 1; transform: translateY(0); } }
+@keyframes thaSilencePulse { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+@media (max-width: 700px) {
+  .tha-object-dna { padding: 13px 11px; }
+  .tha-object-dna-heading { font-size: .72rem; line-height: 1.5; }
+  .tha-object-dna-intro { font-size: .84rem; }
+  .tha-object-dna-grid { grid-template-columns: 1fr; gap: 8px; }
+  .tha-object-dna-tile { min-height: 0; display: grid; grid-template-columns: 35px minmax(0,1fr); column-gap: 8px; padding: 11px; }
+  .tha-object-dna-icon { grid-row: span 3; align-self: center; font-size: 1.45rem; }
+  .tha-object-dna-label { margin-top: 0; font-size: .65rem; }
+  .tha-object-dna-value { margin-top: 3px; font-size: .9rem; }
+  .tha-object-dna-note { margin-top: 4px; font-size: .82rem; line-height: 1.5; }
+  .tha-memorial-silence { font-size: .75rem; line-height: 1.7; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tha-object-dna-tile, .tha-memorial-silence { animation: none !important; opacity: 1; transform: none; }
+}
+
+
+/* ==========================================================================
+   MOON TEMPLATE A — forensic evidence polish
+   Belge 2: accordion clue cards + Object DNA cards with fade/slide reveal.
+   ========================================================================== */
+.tha-template-a-clue-flow .tha-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 7px 14px;
+}
+.tha-template-a-clue-flow .tha-clue {
+  overflow: hidden;
+  border-radius: 8px;
+  transition: border-color .24s ease, background .24s ease, transform .24s ease;
+}
+.tha-template-a-clue-flow .tha-clue-trigger {
+  min-height: 60px;
+  transition: background .22s ease, padding-left .22s ease;
+}
+.tha-template-a-clue-flow .tha-clue-trigger:not(:disabled):hover {
+  background: rgba(130, 191, 151, .075);
+  padding-left: 16px;
+}
+.tha-template-a-clue-flow .tha-clue.is-revealed .tha-clue-trigger {
+  background: linear-gradient(90deg, rgba(39, 81, 54, .34), rgba(11, 23, 19, .1));
+}
+.tha-template-a-clue-flow .tha-clue-body {
+  animation: thaClueReveal .42s cubic-bezier(.2,.75,.2,1) both;
+}
+@keyframes thaClueReveal {
+  from { opacity: 0; transform: translateY(12px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.tha-clue-visual-stat {
+  display: block;
+  color: #e2f4e6;
+  font-size: clamp(.76rem, 1.6vw, 1rem);
+  letter-spacing: .08em;
+  text-align: center;
+}
+.tha-clue-visual-caption {
+  color: #9eb6a7;
+  font-size: .62rem;
+  letter-spacing: .08em;
+  text-align: center;
+}
+.tha-laser-clue-prisms svg,
+.tha-laser-clue-path svg { display: block; width: 100%; max-width: 300px; height: auto; }
+.tha-laser-clue-data {
+  align-items: center;
+  justify-content: center;
+  min-height: 130px;
+  gap: 7px;
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(103, 169, 126, .18), transparent 66%),
+    rgba(3, 10, 12, .52);
+}
+.tha-laser-clue-data .tha-clue-visual-symbol { font-size: 1.5rem; color: #c6f2cf; }
+
+.tha-object-dna {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  border-color: rgba(151, 211, 171, .38);
+  background:
+    linear-gradient(rgba(124, 174, 143, .045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124, 174, 143, .045) 1px, transparent 1px),
+    radial-gradient(ellipse at 90% 0%, rgba(81, 142, 104, .18), transparent 52%),
+    linear-gradient(145deg, rgba(10, 28, 22, .98), rgba(5, 13, 17, .98));
+  background-size: 24px 24px, 24px 24px, auto, auto;
+  box-shadow: inset 0 0 28px rgba(97, 161, 117, .06), 0 12px 30px rgba(0, 0, 0, .18);
+}
+.tha-object-dna::before {
+  content: "ARCHIVE SCAN // COMPLETE";
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  margin-bottom: 8px;
+  padding: 3px 8px;
+  border: 1px solid rgba(151, 211, 171, .26);
+  border-radius: 3px;
+  color: #a9d9b6;
+  background: rgba(28, 69, 43, .22);
+  font-size: .55rem;
+  letter-spacing: .13em;
+}
+.tha-object-dna-heading { font-size: .74rem; letter-spacing: .16em; }
+.tha-object-dna-intro { max-width: 58ch; font-size: .82rem; }
+.tha-object-dna-grid { counter-reset: dna-scan; gap: 11px; }
+.tha-object-dna-tile {
+  position: relative;
+  overflow: hidden;
+  min-height: 168px;
+  padding: 15px 13px 13px;
+  border: 1px solid rgba(156, 207, 171, .24);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 88% 12%, rgba(117, 186, 136, .12), transparent 36%),
+    linear-gradient(150deg, rgba(17, 39, 30, .96), rgba(4, 13, 17, .96));
+  box-shadow: inset 0 1px rgba(226, 255, 233, .05);
+  counter-increment: dna-scan;
+  animation: thaObjectDNAIn .62s cubic-bezier(.2,.7,.2,1) forwards;
+  animation-delay: calc(var(--dna-index, 0) * 150ms);
+}
+.tha-object-dna-tile::before {
+  content: "SCAN 0" counter(dna-scan);
+  position: absolute;
+  top: 9px;
+  right: 10px;
+  color: rgba(177, 218, 187, .58);
+  font-size: .5rem;
+  letter-spacing: .1em;
+}
+.tha-object-dna-tile::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 55%;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(163, 228, 180, .055), transparent);
+  animation: thaDNASweep 1.1s ease-out both;
+  animation-delay: calc(var(--dna-index, 0) * 150ms + 250ms);
+}
+.tha-object-dna-icon {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(174, 224, 187, .25);
+  border-radius: 50%;
+  background: rgba(103, 161, 118, .12);
+}
+.tha-object-dna-label { margin-top: 10px; font-size: .62rem; }
+.tha-object-dna-value { font-size: .86rem; letter-spacing: .035em; }
+.tha-object-dna-note { font-size: .74rem; line-height: 1.58; }
+@keyframes thaDNASweep {
+  from { left: -120%; }
+  to { left: 160%; }
+}
+@media (max-width: 700px) {
+  .tha-object-dna-tile { min-height: 0; padding: 12px 11px; }
+  .tha-object-dna-tile::before { top: 7px; right: 8px; }
+  .tha-object-dna-label { font-size: .67rem; }
+  .tha-object-dna-value { font-size: .92rem; }
+  .tha-object-dna-note { font-size: .82rem; }
+  .tha-clue-visual-stat { font-size: .88rem; }
+  .tha-clue-visual-caption { font-size: .68rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tha-object-dna-tile::after { animation: none !important; }
+  .tha-template-a-clue-flow .tha-clue-trigger { transition: none; }
+  .tha-template-a-clue-flow .tha-clue-body { animation: none !important; }
+}

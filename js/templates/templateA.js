@@ -146,6 +146,79 @@
 
   function makeClueVisual(index, options) {
     const visual = el("div", `tha-clue-visual tha-clue-visual-${index + 1}`);
+
+    // Laser Retroreflector evidence is shown as a four-step visual decode.
+    // Every clue stays within the facts and sequence documented in Belge 1.
+    if (options.recordId === "laser-retroreflectors") {
+      if (index === 0) {
+        const figure = el("figure", "tha-clue-evidence-figure");
+        const image = document.createElement("img");
+        image.src = options.imagePaths.retroreflector;
+        image.alt = "Apollo lunar laser ranging retroreflector array, a small instrument made of mirror prisms.";
+        image.loading = "lazy";
+        image.decoding = "async";
+        figure.append(image);
+        const caption = el("figcaption", "tha-clue-image-credit");
+        caption.append(
+          el("span", "", "NASA"),
+          document.createTextNode(" · "),
+          externalLink("PHOTO SOURCE ↗", options.official.retroreflector, "tha-image-source")
+        );
+        figure.append(caption);
+        visual.append(figure);
+        return visual;
+      }
+      if (index === 1) {
+        visual.classList.add("tha-laser-clue-prisms");
+        visual.append(
+          el("span", "tha-clue-visual-symbol", "◇"),
+          el("span", "tha-clue-visual-label", "MIRROR-PRISM ARRAY")
+        );
+        const diagram = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        diagram.setAttribute("viewBox", "0 0 260 88");
+        diagram.setAttribute("role", "img");
+        diagram.setAttribute("aria-label", "Schematic array of small mirror prisms");
+        diagram.innerHTML = `
+          <g fill="#b9d9c3" stroke="#e5f4e8" stroke-width="1.4">
+            <path d="M35 22 49 14 63 22 63 39 49 47 35 39Z"/>
+            <path d="M91 22 105 14 119 22 119 39 105 47 91 39Z"/>
+            <path d="M147 22 161 14 175 22 175 39 161 47 147 39Z"/>
+            <path d="M203 22 217 14 231 22 231 39 217 47 203 39Z"/>
+          </g>
+          <path d="M49 55H217" stroke="#9acbaa" stroke-dasharray="3 5" opacity=".6"/>
+          <text x="130" y="76" fill="#c4d8ca" text-anchor="middle" font-size="9" letter-spacing="2">REFLECTIVE PRISMS</text>`;
+        visual.append(diagram);
+        return visual;
+      }
+      if (index === 2) {
+        visual.classList.add("tha-laser-clue-path");
+        visual.append(el("span", "tha-clue-visual-label", "TWO-WAY LIGHT PATH"));
+        const diagram = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        diagram.setAttribute("viewBox", "0 0 280 94");
+        diagram.setAttribute("role", "img");
+        diagram.setAttribute("aria-label", "Red laser path from Earth to Moon and green reflected path back to Earth");
+        diagram.innerHTML = `
+          <circle cx="30" cy="45" r="17" fill="#477b69" stroke="#b4d8c4" stroke-width="1.5"/>
+          <circle cx="250" cy="45" r="17" fill="#8a9188" stroke="#e0e5d9" stroke-width="1.5"/>
+          <path d="M51 36H224" stroke="#ff7474" stroke-width="3" stroke-linecap="round"/>
+          <path d="M224 55H51" stroke="#a5f4b2" stroke-width="3" stroke-linecap="round"/>
+          <path d="m216 30 9 6-9 6" fill="none" stroke="#ff9b9b" stroke-width="2"/>
+          <path d="m59 49-9 6 9 6" fill="none" stroke="#baf7c5" stroke-width="2"/>
+          <text x="30" y="82" fill="#d2e4d8" text-anchor="middle" font-size="9">EARTH</text>
+          <text x="250" y="82" fill="#e1e4d8" text-anchor="middle" font-size="9">MOON</text>`;
+        visual.append(diagram);
+        return visual;
+      }
+      visual.classList.add("tha-laser-clue-data");
+      visual.append(
+        el("span", "tha-clue-visual-symbol", "↔"),
+        el("span", "tha-clue-visual-label", "ACTIVE SCIENCE"),
+        el("strong", "tha-clue-visual-stat", "CENTIMETER-LEVEL"),
+        el("span", "tha-clue-visual-caption", "Apollo 11 · 14 · 15 arrays")
+      );
+      return visual;
+    }
+
     const icons = ["▧", "⌖", "1969", "⇧"];
     const labels = ["PHOTO EVIDENCE", "LANDING SITE", "MISSION LOG", "TWO-STAGE MODULE"];
     if (index === 0 || index === 1) {
@@ -197,7 +270,7 @@
     trigger.append(
       el("span", "tha-clue-number", `0${index + 1}`),
       el("span", "tha-clue-title", clue.title),
-      el("span", "tha-clue-state", index === 0 ? "OPEN CLUE" : "LOCKED")
+      el("span", "tha-clue-state", index === 0 ? "SCAN CLUE" : "LOCKED")
     );
     const body = el("div", "tha-clue-body");
     body.hidden = true;
@@ -209,7 +282,7 @@
   function createClueSequence({ record, imagePaths, official, onComplete }) {
     const root = el("div", "tha-template-a-clue-flow");
     const heading = el("div", "tha-section-heading");
-    heading.append(el("span", "", "DECODE THE EVIDENCE"), el("small", "", "4 CLUES // OPEN IN SEQUENCE"));
+    heading.append(el("span", "", "FIELD PUZZLE // RECOVER THE EVIDENCE"), el("small", "", "4 CLUES // SCAN IN SEQUENCE"));
     const clues = el("div", "tha-clues");
     const clueData = Array.isArray(record?.clues) && record.clues.length === 4 ? record.clues : [
       { title: "MISSION PHOTOGRAPHS", text: "A black-and-white image. Two astronauts. The lunar surface. A flag. A vehicle." },
@@ -230,7 +303,7 @@
       card.classList.add("is-revealed");
       const trigger = card.querySelector(".tha-clue-trigger");
       trigger.setAttribute("aria-expanded", "true");
-      trigger.querySelector(".tha-clue-state").textContent = "DECODED";
+      trigger.querySelector(".tha-clue-state").textContent = "RECOVERED";
       const body = card.querySelector(".tha-clue-body");
       body.hidden = false;
       body.classList.add("is-open");
@@ -240,15 +313,15 @@
       if (next) {
         next.disabled = false;
         next.closest(".tha-clue")?.classList.remove("is-locked");
-        next.querySelector(".tha-clue-state").textContent = "OPEN CLUE";
+        next.querySelector(".tha-clue-state").textContent = "SCAN CLUE";
       }
       if (revealed.size === clueData.length) {
-        progressLabel.textContent = "4 / 4 — IDENTIFICATION UNLOCKED";
+        progressLabel.textContent = "4 / 4 — OBJECT IDENTIFICATION UNLOCKED";
         window.setTimeout(() => onComplete?.(), 480);
       }
     }
 
-    const options = { imagePaths, official };
+    const options = { imagePaths, official, recordId: record?.id };
     clueData.forEach((clue, index) => clues.append(makeClueCard(clue, index, revealClue, options)));
     root.append(heading, clues, progress, progressLabel);
     return { element: root, get revealedCount() { return revealed.size; } };
