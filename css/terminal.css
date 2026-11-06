@@ -1429,7 +1429,7 @@
 
 .terminal-mission-button.is-heartbeat-playing {
 
-    animation: thaHeartbeatDoublePulse 2.15s ease-out 1 both;
+    animation: thaHeartbeatDoublePulse var(--tha-heartbeat-duration, 2.15s) ease-out 1 both;
 
 }
 
@@ -1555,7 +1555,7 @@
 
 .terminal-mission-button.is-mission-ready.is-heartbeat-playing {
 
-    animation: thaHeartbeatDoublePulse 2.15s ease-out 1 both;
+    animation: thaHeartbeatDoublePulse var(--tha-heartbeat-duration, 2.15s) ease-out 1 both;
 
 }
 

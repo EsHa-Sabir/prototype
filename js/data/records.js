@@ -1035,13 +1035,13 @@
             assetStatus: "Embedded in Images.docx and matched to the documented NASA landing-site image; official image credit and source link are displayed in the Moon interface."
         },
         "laser-retroreflectors": {
-            filename: "apollo-11-laser-retroreflector-as11-40-5952.webp",
-            src: "assets/images/apollo-11-laser-retroreflector-as11-40-5952.webp",
+            filename: "lunar-laser-retroreflector-array.webp",
+            src: "assets/images/lunar-laser-retroreflector-array.webp",
             alt: "Apollo-era laser retroreflector array on the lunar surface.",
             credit: "NASA",
             sourceUrl: "https://www.nasa.gov/wp-content/uploads/2020/08/apollo_reflector.jpg",
             secondaryImages: [],
-            assetStatus: "Embedded in Images.docx; source URL and credit follow images links.docx."
+            assetStatus: "Mapped to the included lunar-laser-retroreflector-array.webp asset; source URL and credit follow images links.docx."
         },
         "fallen-astronaut": {
             filename: "fallen-astronaut-as15-88-11894.webp",
@@ -1064,7 +1064,7 @@
         chapterPing: "assets/audio/electronic-ping.mp3",
         laserWhirr: "assets/audio/laser-whirr.wav",
         laserClick: "assets/audio/click.mp3",
-        pianoNote: "assets/audio/single-piano-note.wav"
+        pianoNote: "assets/audio/single-piano-note.mp3"
     });
     CHAPTERS[0].audioCue.assetPath = MOON_AUDIO_ASSETS.chapterPing;
     CHAPTERS[0].audioCue.assetIntervalMs = 4000;
@@ -1350,10 +1350,10 @@
         if (getRecord("laser-retroreflectors")?.clues?.length !== 4) {
             issues.push("Laser Retroreflectors must use four sequential Template A clue cards.");
         }
-        warnings.push("Moon WebP image paths were checked against the packaged assets/images/ folder; original PNG copies remain in the package and source links follow images links.docx.");
+        warnings.push("Moon WebP image paths were checked against the packaged assets/images/ folder; source links follow images links.docx.");
         warnings.push("Belge 2 identifies Elora's XLSX as the original data source. The workbook itself was not attached in the files available for this build, so direct cell-by-cell XLSX parity has not been independently re-audited here.");
         warnings.push("The three team-provided https://nasa.gov links are supplementary general verification links; the record-specific deep links from Belge 1 remain the primary source links.");
-        warnings.push("All four Moon audio paths were checked against assets/audio/; the large piano WAV is retained as the original, while playback uses a compressed MP3 copy.");
+        warnings.push("All four Moon audio paths were checked against assets/audio/; the piano cue is delivered as a compressed 7-second MP3 for faster loading.");
         warnings.push("Voyager's current status/distance must be populated from a live NASA/JPL check at runtime.");
 
         return {

@@ -43,6 +43,10 @@ function renderSplash() {
 
     // Stop any previous opening ambience before rebuilding the screen.
     if (typeof stopAllOpeningAudio === "function") stopAllOpeningAudio();
+    // Fetch the short heartbeat cue early so the later mission-button pulse
+    // is not delayed by a first-time network request on GitHub Pages.
+    if (typeof preloadTerminalHeartbeatAudio === "function") preloadTerminalHeartbeatAudio();
+    if (typeof preloadTerminalArchiveAmbient === "function") preloadTerminalArchiveAmbient();
     removeSplashPointerAudioRetry();
     splashTransitioning = false;
     lastSplashAudioRetryAt = 0;
@@ -153,6 +157,8 @@ function renderSplash() {
         if (muted) {
             setTHAAudioMuted(false);
             if (typeof unlockTHAAudioContext === "function") unlockTHAAudioContext();
+            if (typeof preloadTerminalHeartbeatAudio === "function") preloadTerminalHeartbeatAudio();
+            if (typeof preloadTerminalArchiveAmbient === "function") preloadTerminalArchiveAmbient();
             await startSplashAudioFromGesture();
         } else if (playing) {
             setTHAAudioMuted(true);

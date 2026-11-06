@@ -244,8 +244,11 @@ function renderTerminal() {
     `;
 
     // The script does not call for mechanical CRT boot/shutdown effects.
-    // Unlock audio from the real Splash button gesture for typing/heartbeat cues.
+    // Reuse the AudioContext unlocked by the Splash button gesture.
     if (typeof unlockTHAAudioContext === "function") unlockTHAAudioContext();
+    // Backup preload for direct Terminal entry / a refreshed route.
+    if (typeof preloadTerminalHeartbeatAudio === "function") preloadTerminalHeartbeatAudio();
+    if (typeof preloadTerminalArchiveAmbient === "function") preloadTerminalArchiveAmbient();
     // Load the fan asset during the quiet lead-in; playback still starts with YEAR: 2126.
     if (typeof preloadTerminalTypingAudio === "function") preloadTerminalTypingAudio();
     const skipButton = document.getElementById("terminalSkipIntro");

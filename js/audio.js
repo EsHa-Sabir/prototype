@@ -294,6 +294,20 @@ function getTerminalArchiveHum() {
     return window.THA.archiveHum;
 }
 
+/** Warm the Terminal ambience cache without starting playback. */
+function preloadTerminalArchiveAmbient() {
+    if (isTHAAudioMuted()) return false;
+    try {
+        const audio = getTerminalArchiveHum();
+        audio.preload = "auto";
+        if (audio.readyState < HTMLMediaElement.HAVE_FUTURE_DATA) audio.load();
+        return audio;
+    } catch (error) {
+        console.info("THE HUMAN ARCHIVE: Terminal ambience preload could not start.", error);
+        return false;
+    }
+}
+
 function startTHALowFrequencyDrone() {
     const context = getTHAKeyAudioContext();
     if (!context || thaArchiveDroneNodes.length) return Boolean(context);
@@ -532,6 +546,26 @@ function getTerminalHeartbeatCue() {
 }
 
 /**
+ * Begin downloading the heartbeat during the Splash screen, not when the CTA
+ * appears. This removes network latency from the scripted heartbeat moment.
+ * It does not start playback and therefore does not bypass browser audio policy.
+ */
+function preloadTerminalHeartbeatAudio() {
+    if (isTHAAudioMuted()) return false;
+    try {
+        const audio = getTerminalHeartbeatCue();
+        audio.preload = "auto";
+        // createTHAAudio() already calls load(); this second call is safe and
+        // explicitly refreshes the preload hint on browsers that defer it.
+        if (audio.readyState < HTMLMediaElement.HAVE_FUTURE_DATA) audio.load();
+        return audio;
+    } catch (error) {
+        console.info("THE HUMAN ARCHIVE: heartbeat preload could not start.", error);
+        return false;
+    }
+}
+
+/**
  * Fallback cue mirrors the supplied one-cycle heartbeat asset: two deep thumps,
  * approximately 250 ms apart, followed by a short silent tail.
  */
@@ -641,9 +675,20 @@ function playTHASyncedHeartbeat(onStart = () => {}) {
         const markStarted = () => {
             if (settled || started) return;
             started = true;
+
+            // Match the CTA animation to the real decoded media duration. The
+            // second double-thump starts 150 ms after the first clip ends.
+            const clipDuration = Number.isFinite(heartbeatAudio.duration) && heartbeatAudio.duration > 0
+                ? heartbeatAudio.duration
+                : 0.993;
+            const totalPulseMs = Math.round((clipDuration * 2 + 0.150) * 1000);
+            const button = document.getElementById("acceptMission");
+            if (button) button.style.setProperty("--tha-heartbeat-duration", `${totalPulseMs}ms`);
+
+            // Start the visual pulse in the same task that confirms audio playback.
             onStart();
-            // Two one-second double-thump clips plus a short pause between them.
-            thaHeartbeatTimer = window.setTimeout(() => finish(true), 2850);
+            // Keep a safety timeout in case a browser omits a media `ended` event.
+            thaHeartbeatTimer = window.setTimeout(() => finish(true), Math.max(2850, totalPulseMs + 700));
         };
         const startFallbackCycle = () => {
             if (settled) return;
@@ -722,11 +767,10 @@ async function startTerminalHeartbeat(onStart = () => {}) {
     stopTerminalHeartbeat();
 
     const thisSequence = thaHeartbeatSequenceId;
-    await startTerminalArchiveAmbient();
-    if (thisSequence !== thaHeartbeatSequenceId) {
-        stopTerminalArchiveAmbient();
-        return false;
-    }
+
+    // Ambient is independent of the heartbeat. Start it in parallel so a
+    // delayed ambient MP3 cannot shift the heartbeat/CTA animation off-script.
+    void startTerminalArchiveAmbient();
 
     const finished = await playTHASyncedHeartbeat(() => {
         if (thisSequence === thaHeartbeatSequenceId) onStart();

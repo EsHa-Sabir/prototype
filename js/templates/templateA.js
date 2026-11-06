@@ -155,7 +155,7 @@
         const image = document.createElement("img");
         image.src = options.imagePaths.retroreflector;
         image.alt = "Apollo lunar laser ranging retroreflector array, a small instrument made of mirror prisms.";
-        image.loading = "lazy";
+        image.loading = "eager";
         image.decoding = "async";
         figure.append(image);
         const caption = el("figcaption", "tha-clue-image-credit");
@@ -228,7 +228,7 @@
       image.alt = index === 0
         ? "Apollo 11 lunar surface mission photograph, NASA image AS11-40-5927."
         : "Lunar Reconnaissance Orbiter landing-site view marking the Apollo 11 descent stage location.";
-      image.loading = "lazy";
+      image.loading = "eager";
       image.decoding = "async";
       figure.append(image);
       const caption = el("figcaption", "tha-clue-image-credit");

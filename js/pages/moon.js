@@ -8,7 +8,7 @@
 
   const AUDIO = Object.freeze({
     ping: "assets/audio/electronic-ping.mp3",
-    piano: "assets/audio/single-piano-note.wav",
+    piano: "assets/audio/single-piano-note.mp3",
     laser: "assets/audio/laser-whirr.wav",
     click: "assets/audio/click.mp3"
   });
@@ -19,6 +19,27 @@
     retroreflectorHero: "assets/images/apollo-14-laser-retroreflector-closeup-as14-67-9386.webp",
     fallenAstronaut: "assets/images/fallen-astronaut-as15-88-11894.webp"
   });
+  // Start fetching the five small Moon chapter images as soon as the map opens.
+  // The cache is warm by the time a visitor opens a record/clue sequence.
+  let moonImagePreloadPromise = null;
+  function preloadMoonImages() {
+    if (moonImagePreloadPromise) return moonImagePreloadPromise;
+    const paths = Object.values(IMAGE);
+    moonImagePreloadPromise = Promise.all(paths.map((path) => new Promise((resolve) => {
+      const image = new Image();
+      image.decoding = "async";
+      image.fetchPriority = "auto";
+      image.onload = async () => {
+        try { if (typeof image.decode === "function") await image.decode(); } catch (_) {}
+        resolve(true);
+      };
+      image.onerror = () => resolve(false);
+      image.src = new URL(path, document.baseURI || window.location.href).href;
+      if (image.complete && image.naturalWidth > 0) resolve(true);
+    }))).catch(() => []);
+    return moonImagePreloadPromise;
+  }
+
   const SOURCE = Object.freeze({
     apollo: "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059C",
     apolloLroImage: "https://science.nasa.gov/resource/apollo-11-landing-site/",
@@ -32,7 +53,7 @@
 
   const PING_INTERVAL_MS = 4000;
   const CAMERA_ZOOM_MS = 2000;
-  const APOLLO_PIANO_DURATION_MS = 7000; // brief cue, even though the supplied WAV is longer
+  const APOLLO_PIANO_DURATION_MS = 7000; // scripted length of the optimized piano cue
   const LASER_POST_SIMULATION_SILENCE_MS = 7000; // documented long silence
   const FALLEN_PRE_NOTE_SILENCE_MS = 7000; // silence before the sustained memorial note
   const FALLEN_PIANO_DURATION_MS = 7000;
@@ -101,6 +122,9 @@
       track.addEventListener("error", () => {
         console.info("THE HUMAN ARCHIVE: optional audio asset is not available:", path);
       }, { once: true });
+      // Explicitly begin fetching while the visitor is on the Moon map, rather
+      // than waiting until a later timed cue needs the file.
+      track.load();
       return track;
     } catch (error) {
       // Missing/invalid optional audio must never interrupt a record mechanic.
@@ -148,12 +172,20 @@
     }
   }
 
-  function primeMoonAudioFromGesture() {
-    if (isMuted()) return;
+  function preloadMoonAudioAssets() {
+    if (isMuted()) return false;
+    // Start all small chapter cues while the visitor is on the map. Playback
+    // still waits for the documented click/tap; this only warms the media cache.
     pingAudio = pingAudio || makeAudio(AUDIO.ping, 0.34);
     clickAudio = clickAudio || makeAudio(AUDIO.click, 0.72);
     laserAudio = laserAudio || makeAudio(AUDIO.laser, 0.72);
     pianoAudio = pianoAudio || makeAudio(AUDIO.piano, 0.62);
+    return true;
+  }
+
+  function primeMoonAudioFromGesture() {
+    if (isMuted()) return;
+    preloadMoonAudioAssets();
     [pingAudio, clickAudio, laserAudio, pianoAudio].forEach(primeTrackFromGesture);
     primeCompletionAudioContext();
   }
@@ -697,7 +729,7 @@
     }));
     container.append(header, makeNASADataCard(record), makeObjectDNACard(record), makeStoryCard(record), why, actions);
     markProgress(1);
-    // The source WAV is longer than the documented cue; trim it to a brief note.
+    // The optimized 7-second MP3 preserves the supplied note without the oversized WAV download.
     primeCompletionAudioContext();
     playPianoNote({
       durationMs: APOLLO_PIANO_DURATION_MS,
@@ -1089,7 +1121,10 @@
 
   function renderMoonMap() {
     stopAllMoonAudio();
-    // Pre-fetch/decode the piano WAV while the map is open; resume the context
+    // Fetch chapter images and audio cues in parallel with the map transition.
+    void preloadMoonImages();
+    preloadMoonAudioAssets();
+    // Pre-fetch/decode the compact piano MP3 while the map is open; resume the context
     // only from an actual student interaction to respect browser audio policy.
     try { preloadPianoBuffer(primeCompletionAudioContext()); } catch (_) { /* optional audio */ }
     const progress = readProgress();
@@ -1118,6 +1153,9 @@
   window.THAMoonAudio = Object.assign(window.THAMoonAudio || {}, {
     stopAll: stopAllMoonAudio,
     primeFromGesture: primeMoonAudioFromGesture
+  });
+  window.THAMoonAssets = Object.assign(window.THAMoonAssets || {}, {
+    preloadImages: preloadMoonImages
   });
   window.renderMoonMap = renderMoonMap;
 })();
