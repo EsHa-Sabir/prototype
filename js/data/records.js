@@ -330,7 +330,7 @@
             story: "Special arrays of tiny, high-tech mirror prisms left by the Apollo crews. Even though the missions ended decades ago, these mirrors are still actively used by scientists on Earth today! We bounce powerful lasers off them to calculate the exact distance to the Moon down to the centimeter.",
             verifiedSourceNote: "NASA / GSFC — Laser retroreflectors at the Apollo 11, 14, and 15 landing sites are still used by scientists for measurements.",
             clues: [
-                { order: 1, title: "A TINY SIGNAL TARGET", text: "The instrument is only a few centimeters across. Look closely: this small object can send a light signal back toward Earth." },
+                { order: 1, title: "A TINY SIGNAL TARGET", text: "Each individual corner-cube prism is approximately 3.8 cm in diameter. These prisms are mounted together in a much larger reflector array." },
                 { order: 2, title: "MIRROR PRISMS", text: "It is an array of tiny, high-tech mirror prisms left by the Apollo crews. They reflect laser light back toward its source." },
                 { order: 3, title: "THE TWO-WAY TRACE", text: "A laser pulse travels from Earth to the Moon. The reflected signal returns from the Moon to Earth." },
                 { order: 4, title: "STILL ANSWERING", text: "Arrays at the Apollo 11, 14, and 15 landing sites are still used by scientists. The measurements can reach centimeter-level precision." }

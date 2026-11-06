@@ -32,9 +32,9 @@
 
   const PING_INTERVAL_MS = 4000;
   const CAMERA_ZOOM_MS = 2000;
-  const APOLLO_PIANO_DURATION_MS = 950; // brief cue, even though the supplied WAV is longer
-  const LASER_POST_SIMULATION_SILENCE_MS = 5000; // documented long silence
-  const FALLEN_PRE_NOTE_SILENCE_MS = 5000; // silence before the sustained memorial note
+  const APOLLO_PIANO_DURATION_MS = 7000; // brief cue, even though the supplied WAV is longer
+  const LASER_POST_SIMULATION_SILENCE_MS = 7000; // documented long silence
+  const FALLEN_PRE_NOTE_SILENCE_MS = 7000; // silence before the sustained memorial note
   const FALLEN_PIANO_DURATION_MS = 7000;
   const PIANO_FALLBACK_MS = 7600;
   const PROGRESS_KEY = "thaProgress";
