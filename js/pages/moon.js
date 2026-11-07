@@ -14,7 +14,7 @@
   });
   const IMAGE = Object.freeze({
     apolloLro: "assets/images/apollo-11-lro-landing-site.webp",
-    apolloMission: "assets/images/apollo-11-as11-40-5927.webp",
+    apolloMission: "assets/images/apollo-11-flag-aldrin-as11-40-5875.webp",
     retroreflector: "assets/images/lunar-laser-retroreflector-array.webp",
     retroreflectorHero: "assets/images/apollo-14-laser-retroreflector-closeup-as14-67-9386.webp",
     fallenAstronaut: "assets/images/fallen-astronaut-as15-88-11894.webp"
@@ -43,7 +43,7 @@
   const SOURCE = Object.freeze({
     apollo: "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059C",
     apolloLroImage: "https://science.nasa.gov/resource/apollo-11-landing-site/",
-    apolloMissionImage: "https://images.nasa.gov/details/as11-40-5927",
+    apolloMissionImage: "https://www.nasa.gov/image-article/explorers-on-the-moon-apollo-11-landing/",
     retroreflectorNasa: "https://www.nasa.gov/wp-content/uploads/2020/08/apollo_reflector.jpg",
     retroreflectorJpl: "https://www.jpl.nasa.gov/news/the-apollo-experiment-that-keeps-on-giving/#carousel-dffc9761-6e04-4b75-bced-fc071407341c-2",
     retroreflectorData: "https://science.nasa.gov/centers-and-facilities/goddard/nasa-laser-reflecting-instrument-makes-gps-satellite-more-accurate/",
@@ -552,7 +552,7 @@
     const facts = {
       "apollo-11": [
         { icon: "⌑", label: "HARDWARE", value: "DESCENT STAGE", note: "The lower section of the Lunar Module stayed on the Moon." },
-        { icon: "⚖", label: "EMPTY MASS", value: "2,034 kg", note: "The mass recorded for the Apollo 11 descent stage." },
+        { icon: "⚖", label: "DRY MASS", value: "≈2,033 kg", note: "NASA lists 4,483 lb for the Apollo 11 descent stage." },
         { icon: "↥", label: "MISSION ROLE", value: "LAUNCH PLATFORM", note: "It supported the astronauts' return journey; the ascent stage separated." }
       ],
       "laser-retroreflectors": [

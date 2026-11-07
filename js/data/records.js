@@ -230,39 +230,37 @@
                 world: "Moon",
                 name: "Mare Tranquillitatis",
                 display: "Mare Tranquillitatis, Moon",
-                latitude: 0.67408,
-                longitude: 23.47297,
-                coordinateDisplay: "0.67408° N, 23.47297° E"
+                latitude: 0.67416,
+                longitude: 23.47314,
+                coordinateDisplay: "0.67416° N, 23.47314° E"
             },
             nasaData: makeNASAData({
                 location: "Mare Tranquillitatis, Moon",
-                onTheMoon: "July 20, 1969",
-                status: "Still on the lunar surface",
-                type: "Descent stage",
-                emptyMass: "2,034 kg",
+                landingDate: "July 20, 1969",
+                coordinates: "0.67416° N, 23.47314° E",
+                status: "Left on lunar surface; visible in NASA LRO images",
+                type: "Lunar Module — Descent Stage",
+                dryWeight: "4,483 lb (≈2,034 kg)",
+                identifier: "1969-059D",
                 source: "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059C",
-                sourceName: "NSSDCA — Apollo 11",
-                sourceOrganization: "NSSDCA / NASA",
-                documentedVerifiedIdentifier: "1969-059C",
-                sourceStatus: "Marked verified in Belge 1"
+                sourceName: "NSSDCA — Apollo 11"
             }, [
                 ["location", "LOCATION"],
-                ["onTheMoon", "ON THE MOON"],
+                ["landingDate", "LANDING DATE"],
+                ["coordinates", "COORDINATES"],
                 ["status", "STATUS"],
                 ["type", "TYPE"],
-                ["emptyMass", "EMPTY MASS"]
+                ["dryWeight", "DRY WEIGHT"],
+                ["identifier", "IDENTIFIER"]
             ]),
-            sourceNotes: [
-                "Belge 1 identifies the Apollo 11 Lunar Module as 1969-059C; the NSSDCA source URL and documentedVerifiedIdentifier both use 1969-059C."
-            ],
-            storyLead: "Humans landed on the Moon. A piece of their mission remained. On purpose. Because they had not gone there to bring everything back to Earth.",
-            story: "The heavy metallic base of the Apollo 11 Lunar Module. It was purposefully left behind to serve as a stable launch pad for the astronauts to blast back up into space when returning home. It weighs 2,034 kg empty.",
-            verifiedSourceNote: "NSSDCA — Apollo 11 Lunar Module (1969-059C).",
+            storyLead: "Humans landed on the Moon. A piece of their mission remained. On purpose. Because they had not gone thereto bring everything back to Earth.",
+            story: "Eagle’s descent stage stayed at Tranquility Base. It served as the launch platform while the ascent stage carried Armstrong and Aldrin back to lunar orbit. Its later fate is not confirmed.",
+            verifiedSourceNote: "NASA NSSDCA — Apollo 11 Lunar Module / EASEP.",
             clues: [
-                { order: 1, title: "MISSION PHOTOGRAPHS", text: "Mission photographs. A black-and-white image. Two astronauts. The lunar surface. A flag. A vehicle." },
-                { order: 2, title: "LOCATION DATA", text: "Mare Tranquillitatis. The Moon. 0.67408° N, 23.47297° E." },
-                { order: 3, title: "MISSION INFORMATION", text: "Apollo 11. 1969. The first crewed Moon landing." },
-                { order: 4, title: "SCIENTIFIC EXPLANATION", text: "The descent stage could not return to Earth. The ascent stage separated and later crashed into the Moon. The descent stage remained there. Its empty mass was 2,034 kg." }
+                { order: 1, title: "MISSION PHOTOGRAPH", text: "Two astronauts. A flag. A lunar module. What stayed behind?" },
+                { order: 2, title: "LANDING SITE", text: "Mare Tranquillitatis · The Moon · 0.67416° N, 23.47314° E." },
+                { order: 3, title: "MISSION LOG", text: "Apollo 11 · 20 July 1969 · first crewed Moon landing." },
+                { order: 4, title: "TWO-STAGE MODULE", text: "The Lunar Module had two stages. The descent stage landed on the Moon and remained there. The ascent stage carried the astronauts back into lunar orbit. The descent stage had a recorded dry weight of about 2,034 kg." }
             ],
             objectIdentification: {
                 detectedLabel: "UNIDENTIFIED",
@@ -285,7 +283,7 @@
             ), {
                 filename: "apollo-11-lro-landing-site.webp",
                 src: "assets/images/apollo-11-lro-landing-site.webp",
-                assetStatus: "Included in assets/images/ with the official NASA image/source link mapped in Chapter 2."
+                assetStatus: "NASA LRO landing-site image; included in assets/images/."
             }),
             soundCue: "A single piano note. Brief. Then silence.",
             digitalNotes: [
@@ -317,8 +315,8 @@
                 laserMeasurements: "Centimeter-level precision",
                 currentUse: "Laser retroreflectors at the Apollo 11, 14, and 15 landing sites are still used by scientists for measurements.",
                 sourceOrganization: "NASA / GSFC",
-                sourceName: "NASA — Laser Beams Reflected Between Earth and Moon",
-                source: "https://www.nasa.gov/missions/lro/laser-beams-reflected-between-earth-and-moon-boost-science/",
+                sourceName: "NASA / GSFC",
+                source: "https://science.nasa.gov/centers-and-facilities/goddard/nasa-laser-reflecting-instrument-makes-gps-satellite-more-accurate/",
                 sourceStatus: "Marked verified in Belge 1"
             }, [
                 ["type", "TYPE"],
@@ -330,7 +328,7 @@
             story: "Special arrays of tiny, high-tech mirror prisms left by the Apollo crews. Even though the missions ended decades ago, these mirrors are still actively used by scientists on Earth today! We bounce powerful lasers off them to calculate the exact distance to the Moon down to the centimeter.",
             verifiedSourceNote: "NASA / GSFC — Laser retroreflectors at the Apollo 11, 14, and 15 landing sites are still used by scientists for measurements.",
             clues: [
-                { order: 1, title: "A TINY SIGNAL TARGET", text: "Each individual corner-cube prism is approximately 3.8 cm in diameter. These prisms are mounted together in a much larger reflector array." },
+                { order: 1, title: "A TINY SIGNAL TARGET", text: "100 tiny prisms, waiting for a flash of light." },
                 { order: 2, title: "MIRROR PRISMS", text: "It is an array of tiny, high-tech mirror prisms left by the Apollo crews. They reflect laser light back toward its source." },
                 { order: 3, title: "THE TWO-WAY TRACE", text: "A laser pulse travels from Earth to the Moon. The reflected signal returns from the Moon to Earth." },
                 { order: 4, title: "STILL ANSWERING", text: "Arrays at the Apollo 11, 14, and 15 landing sites are still used by scientists. The measurements can reach centimeter-level precision." }
@@ -389,8 +387,8 @@
                 object: "8.5 cm aluminum sculpture beside a plaque",
                 purpose: "Memorial honoring 14 astronauts and cosmonauts who lost their lives in space exploration",
                 sourceOrganization: "NASA — Apollo 15",
-                sourceName: "NASA Science — Memorial to Fallen Astronauts on the Moon",
-                source: "https://science.nasa.gov/resource/memorial-to-fallen-astronauts-on-the-moon/",
+                sourceName: "NASA — Apollo 15",
+                source: "https://science.nasa.gov/resource/memorial-to-fallen-astronauts-on-the-moon",
                 sourceStatus: "Marked verified in Belge 1"
             }, [
                 ["location", "LOCATION"],
@@ -1025,11 +1023,11 @@
             sourceUrl: "https://science.nasa.gov/resource/apollo-11-landing-site/",
             secondaryImages: [
                 {
-                    filename: "apollo-11-as11-40-5927.webp",
-                    src: "assets/images/apollo-11-as11-40-5927.webp",
-                    alt: "Apollo 11 Lunar Module Eagle on the Moon during the astronauts' surface activity.",
-                    credit: "NASA / JSC",
-                    sourceUrl: "https://images.nasa.gov/details/as11-40-5927"
+                    filename: "apollo-11-flag-aldrin-as11-40-5875.webp",
+                    src: "assets/images/apollo-11-flag-aldrin-as11-40-5875.webp",
+                    alt: "Apollo 11 astronaut Buzz Aldrin beside the United States flag, with the Lunar Module at left.",
+                    credit: "NASA",
+                    sourceUrl: "https://www.nasa.gov/image-article/explorers-on-the-moon-apollo-11-landing/"
                 }
             ],
             assetStatus: "Embedded in Images.docx and matched to the documented NASA landing-site image; official image credit and source link are displayed in the Moon interface."
@@ -1335,8 +1333,8 @@
             issues.push("Voyager's current distance and communication status must be marked live.");
         }
 
-        if (getRecord("apollo-11")?.nasaData?.documentedVerifiedIdentifier !== "1969-059C" || !getRecord("apollo-11")?.nasaData?.source?.endsWith("id=1969-059C")) {
-            issues.push("Apollo 11's documented NSSDCA identifier and source URL must both be 1969-059C.");
+        if (getRecord("apollo-11")?.nasaData?.identifier !== "1969-059D" || !getRecord("apollo-11")?.nasaData?.source?.endsWith("id=1969-059C")) {
+            issues.push("Apollo 11 must identify the descent stage as 1969-059D and retain the supplied NSSDCA source page.");
         }
         if (getChapter("moon")?.audioCue?.pingIntervalMs !== 4000 || getChapter("moon")?.audioCue?.noAtmosphericWind !== true) {
             issues.push("Moon chapter audio must remain a low electronic ping every 4 seconds with no atmospheric wind.");

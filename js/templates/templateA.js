@@ -226,16 +226,22 @@
       const image = document.createElement("img");
       image.src = index === 0 ? options.imagePaths.eva : options.imagePaths.lro;
       image.alt = index === 0
-        ? "Apollo 11 lunar surface mission photograph, NASA image AS11-40-5927."
-        : "Lunar Reconnaissance Orbiter landing-site view marking the Apollo 11 descent stage location.";
+        ? "Apollo 11 astronaut Buzz Aldrin beside the United States flag, with the Lunar Module at left."
+        : "Lunar Reconnaissance Orbiter view of the Apollo 11 landing site, showing the descent stage and astronaut footprint trails.";
       image.loading = "eager";
       image.decoding = "async";
       figure.append(image);
       const caption = el("figcaption", "tha-clue-image-credit");
       caption.append(
-        el("span", "", index === 0 ? "NASA / JSC" : "NASA/Goddard Space Flight Center/Arizona State University"),
+        el("span", "", index === 0
+          ? "Image credit: NASA"
+          : "Credit: NASA/Goddard Space Flight Center/Arizona State University"),
         document.createTextNode(" · "),
-        externalLink(index === 0 ? "NASA IMAGE ↗" : "NASA LANDING-SITE IMAGE ↗", index === 0 ? options.official.eva : options.official.lro, "tha-image-source")
+        externalLink(
+          index === 0 ? "NASA IMAGE SOURCE ↗" : "NASA LANDING-SITE IMAGE SOURCE ↗",
+          index === 0 ? options.official.eva : options.official.lro,
+          "tha-image-source"
+        )
       );
       figure.append(caption);
       visual.append(figure);
@@ -285,10 +291,10 @@
     heading.append(el("span", "", "FIELD PUZZLE // RECOVER THE EVIDENCE"), el("small", "", "4 CLUES // SCAN IN SEQUENCE"));
     const clues = el("div", "tha-clues");
     const clueData = Array.isArray(record?.clues) && record.clues.length === 4 ? record.clues : [
-      { title: "MISSION PHOTOGRAPHS", text: "A black-and-white image. Two astronauts. The lunar surface. A flag. A vehicle." },
-      { title: "LOCATION DATA", text: "Mare Tranquillitatis. The Moon. 0.67408° N, 23.47297° E." },
-      { title: "MISSION INFORMATION", text: "Apollo 11. 1969. The first crewed Moon landing." },
-      { title: "SCIENTIFIC EXPLANATION", text: "The descent stage could not return to Earth. The ascent stage separated and later crashed into the Moon. The descent stage remained there. Its empty mass was 2,034 kg." }
+      { title: "MISSION PHOTOGRAPH", text: "Two astronauts. A flag. A lunar module. What stayed behind?" },
+      { title: "LANDING SITE", text: "Mare Tranquillitatis · The Moon · 0.67416° N, 23.47314° E." },
+      { title: "MISSION LOG", text: "Apollo 11 · 20 July 1969 · first crewed Moon landing." },
+      { title: "TWO-STAGE MODULE", text: "The Lunar Module had two stages. The descent stage landed on the Moon and remained there. The ascent stage carried the astronauts back into lunar orbit. The descent stage had a recorded dry weight of about 2,034 kg." }
     ];
     const revealed = new Set();
     const progress = el("div", "tha-clue-progress");
