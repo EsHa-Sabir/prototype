@@ -77,17 +77,26 @@
       <path d="M292 205C354 166 430 164 493 186C550 206 618 190 686 222C735 246 751 306 709 345C668 384 596 388 532 365C470 343 421 366 360 340C301 315 260 251 292 205Z" fill="#414849" opacity=".78" stroke="#a5aaa0" stroke-width="3" stroke-dasharray="8 7"/>
       <path d="M326 235C395 198 457 205 512 223S625 222 682 256" fill="none" stroke="#b9bdb1" stroke-width="2" opacity=".2"/>
       <path d="M337 300C405 326 470 292 528 314S632 344 683 310" fill="none" stroke="#d6d4c8" stroke-width="2" opacity=".13"/>
-      <g fill="#e0e3d8" font-family="monospace" letter-spacing="3">
+      <g class="tha-map-internal-labels" fill="#e0e3d8" font-family="monospace" letter-spacing="3">
         <text x="42" y="48" font-size="17" opacity=".82">LUNAR SURFACE / ARCHIVE GRID</text>
         <text x="42" y="76" font-size="12" opacity=".62">NEAR-SIDE SCHEMATIC // NOT TO SCALE</text>
         <text x="734" y="518" font-size="13" opacity=".72">0° LATITUDE BAND</text>
       </g>
-      <g stroke="#e2e5d9" opacity=".62" fill="none"><path d="M50 495h70m-70 -7v14m70 -14v14"/><path d="M938 45v42m-6 -36h12m-12 30h12"/></g>
-      <g fill="#e1e5d9" font-family="monospace" font-size="12" opacity=".76"><text x="50" y="484">SCHEMATIC SCALE</text><text x="952" y="105" text-anchor="end">N</text></g>
+      <g class="tha-map-scale-lines" stroke="#e2e5d9" opacity=".62" fill="none"><path d="M50 495h70m-70 -7v14m70 -14v14"/><path d="M938 45v42m-6 -36h12m-12 30h12"/></g>
+      <g class="tha-map-scale-labels" fill="#e1e5d9" font-family="monospace" font-size="12" opacity=".76"><text x="50" y="484">SCHEMATIC SCALE</text><text x="952" y="105" text-anchor="end">N</text></g>
       <circle cx="544" cy="275" r="39" fill="#b9f4c7" opacity=".10" filter="url(#thaMapGlow)"/>
       <path d="M544 232V318M501 275H587" stroke="#d7eadb" stroke-dasharray="3 7" opacity=".22"/>
     `;
     frame.append(map, el("div", "tha-map-scan-lines"), el("div", "tha-map-vignette"));
+    const mobileNotes = el("div", "tha-mobile-map-notes");
+    const mobileCoordinate = record?.id === "laser-retroreflectors"
+      ? "APOLLO 11 / 14 / 15 SITES"
+      : location.coordinateDisplay || location.display || "LUNAR ARCHIVE GRID";
+    mobileNotes.append(
+      el("span", "tha-mobile-map-name", "LUNAR SURFACE / ARCHIVE GRID"),
+      el("span", "tha-mobile-map-sub", "NEAR-SIDE SCHEMATIC // NOT TO SCALE")
+    );
+    frame.append(mobileNotes);
 
     frame.style.setProperty("--tha-zoom-x", `${targetPoint.x}%`);
     frame.style.setProperty("--tha-zoom-y", `${targetPoint.y}%`);
@@ -112,7 +121,8 @@
     const mapHud = el("div", "tha-map-hud");
     mapHud.append(
       el("span", "tha-map-tag", placeLabel),
-      el("span", "tha-map-coordinates", coordinateLabel)
+      el("span", "tha-map-coordinates", coordinateLabel),
+      el("span", "tha-map-latitude-band", "0° LATITUDE BAND")
     );
     frame.append(mapHud);
     const mapCaption = el("figcaption", "tha-vector-map-caption", `${location.display || location.name || "LUNAR SURFACE"} · SCHEMATIC MAP`);
@@ -221,7 +231,7 @@
 
     const icons = ["▧", "⌖", "1969", "⇧"];
     const labels = ["PHOTO EVIDENCE", "LANDING SITE", "MISSION LOG", "TWO-STAGE MODULE"];
-    if (index === 0 || index === 1) {
+    if (index === 0) {
       const figure = el("figure", "tha-clue-evidence-figure");
       const image = document.createElement("img");
       image.src = index === 0 ? options.imagePaths.eva : options.imagePaths.lro;

@@ -990,3 +990,304 @@
   .tha-moon-brand-copy small { font-size: .5rem !important; }
   .tha-moon-identity-slot .tha-global-identity-badge .tha-global-badge-copy { font-size: .46rem !important; }
 }
+
+/* MOBILE MAP OVERLAY REPAIR — desktop map geometry remains untouched. */
+.tha-mobile-map-notes{display:none}
+@media(max-width:700px){
+  .tha-moon-map-frame{min-height:clamp(250px,68vw,390px);aspect-ratio:4/3;}
+  .tha-moon-map-frame .tha-map-internal-labels,
+  .tha-moon-map-frame .tha-map-scale-labels,.tha-moon-map-frame .tha-map-scale-lines{display:none}
+  .tha-mobile-map-notes{position:absolute;z-index:3;inset:10px 10px auto;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 8px;pointer-events:none;text-shadow:0 1px 4px #000}
+  .tha-mobile-map-name{grid-column:1/-1;color:#f1f3eb;font-size:clamp(.48rem,2vw,.65rem);letter-spacing:.08em;white-space:normal}
+  .tha-mobile-map-sub{grid-column:1/-1;color:#c7d0c8;font-size:clamp(.43rem,1.7vw,.56rem);letter-spacing:.05em}
+  .tha-mobile-map-lat{grid-column:2;grid-row:3;justify-self:end;align-self:start;color:#f1f3eb;font-size:clamp(.44rem,1.8vw,.58rem);letter-spacing:.04em;white-space:nowrap}
+  .tha-mobile-map-scale{grid-column:1;grid-row:4;justify-self:start;color:#d9dfd5;font-size:clamp(.43rem,1.7vw,.55rem);letter-spacing:.04em;display:flex;align-items:center;gap:8px}.tha-mobile-map-scale:after{content:"";display:block;width:42px;height:5px;border-top:1px solid #d9dfd5;border-bottom:1px solid #d9dfd5}
+  .tha-map-hud{inset:auto 8px 8px;align-items:flex-end;gap:5px}
+  .tha-map-tag,.tha-map-coordinates{max-width:100%;padding:5px 6px;font-size:clamp(.43rem,1.75vw,.56rem);letter-spacing:.025em;line-height:1.35}
+  .tha-map-tag{white-space:normal}
+  .tha-map-coordinates{white-space:nowrap;overflow:visible;text-align:right;font-variant-numeric:tabular-nums}
+  .tha-moon-map-caption,.tha-vector-map-caption{font-size:.62rem;line-height:1.55;overflow-wrap:anywhere}
+  .tha-moon-panel-top{align-items:flex-start;gap:7px}
+  .tha-moon-kicker,.tha-moon-record-count{font-size:.55rem;line-height:1.5}
+  .tha-moon-map-frame,.tha-moon-map-panel,.tha-moon-stage,.tha-moon-content,.tha-moon-screen .tha-object-dna,.tha-moon-screen .tha-data-card,.tha-moon-screen .tha-story-card,.tha-moon-screen .tha-clue-card,.tha-moon-screen .tha-record-actions button{border-radius:0!important}
+}
+@media(max-width:380px){
+  .tha-mobile-map-notes{inset:8px 8px auto;gap:4px 6px}
+  .tha-map-hud{inset:auto 6px 6px}
+  .tha-map-tag,.tha-map-coordinates{font-size:.43rem;padding:4px}
+}
+
+/* Moon learning layers: DISCOVER and EXPLORE are separate; STORY remains outside both. */
+.tha-moon-layer-tabs{display:flex;gap:0;margin:22px 0 0;border-bottom:1px solid rgba(169,224,184,.38)}
+.tha-moon-layer-tab{min-width:130px;padding:13px 18px;border:1px solid rgba(169,224,184,.28);border-bottom:0;background:#07100d;color:#a9c0b2;font:inherit;font-size:.7rem;letter-spacing:.14em;cursor:pointer}
+.tha-moon-layer-tab.is-active{background:#173325;color:#e4ffeb;border-color:#a9e0b8}
+.tha-moon-layer-panel{padding:clamp(14px,3vw,28px);border:1px solid rgba(169,224,184,.24);border-top:0;background:rgba(3,10,8,.7)}
+.tha-moon-layer-panel[hidden]{display:none}
+.tha-discover-explanation h3{margin:20px 0 6px;color:#b9f4c7!important;font-size:.72rem;letter-spacing:.1em}
+.tha-moon-eyebrow{color:#a9ccb4!important;}
+.tha-discover-explanation>p:not(.tha-moon-eyebrow){color:#d5e0d8;line-height:1.75}
+.tha-explore-content>.tha-nasa-data,.tha-explore-content>.tha-object-dna{margin-top:16px}
+.tha-moon-layers,.tha-moon-layer-panel,.tha-moon-layer-tab,.tha-moon-screen .tha-evidence-figure,.tha-moon-screen .tha-story-card,.tha-moon-screen .tha-nasa-data,.tha-moon-screen .tha-object-dna,.tha-moon-screen .tha-clue-card,.tha-moon-screen .tha-data-row,.tha-moon-screen .tha-replay-button,.tha-moon-screen .tha-secondary-button{border-radius:0!important}
+.tha-moon-completion .tha-replay-button,.tha-moon-completion .tha-secondary-button{min-height:56px;padding:15px 22px;font-size:.72rem;letter-spacing:.08em}
+@media(max-width:700px){.tha-moon-layer-tab{flex:1;min-width:0;padding:14px 8px;font-size:.66rem}.tha-moon-layer-panel{padding:14px}.tha-discover-explanation h3{font-size:.7rem}.tha-moon-completion .tha-replay-button,.tha-moon-completion .tha-secondary-button{width:100%;min-height:54px;margin:8px 0;font-size:.7rem}}
+@media(max-width:700px){
+  .tha-laser-visual{min-height:180px;display:grid;place-items:center}
+  .tha-laser-visual svg{width:100%;height:180px;min-height:180px;max-height:220px;object-fit:contain}
+  .tha-laser-status,.tha-laser-disclaimer,.tha-next-trace-prompt{font-size:.78rem;line-height:1.65}
+  .tha-moon-screen .tha-clue,.tha-moon-screen .tha-clue-trigger,.tha-moon-screen .tha-clue-body,.tha-moon-screen .tha-template-choice,.tha-moon-screen button,.tha-moon-screen .tha-object-status,.tha-moon-screen .tha-laser-visual,.tha-moon-screen .tha-stage-diagram{border-radius:0!important}
+  .tha-moon-screen .tha-clue-trigger{min-height:54px}
+  .tha-moon-screen .tha-clue-title,.tha-moon-screen .tha-clue-state{font-size:.7rem}
+}
+/* Square archive geometry: keep map beacons and circular SVG marks round, but square all UI cards and controls. */
+.tha-moon-screen .tha-clue,.tha-moon-screen .tha-clue-trigger,.tha-moon-screen .tha-clue-body,.tha-moon-screen .tha-template-choice,.tha-moon-screen .tha-object-status,.tha-moon-screen .tha-laser-visual,.tha-moon-screen .tha-stage-diagram,.tha-moon-screen .tha-record-actions button,.tha-moon-screen .tha-next-button,.tha-moon-screen .tha-secondary-button{border-radius:0!important}
+.tha-story-lead{white-space:pre-line}
+
+/* FINAL MOBILE MAP LABEL ORDER: coordinates occupy the former latitude slot;
+   the latitude band moves to the bottom-right HUD. No scale key on phones. */
+.tha-map-latitude-band{display:none}
+.tha-mobile-map-coordinate{display:none}
+@media(max-width:700px){
+  .tha-mobile-map-notes{position:absolute;inset:auto auto 9px 9px;display:grid;grid-template-columns:minmax(0,1fr);gap:3px;max-width:calc(100% - 18px);}
+  .tha-mobile-map-name{grid-column:1;grid-row:1;font-size:clamp(.55rem,2.25vw,.68rem);line-height:1.35;letter-spacing:.06em;white-space:normal;color:#f1f3eb;}
+  .tha-mobile-map-sub{grid-column:1;grid-row:2;font-size:clamp(.49rem,2vw,.6rem);line-height:1.4;letter-spacing:.035em;white-space:normal;color:#c7d0c8;}
+  .tha-mobile-map-coordinate{display:none!important}
+  .tha-mobile-map-scale{display:none!important}
+  .tha-map-hud{inset:8px 8px auto;display:flex;align-items:flex-start;justify-content:space-between;gap:6px;}
+  .tha-map-hud .tha-map-coordinates{display:block!important;white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums;}
+  .tha-map-latitude-band{display:none!important}
+  .tha-map-tag{font-size:clamp(.52rem,1.95vw,.62rem);padding:5px 7px;line-height:1.4;white-space:nowrap;}
+}
+@media(max-width:380px){
+  .tha-mobile-map-notes{inset:8px 8px auto;gap:4px 5px;}
+  .tha-mobile-map-name{font-size:.54rem;}
+  .tha-mobile-map-sub{font-size:.48rem;}
+  .tha-mobile-map-coordinate,.tha-map-latitude-band{font-size:.5rem;padding:4px 5px;}
+}
+
+/* Readable stacked labels for the Fallen Astronaut metadata on narrow screens. */
+@media(max-width:700px){
+  .tha-moon-screen .tha-clue-trigger{align-items:flex-start;min-height:60px;}
+  .tha-moon-screen .tha-clue-title{flex:1 1 auto;min-width:0;white-space:normal;overflow-wrap:anywhere;font-size:.76rem;line-height:1.45;}
+  .tha-moon-screen .tha-clue-state{flex:0 0 auto;font-size:.64rem;line-height:1.4;}
+  .tha-moon-screen .tha-data-row{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;padding:10px 9px;font-size:.84rem;line-height:1.5;}
+  .tha-moon-screen .tha-data-row>span{font-size:.76rem;line-height:1.4;white-space:normal;}
+  .tha-moon-screen .tha-data-row strong{max-width:100%;font-size:.88rem;line-height:1.45;overflow-wrap:anywhere;}
+  .tha-fallen-hero-evidence{margin:22px 0 26px;}
+  .tha-fallen-hero-evidence img,.tha-laser-hero-evidence img{display:block;width:100%;max-height:430px;object-fit:contain;background:#030609;}
+  .tha-fallen-discover-visual{padding:17px 12px;border:1px solid rgba(169,224,184,.3);color:#c7f0d0;font-size:.78rem;letter-spacing:.08em;line-height:1.5;text-align:center;background:rgba(18,39,30,.42);}
+  .tha-laser-hero-evidence{margin:20px 0 22px;}
+  .tha-laser-visual{width:100%;min-height:190px;overflow:hidden;}
+  .tha-laser-visual svg{display:block;width:100%;height:190px;max-width:100%;overflow:visible;}
+  .tha-laser-visual svg text{font-family:monospace;}
+  .tha-mars-next-button{min-height:60px!important;padding:16px 18px!important;font-size:.9rem!important;font-weight:700;letter-spacing:.06em;background:#a6432e!important;border-color:#f08a66!important;color:#fff0e8!important;}
+}
+
+/* Fallen Astronaut: preserve compact two-line clue metadata, but keep the 14 REMEMBRANCE label on one line. */
+@media(max-width:700px){
+  .tha-clue:nth-child(4) .tha-clue-title{white-space:nowrap!important;overflow-wrap:normal!important;font-size:clamp(.62rem,2.7vw,.76rem)!important;letter-spacing:.025em!important;}
+  .tha-moon-screen .tha-mars-next-button{min-height:56px!important;}
+}
+
+/* Laser record source link sits at the right edge on narrow screens. */
+@media(max-width:700px){
+  .tha-moon-screen .tha-laser-hero-evidence figcaption{display:flex;justify-content:flex-end;text-align:right;width:100%;}
+  .tha-moon-screen .tha-laser-hero-evidence figcaption a{margin-left:auto;text-align:right;}
+  .tha-moon-screen .tha-moon-eyebrow,.tha-moon-screen .tha-discover-explanation .tha-moon-eyebrow,.tha-moon-screen .tha-explore-content .tha-moon-eyebrow{color:#a9ccb4!important;}
+  .tha-moon-screen .tha-mars-next-button{min-height:56px!important;height:56px!important;}
+}
+@media(max-width:700px){
+  .tha-moon-screen .tha-laser-hero-evidence .tha-image-credit{display:flex;justify-content:flex-end;text-align:right;width:100%;}
+  .tha-moon-screen .tha-laser-hero-evidence .tha-image-source{margin-left:auto;text-align:right;}
+}
+@media(max-width:700px){
+  /* Keep value and descriptor on separate readable rows where the desktop card stacks them. */
+  .tha-moon-screen .tha-template-a-clue-flow .tha-clue-visual-3,
+  .tha-moon-screen .tha-template-c-clue-flow .tha-clue-visual-2,
+  .tha-moon-screen .tha-template-c-clue-flow .tha-clue-visual-3{flex-direction:column!important;gap:3px;}
+  /* The memorial count and its label are intentionally a single compact line. */
+  .tha-moon-screen .tha-template-c-clue-flow .tha-clue-visual-4{flex-direction:row!important;gap:8px;}
+}
+
+/* FINAL MOBILE LABEL FIT: keep paired numerals and clue labels on one line. */
+@media(max-width:700px){
+  .tha-moon-screen .tha-template-a-clue-flow .tha-clue-visual-3,
+  .tha-moon-screen .tha-template-c-clue-flow .tha-clue-visual-2,
+  .tha-moon-screen .tha-template-c-clue-flow .tha-clue-visual-3,
+  .tha-moon-screen .tha-template-c-clue-flow .tha-clue-visual-4{
+    flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;flex-wrap:nowrap!important;gap:8px!important;
+  }
+  .tha-moon-screen .tha-template-a-clue-flow .tha-clue-visual-3 .tha-clue-visual-symbol,
+  .tha-moon-screen .tha-template-c-clue-flow .tha-clue-visual-2 .tha-clue-visual-symbol,
+  .tha-moon-screen .tha-template-c-clue-flow .tha-clue-visual-3 .tha-clue-visual-symbol,
+  .tha-moon-screen .tha-template-c-clue-flow .tha-clue-visual-4 .tha-clue-visual-symbol{flex:0 0 auto;white-space:nowrap;font-size:.68rem;}
+  .tha-moon-screen .tha-template-a-clue-flow .tha-clue-visual-3 .tha-clue-visual-label,
+  .tha-moon-screen .tha-template-c-clue-flow .tha-clue-visual-2 .tha-clue-visual-label,
+  .tha-moon-screen .tha-template-c-clue-flow .tha-clue-visual-3 .tha-clue-visual-label,
+  .tha-moon-screen .tha-template-c-clue-flow .tha-clue-visual-4 .tha-clue-visual-label{white-space:nowrap;font-size:clamp(.58rem,2.6vw,.7rem);letter-spacing:.035em;}
+  .tha-moon-screen .tha-completion-story{white-space:nowrap;font-size:clamp(.68rem,2.7vw,.88rem);line-height:1.5;}
+  .tha-moon-completion .tha-mars-next-button,
+  .tha-moon-completion .tha-secondary-button{min-height:56px!important;height:56px!important;}
+}
+
+/* Mobile lunar record 2 subtitle: keep the mirror summary to two balanced lines. */
+@media(max-width:700px){
+ .tha-moon-screen .tha-moon-subtitle{max-width:34ch;text-wrap:balance;}
+ .tha-moon-screen .tha-mars-next-button,.tha-moon-screen .tha-moon-completion>.tha-secondary-button{display:block;width:min(100%,320px);min-height:54px;margin:10px auto;padding:14px 16px;}
+}
+
+/* FINAL HANDOFF TUNING: mirror subtitle uses two authored lines on phones;
+   the Mars handoff button now matches the neutral archive-menu button. */
+@media(max-width:700px){
+  .tha-moon-screen .tha-moon-subtitle{
+    max-width:40ch!important;
+    white-space:pre-line!important;
+    text-wrap:initial!important;
+    font-size:.69rem!important;
+    line-height:1.55!important;
+  }
+}
+.tha-moon-screen .tha-mars-next-button{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:56px!important;
+  height:56px!important;
+  margin:10px 6px 0!important;
+  padding:10px 14px!important;
+  border:1px solid rgba(174,197,185,.26)!important;
+  border-radius:0!important;
+  color:#c3d1c9!important;
+  background:rgba(8,15,18,.72)!important;
+  box-shadow:none!important;
+  font:inherit!important;
+  font-size:.57rem!important;
+  font-weight:400!important;
+  letter-spacing:.06em!important;
+}
+.tha-moon-screen .tha-mars-next-button:hover,
+.tha-moon-screen .tha-mars-next-button:focus-visible{
+  color:#e5f3e9!important;
+  border-color:rgba(183,244,197,.58)!important;
+  background:rgba(15,30,27,.86)!important;
+}
+@media(max-width:700px){
+  .tha-moon-completion .tha-mars-next-button,
+  .tha-moon-completion .tha-secondary-button{
+    display:flex!important;
+    width:100%!important;
+    max-width:320px!important;
+    min-height:56px!important;
+    height:56px!important;
+    margin:8px auto 0!important;
+  }
+}
+@media(min-width:701px){
+  .tha-moon-completion .tha-mars-next-button,
+  .tha-moon-completion>.tha-secondary-button{
+    width:320px!important;
+    max-width:calc(50% - 12px)!important;
+  }
+}
+
+/* FINAL MOBILE + DESKTOP HANDOFF BUTTON CONSISTENCY */
+.tha-moon-screen .tha-moon-completion .tha-mars-next-button,
+.tha-moon-screen .tha-moon-completion > .tha-secondary-button{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  box-sizing:border-box!important;width:320px!important;max-width:calc(50% - 10px)!important;
+  min-height:56px!important;height:56px!important;margin:10px 6px 0!important;padding:10px 14px!important;
+  border:1px solid rgba(174,197,185,.30)!important;border-radius:0!important;
+  color:#c3d1c9!important;background:rgba(8,15,18,.72)!important;background-image:none!important;
+  box-shadow:none!important;font:inherit!important;font-size:.57rem!important;font-weight:400!important;
+  letter-spacing:.06em!important;text-transform:uppercase!important;
+  transition:background-color .2s ease,border-color .2s ease,color .2s ease,transform .2s ease!important;
+}
+.tha-moon-screen .tha-moon-completion .tha-mars-next-button:hover,
+.tha-moon-screen .tha-moon-completion .tha-mars-next-button:focus-visible,
+.tha-moon-screen .tha-moon-completion > .tha-secondary-button:hover,
+.tha-moon-screen .tha-moon-completion > .tha-secondary-button:focus-visible{
+  color:#edf7f0!important;border-color:rgba(183,244,197,.68)!important;
+  background:rgba(15,30,27,.96)!important;transform:translateY(-1px);
+}
+@media(max-width:700px){
+  .tha-moon-screen .tha-moon-completion .tha-mars-next-button,
+  .tha-moon-screen .tha-moon-completion > .tha-secondary-button{
+    display:flex!important;width:min(100%,320px)!important;max-width:320px!important;
+    min-height:56px!important;height:56px!important;margin:8px auto 0!important;
+  }
+}
+
+
+/* FINAL BUTTON READABILITY FIX — Moon completion actions */
+.tha-moon-completion .tha-replay-button,
+.tha-moon-completion .tha-secondary-button {
+  min-height: 60px !important;
+  padding: 16px 24px !important;
+  font-size: clamp(.9rem, 1.15vw, 1rem) !important;
+  line-height: 1.35 !important;
+  font-weight: 700 !important;
+  letter-spacing: .055em !important;
+}
+.tha-moon-completion .tha-mars-next-button {
+  font-size: clamp(.9rem, 1.15vw, 1rem) !important;
+  line-height: 1.35 !important;
+  font-weight: 700 !important;
+}
+@media (max-width: 700px) {
+  .tha-moon-completion .tha-replay-button,
+  .tha-moon-completion .tha-secondary-button,
+  .tha-moon-completion .tha-mars-next-button {
+    min-height: 58px !important;
+    padding: 15px 16px !important;
+    font-size: .88rem !important;
+    line-height: 1.35 !important;
+    letter-spacing: .035em !important;
+  }
+}
+
+
+/* FINAL MOON COMPLETION BUTTON SCALE — readable on desktop and phones. */
+.tha-moon-screen .tha-moon-completion .tha-mars-next-button,
+.tha-moon-screen .tha-moon-completion > .tha-secondary-button{
+  box-sizing:border-box!important;
+  min-height:66px!important;height:66px!important;
+  width: min(420px, calc(50% - 14px))!important;
+  max-width: min(420px, calc(50% - 14px))!important;
+  margin:12px 7px 0!important;padding:16px 22px!important;
+  font-family:var(--tha-font-mono, "Fira Code", Consolas, monospace)!important;
+  font-size:clamp(1rem,1.35vw,1.12rem)!important;
+  font-weight:700!important;line-height:1.3!important;letter-spacing:.045em!important;
+  white-space:normal!important;text-align:center!important;
+}
+@media(max-width:700px){
+  .tha-moon-screen .tha-moon-completion .tha-mars-next-button,
+  .tha-moon-screen .tha-moon-completion > .tha-secondary-button{
+    display:flex!important;width:min(100%,420px)!important;max-width:420px!important;
+    min-height:64px!important;height:auto!important;min-height:64px!important;
+    margin:10px auto 0!important;padding:15px 14px!important;
+    font-size:clamp(.98rem,4.1vw,1.08rem)!important;
+    line-height:1.35!important;letter-spacing:.035em!important;
+  }
+}
+
+
+/* FINAL BALANCED MOON COMPLETION BUTTON SCALE — medium, not oversized. */
+.tha-moon-screen .tha-moon-completion .tha-mars-next-button,
+.tha-moon-screen .tha-moon-completion > .tha-secondary-button,
+.tha-moon-screen .tha-moon-completion .tha-replay-button{
+  box-sizing:border-box!important;
+  min-height:58px!important;height:58px!important;
+  padding:10px 12px!important;
+  font-family:var(--tha-font-mono, "Fira Code", Consolas, monospace)!important;
+  font-size:.76rem!important;font-weight:600!important;
+  line-height:1.25!important;letter-spacing:.02em!important;
+  text-align:center!important;
+}
+@media(max-width:700px){
+  .tha-moon-screen .tha-moon-completion .tha-mars-next-button,
+  .tha-moon-screen .tha-moon-completion > .tha-secondary-button,
+  .tha-moon-screen .tha-moon-completion .tha-replay-button{
+    min-height:56px!important;height:auto!important;
+    padding:12px 10px!important;font-size:.74rem!important;
+    letter-spacing:.015em!important;
+  }
+}

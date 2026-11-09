@@ -1,0 +1,729 @@
+/* MARS CHAPTER — deliberately distinct from the lunar archive. Sharp corners throughout. */
+.tha-mars-screen{--mars-ember:#e47b50;--mars-rust:#9d452b;--mars-sand:#f0b18c;--mars-ink:#160c09;min-height:100svh;padding:clamp(18px,4vw,54px);color:#f8e9df;background:radial-gradient(ellipse at 48% 10%,#542619 0%,#25130f 43%,#100a08 100%);font-family:'Fira Code',monospace;position:relative;overflow:hidden}
+.tha-mars-screen:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.16;background:repeating-linear-gradient(0deg,transparent 0 4px,rgba(255,190,150,.12) 5px),radial-gradient(ellipse at center,transparent 35%,#080403 100%)}
+.mars-header{position:relative;display:flex;justify-content:space-between;align-items:center;gap:12px;padding-bottom:16px;border-bottom:1px solid #a85a3d;color:#e7a17b;font-size:.7rem;letter-spacing:.14em}
+.mars-header-meta{margin:0;color:#c58b70;font-size:.62rem}
+.mars-map-intro,.mars-record-content,.mars-completion{position:relative;max-width:1080px;margin:clamp(28px,5vw,64px) auto 24px}
+.mars-overline{margin:0 0 12px;color:#e58a5d;font-size:.68rem;letter-spacing:.17em;text-transform:uppercase}
+.mars-map-intro h1,.mars-record-top h1,.mars-completion h1{margin:0;color:#ffe1ce;font-family:Orbitron,sans-serif;font-size:clamp(2.1rem,6vw,4.6rem);letter-spacing:.05em}
+.mars-map-intro>p:not(.mars-overline):not(.mars-record-counter){color:#d9b7a5;line-height:1.7}
+.mars-record-counter{color:#f0a27c;font-size:.7rem;letter-spacing:.12em}
+.mars-map-frame{position:relative;isolation:isolate;overflow:hidden;width:min(100%,1120px);aspect-ratio:1000/590;margin:22px auto 0;border:1px solid #b15d3d;background:#301710;box-shadow:0 18px 80px #08030299}
+.mars-map-frame>svg{display:block;width:100%;height:100%}
+.mars-marker{position:absolute;z-index:2;display:grid;place-items:center;width:54px;height:54px;padding:0;border:0;background:transparent;transform:translate(-50%,-50%);cursor:pointer}
+.mars-marker-pulse,.mars-marker-core{position:absolute;border-radius:50%;pointer-events:none}
+.mars-marker-pulse{width:44px;height:44px;border:2px solid #ffb18b;animation:marsPulse 1.8s ease-out infinite}
+.mars-marker-core{width:13px;height:13px;background:#fff1e7;box-shadow:0 0 9px 5px #ffb18b,0 0 26px 12px #c4512e}
+.mars-marker-label{position:absolute;left:42px;padding:5px 8px;background:#1c0c08;border:1px solid #e58a5d;color:#ffe3d2;font-size:.65rem}
+.mars-marker.is-recovered .mars-marker-core{background:#b7edb9;box-shadow:0 0 9px 5px #b7edb9,0 0 26px 12px #69a879}
+.mars-map-legend{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;max-width:1120px;margin:16px auto}
+.mars-map-record{min-height:54px;padding:10px 12px;text-align:left;border:1px solid #81422e;background:#25120d;color:#f0c4ad;font:inherit;font-size:.68rem;letter-spacing:.04em;cursor:pointer}
+.mars-map-record:hover,.mars-map-record:focus-visible{border-color:#f4a77e;background:#472116}
+.mars-map-footnote{position:relative;max-width:1120px;margin:22px auto;color:#a67b68;font-size:.62rem;letter-spacing:.13em}
+.mars-record-top{padding:0 0 20px;border-bottom:1px solid #75402d}
+.mars-record-subtitle{color:#d59c7e;font-size:.75rem;letter-spacing:.12em}
+.mars-evidence{margin:22px 0 26px}
+.mars-evidence img{display:block;width:100%;max-height:540px;object-fit:cover;background:#2b1710}
+.mars-credit{margin-top:8px;color:#c39a83;font-size:.65rem;line-height:1.6}
+.mars-credit a,.mars-source{color:#ffc09b;text-underline-offset:3px}
+.mars-layers{margin:24px 0}
+.mars-tabs{display:flex;gap:0;border-bottom:1px solid #965238}
+.mars-tab{min-width:140px;padding:14px 18px;border:1px solid #75402d;border-bottom:0;background:#24120d;color:#c89a82;font:inherit;font-size:.72rem;letter-spacing:.13em;cursor:pointer}
+.mars-tab.is-active{background:#a34d2e;color:#fff1e8;border-color:#e58a5d}
+.mars-layer{padding:clamp(18px,3vw,34px);border:1px solid #75402d;border-top:0;background:#1b100c}
+.mars-layer[hidden]{display:none}
+.mars-discover-copy h2,.mars-explore-copy h2,.mars-story h2,.mars-signal-lost h2{margin:0 0 12px;color:#ffe1ce;font-family:Orbitron,sans-serif;font-size:clamp(1.2rem,3vw,2rem)}
+.mars-summary{color:#d7ad98;line-height:1.7}
+.mars-answers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:22px}
+.mars-answer{padding:16px;border-left:2px solid #d66c43;background:#2a1711}
+.mars-answer h3{margin:0 0 8px;color:#f3a47e;font-size:.7rem;letter-spacing:.07em}
+.mars-answer p{margin:0;color:#ead5c8;font-size:.86rem;line-height:1.7}
+.mars-data-grid{display:grid;grid-template-columns:minmax(130px,.7fr) 1.3fr;margin:18px 0;border-top:1px solid #71402d}
+.mars-data-grid dt,.mars-data-grid dd{margin:0;padding:12px 10px;border-bottom:1px solid #71402d;line-height:1.55}
+.mars-data-grid dt{color:#df926e;font-size:.68rem;letter-spacing:.09em}
+.mars-data-grid dd{color:#f2e2d8;font-size:.84rem}
+.mars-source{display:inline-block;margin-top:12px;font-size:.72rem}
+.mars-story,.mars-signal-lost{margin:26px 0;padding:24px 0;border-top:1px solid #a75a3b;border-bottom:1px solid #a75a3b}
+.mars-story>p:last-child,.mars-signal-lost>p:last-child{max-width:760px;color:#f0d8ca;font-family:Georgia,serif;font-size:clamp(1.1rem,2.3vw,1.5rem);line-height:1.8}
+.mars-clue-reveal{margin:24px 0;padding:20px;border:1px solid #75402d;background:#1a0e0a}
+.mars-clues{display:grid;gap:10px}
+.mars-clue{width:100%;padding:15px;text-align:left;border:1px solid #87472f;background:#29150e;color:#f3c3a8;font:inherit;font-size:.78rem;line-height:1.6;cursor:pointer}
+.mars-clue.is-revealed{border-color:#d68b68;background:#3b1d12;color:#fff0e7}
+.mars-primary,.mars-secondary{display:inline-flex;justify-content:center;align-items:center;min-height:50px;margin:12px 10px 0 0;padding:13px 20px;border:1px solid #e58a5d;background:#a44d2e;color:#fff2e9;font:inherit;font-size:.72rem;letter-spacing:.09em;cursor:pointer}
+.mars-secondary{background:transparent;color:#e6b69c;border-color:#8e523b}
+.mars-actions{margin:24px 0}
+.mars-timeline,.mars-flight{margin:26px 0;padding:22px;border:1px solid #75402d;background:#1b100c}
+.mars-events{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:0;list-style:none}
+.mars-event{width:100%;height:100%;min-height:64px;padding:12px;border:1px solid #75402d;background:#2a1711;color:#f3c4a9;font:inherit;font-size:.72rem;line-height:1.6;cursor:pointer}
+.mars-event.is-selected{border-color:#f5a77e;background:#63301d;color:#fff}
+.mars-storm-note{padding:14px;border-left:3px solid #f28c57;color:#ffc09b;letter-spacing:.12em}
+.mars-flight-value{display:block;margin:12px 0;color:#ffe1ce;font-size:1rem}
+.mars-flight-range{width:100%;accent-color:#e47b50}
+.mars-flight-dots{display:grid;grid-template-columns:repeat(18,1fr);gap:5px;margin-top:14px}
+.mars-flight-dots i{height:5px;background:#573022}
+.mars-flight-dots i.is-passed{background:#e88b60}
+.mars-completion{text-align:center;padding:clamp(24px,5vw,64px);border:1px solid #a65a3b;background:linear-gradient(145deg,#3b1a11,#170d09)}
+.mars-complete-count{margin:24px 0;color:#f3a47e;letter-spacing:.2em}
+.mars-complete-copy{color:#f2d4c3;font-family:Georgia,serif;font-size:1.35rem;line-height:1.7}
+@keyframes marsPulse{0%{opacity:1;transform:scale(.5)}100%{opacity:0;transform:scale(2.5)}}
+@media(max-width:700px){.tha-mars-screen{padding:14px}.mars-header{align-items:flex-start;flex-direction:column}.mars-map-frame{aspect-ratio:4/3;min-height:280px}.mars-map-legend{grid-template-columns:repeat(2,minmax(0,1fr))}.mars-marker{width:48px;height:48px}.mars-marker-label{left:34px;font-size:.6rem}.mars-answers{grid-template-columns:1fr}.mars-data-grid{grid-template-columns:112px minmax(0,1fr)}.mars-data-grid dt{font-size:.6rem}.mars-data-grid dd{font-size:.75rem;overflow-wrap:anywhere}.mars-events{grid-template-columns:repeat(2,minmax(0,1fr))}.mars-tabs{position:sticky;top:0;z-index:5;background:#1b100c}.mars-tab{flex:1;min-width:0;padding:13px 8px;font-size:.68rem}.mars-layer{padding:15px}.mars-primary,.mars-secondary{width:100%;margin:10px 0 0}.mars-flight-dots{grid-template-columns:repeat(12,1fr)}}
+@media(max-width:380px){.mars-map-intro h1,.mars-record-top h1,.mars-completion h1{font-size:1.8rem}.mars-map-frame{min-height:250px}.mars-map-record{font-size:.61rem;padding:9px 7px}.mars-data-grid{grid-template-columns:94px minmax(0,1fr)}}
+@media(prefers-reduced-motion:reduce){.mars-marker-pulse{animation:none;opacity:.65}}
+.mars-audio-provenance{position:relative;max-width:1120px;margin:8px auto;color:#bd8b73;font-size:.58rem;line-height:1.6;letter-spacing:.05em}
+.mars-object-dna{margin:24px 0;padding:18px;border:1px solid #78432f;background:#24130e}
+.mars-dna-intro{color:#d7b09a;font-size:.8rem;line-height:1.6}
+.mars-dna-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.mars-dna-tile{position:relative;min-height:150px;padding:15px;border:1px solid #70402e;background:#2d1810;opacity:0;transform:translateY(14px);animation:marsDNAIn .55s ease forwards;animation-delay:calc(var(--dna-index,0) * 110ms)}
+.mars-dna-index{color:#e28b64;font-size:.65rem;letter-spacing:.14em}
+.mars-dna-label{display:block;margin:14px 0 6px;color:#d99b7c;font-size:.62rem;letter-spacing:.12em}
+.mars-dna-value{display:block;color:#fff0e6;font-family:Orbitron,sans-serif;font-size:1.08rem}
+.mars-dna-note{margin:8px 0 0;color:#d4b4a2;font-size:.72rem;line-height:1.5}
+@keyframes marsDNAIn{to{opacity:1;transform:translateY(0)}}
+@media(max-width:700px){.mars-dna-grid{grid-template-columns:1fr}.mars-dna-tile{min-height:0;padding:13px}.mars-dna-value{font-size:1rem}}
+@media(prefers-reduced-motion:reduce){.mars-dna-tile{opacity:1;transform:none;animation:none}}
+.mars-mission-background{max-width:72ch;margin:12px 0 18px;color:#e1c3b2;font-size:.86rem;line-height:1.7}
+.mars-map-frame>svg{transition:transform 1.25s cubic-bezier(.2,.7,.2,1),filter 1.25s ease;transform-origin:50% 50%}
+.mars-map-frame.is-zooming>svg{transform:scale(1.55);filter:brightness(1.22) saturate(1.2)}
+.mars-map-frame.is-zooming .mars-marker{opacity:0;transition:opacity .45s ease}
+.mars-flight.is-final-flight{animation:marsTremor .35s linear 2}
+.mars-flight-damage{margin-top:16px}
+@keyframes marsTremor{0%,100%{transform:translateX(0)}25%{transform:translateX(-2px)}75%{transform:translateX(2px)}}
+@media(prefers-reduced-motion:reduce){.mars-map-frame>svg{transition:none}.mars-flight.is-final-flight{animation:none}}
+.mars-event-detail{margin:8px 2px 0;color:#e7c3b0;font-size:.68rem;line-height:1.55}
+.mars-map-chapter-title{margin:10px 0 0;color:#e99a73;font-size:.78rem;letter-spacing:.16em}
+.mars-abandoned{margin:18px 0;color:#f0a27c;font-family:Orbitron,sans-serif;font-size:clamp(1.1rem,3vw,1.7rem);letter-spacing:.1em;text-align:center}
+
+/* MARS EXPEDITION REDESIGN — map route and each record have their own layout. */
+body:has(.tha-mars-screen) .tha-global-identity-badge{
+  top:14px;right:clamp(12px,3vw,34px);border-color:rgba(239,139,99,.72);
+  color:#ffe0cf;background:rgba(43,15,9,.96);box-shadow:0 8px 28px rgba(0,0,0,.45),0 0 22px rgba(225,94,57,.12);
+}
+body:has(.tha-mars-screen) .tha-global-identity-badge .tha-global-badge-icon{border-color:rgba(239,139,99,.74);}
+body:has(.tha-mars-screen) .tha-global-identity-badge .tha-global-badge-copy small{color:#dc8565;}
+.tha-mars-screen{padding:clamp(16px,3.5vw,48px);padding-top:clamp(20px,3vh,36px);}
+.tha-mars-screen:before{z-index:0;opacity:.19;background:repeating-linear-gradient(0deg,transparent 0 5px,rgba(255,185,145,.07) 6px),radial-gradient(ellipse at 50% 40%,transparent 42%,#070302 100%);}
+.mars-header{z-index:1;padding:64px 250px 16px 0;gap:18px;border-color:rgba(207,112,74,.5);}
+.mars-brand{font-family:Orbitron,sans-serif;font-size:.82rem;font-weight:700;letter-spacing:.06em;color:#ffe0cf;}
+.mars-header-chapter,.mars-header-mark{font-size:.62rem;letter-spacing:.14em;color:#df916e;}
+.mars-map-intro{margin:38px auto 22px;max-width:1320px;}
+.mars-map-intro h1{font-size:clamp(2.4rem,6.2vw,5rem);letter-spacing:.035em;}
+.mars-map-subtitle{max-width:760px;color:#f1c1a8;font-size:clamp(1rem,2vw,1.32rem);line-height:1.55;}
+.mars-map-intro-copy{max-width:760px;color:#b98b75;font-size:.83rem;line-height:1.7;}
+.mars-recovery-counter{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:26px;padding:13px 16px;border:1px solid rgba(211,121,82,.45);background:rgba(20,9,6,.58);color:#f1b391;}
+.mars-counter-label{font-size:.69rem;letter-spacing:.13em;}
+.mars-recovery-counter strong{font-family:Orbitron,sans-serif;font-size:.8rem;letter-spacing:.1em;color:#ffe5d5;}
+.mars-map-layout{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.65fr) minmax(260px,.75fr);gap:22px;max-width:1320px;margin:0 auto;align-items:stretch;}
+.mars-map-frame{width:100%;aspect-ratio:4/3;max-height:none;margin:0;border:1px solid rgba(214,126,88,.62);background:#3a1a11;box-shadow:0 25px 70px rgba(0,0,0,.5),inset 0 0 70px rgba(255,151,103,.06);}
+.mars-terrain-svg{display:block;width:100%;height:100%;transform:scale(1);transform-origin:50% 50%;transition:transform .95s cubic-bezier(.18,.75,.2,1),filter .95s ease;}
+.mars-map-frame.is-zooming .mars-terrain-svg{transform:scale(1.72);transform-origin:var(--mars-focus-x,17%) var(--mars-focus-y,75%);filter:brightness(1.22) saturate(1.16);}
+.mars-marker{width:56px;height:56px;z-index:4;display:grid;place-items:center;transform:translate(-50%,-50%);border:0;background:transparent;}
+.mars-marker-halo{position:absolute;width:50px;height:50px;border:1px solid rgba(255,193,158,.8);border-radius:50%;opacity:0;}
+.mars-marker-symbol{position:relative;display:grid;place-items:center;width:36px;height:36px;background:rgba(41,13,7,.9);border:1px solid #e79a74;color:#ffe4d3;font-family:Orbitron,sans-serif;font-size:.72rem;transform:rotate(45deg);box-shadow:0 7px 20px rgba(0,0,0,.38);}
+.mars-marker-symbol::first-letter{transform:rotate(-45deg);}
+.mars-marker-caption{position:absolute;top:43px;left:50%;transform:translateX(-50%);padding:4px 6px;background:rgba(24,9,5,.83);color:#f7c5a9;font-size:.55rem;letter-spacing:.08em;white-space:nowrap;}
+.mars-marker.is-current .mars-marker-symbol{width:26px;height:26px;border-radius:50%;transform:none;background:#ffe9dd;color:#6e2717;border:2px solid #fff3eb;box-shadow:0 0 12px 7px rgba(255,217,194,.4),0 0 42px 18px rgba(255,124,80,.54);}
+.mars-marker.is-current .mars-marker-halo{opacity:1;animation:marsPulse 1.7s ease-out infinite;}
+.mars-marker.is-current .mars-marker-caption{color:#fff0e8;}
+.mars-marker.is-complete .mars-marker-symbol{transform:none;border-radius:50%;background:#b4d8a3;color:#19351c;border-color:#d6efc8;}
+.mars-marker.is-complete .mars-marker-caption{color:#cbe5b9;}
+.mars-marker.is-locked{cursor:not-allowed;opacity:.55;}
+.mars-marker.is-locked .mars-marker-symbol{background:rgba(25,12,10,.8);border-color:#805340;color:#bd8d75;box-shadow:none;}
+.mars-marker.is-locked .mars-marker-caption{color:#9b7361;}
+.mars-expedition-list{display:flex;flex-direction:column;min-width:0;padding:26px 23px;border:1px solid rgba(201,111,75,.48);background:linear-gradient(155deg,rgba(57,25,16,.94),rgba(19,10,7,.96));}
+.mars-expedition-list h2{margin:0 0 16px;color:#ffe0ce;font-family:Orbitron,sans-serif;font-size:clamp(1.1rem,2vw,1.55rem);}
+.mars-expedition-row{display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;gap:10px;min-height:72px;padding:10px 0;border:0;border-top:1px solid rgba(190,115,82,.3);background:transparent;color:#efc3aa;text-align:left;font:inherit;cursor:pointer;}
+.mars-expedition-no{font-family:Orbitron,sans-serif;font-size:.7rem;color:#d9906d;}
+.mars-expedition-copy strong{display:block;color:#ffdec9;font-size:.73rem;letter-spacing:.06em;}
+.mars-expedition-status{font-size:.54rem;letter-spacing:.1em;color:#c28d73;}
+.mars-expedition-row.is-locked{opacity:.42;cursor:not-allowed;}
+.mars-expedition-row.is-complete .mars-expedition-status{color:#b8d9a3;}
+.mars-expedition-row.is-unlocked{background:linear-gradient(90deg,rgba(188,78,42,.18),transparent);}
+.mars-expedition-row.is-unlocked .mars-expedition-status{color:#ffb38e;}
+.mars-expedition-note{margin:auto 0 0;padding-top:20px;color:#b58a76;font-size:.7rem;line-height:1.7;}
+.mars-audio-provenance,.mars-map-footnote{position:relative;z-index:1;max-width:1320px;margin:14px auto;color:#bb8b75;font-size:.62rem;line-height:1.65;letter-spacing:.07em;}
+.mars-audio-provenance a{color:#ffb891;text-underline-offset:3px;}
+.mars-footer{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:16px;margin:56px calc(clamp(16px,3.5vw,48px) * -1) -48px;padding:18px clamp(16px,3.5vw,48px);border-top:1px solid rgba(190,104,68,.35);background:rgba(10,5,4,.64);color:#a87d68;font-size:.62rem;letter-spacing:.12em;}
+.mars-footer .mars-secondary{width:auto;margin:0;}
+.mars-record-top{position:relative;max-width:1120px;margin:0 auto;padding:62px 0 22px;border-color:rgba(207,112,74,.5);}
+.mars-back{display:inline-flex;margin:0 0 22px;padding:8px 11px;border:1px solid rgba(218,135,96,.45);background:rgba(38,16,10,.8);color:#efb18f;font:inherit;font-size:.62rem;letter-spacing:.1em;cursor:pointer;}
+.mars-record-top .mars-eyebrow{margin:7px 0 10px;color:#eb946b;font-size:.74rem;letter-spacing:.18em;}
+.mars-record-top h1{font-size:clamp(2.6rem,7vw,5.4rem);line-height:1.1;}
+.mars-record-subtitle{max-width:760px;font-size:clamp(1rem,2.2vw,1.35rem);line-height:1.5;color:#e5b59a;}
+.mars-location{margin:14px 0 0;color:#bb876f;font-size:.65rem;letter-spacing:.16em;}
+.mars-record-content{max-width:1120px;margin:28px auto 60px;}
+.mars-progress-line{margin:0 0 20px;color:#c58d72;font-size:.64rem;letter-spacing:.15em;}
+.mars-image-gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:0 0 28px;}
+.mars-image-gallery .mars-evidence{min-width:0;margin:0;border:1px solid rgba(196,116,79,.35);background:#100906;}
+.mars-image-gallery .mars-evidence img{height:clamp(220px,28vw,380px);max-height:none;object-fit:cover;}
+.mars-image-gallery .mars-credit{padding:10px 12px;margin:0;}
+.mars-record-content>.mars-image-gallery:has(.mars-evidence:only-child) .mars-evidence img{height:auto;max-height:510px;object-fit:contain;}
+.mars-trace-sequence{margin:30px 0;padding:22px;border:1px solid rgba(191,109,75,.42);background:rgba(25,12,8,.86);}
+.mars-trace-instruction{margin:0 0 15px;color:#d5a78f;font-size:.78rem;line-height:1.6;}
+.mars-trace-list{display:grid;gap:10px;}
+.mars-trace-item{display:grid;grid-template-columns:42px minmax(0,1fr);gap:12px;align-items:start;padding:12px;border:1px solid rgba(178,105,75,.3);background:rgba(50,22,14,.6);}
+.mars-trace-item.is-locked{opacity:.5;}
+.mars-trace-number{color:#e28b64;font-family:Orbitron,sans-serif;font-size:.75rem;padding-top:14px;}
+.mars-trace-trigger{width:100%;min-height:48px;padding:12px 13px;border:1px solid rgba(207,126,91,.5);background:#32190f;color:#f2c2a7;text-align:left;font:inherit;font-size:.76rem;line-height:1.6;cursor:pointer;}
+.mars-trace-trigger:disabled{cursor:default;}
+.mars-trace-item.is-revealed .mars-trace-trigger{border-color:#e6a17b;background:#4a2417;color:#fff0e7;}
+.mars-trace-copy{grid-column:2;margin:0;padding:10px 13px 3px;color:#ffe1ce;font-size:.92rem;line-height:1.7;animation:marsDNAIn .4s ease both;}
+.mars-layers{margin:30px 0;}
+.mars-tabs{border-color:#b86845;}
+.mars-tab{min-width:150px;padding:15px 20px;border-color:#80442f;background:#1d0f0a;color:#d9a48a;}
+.mars-tab.is-active{background:#a84f30;border-color:#ee9a70;color:#fff1e8;}
+.mars-layer{background:rgba(24,12,8,.84);border-color:#71402e;}
+.mars-answer{border-left-color:#e27b50;background:#2b1710;}
+.mars-answer h3{font-size:.72rem;}
+.mars-answer p{font-size:.9rem;}
+.mars-nasa-data{margin:20px 0;padding:20px;border:1px solid rgba(202,120,82,.4);background:rgba(35,17,11,.8);}
+.mars-data-label{margin:0 0 15px;color:#8ec795;font-size:.69rem;letter-spacing:.15em;}
+.mars-data-grid{grid-template-columns:minmax(160px,.65fr) minmax(0,1.35fr);border-top-color:rgba(193,115,79,.35);}
+.mars-data-grid dt,.mars-data-grid dd{border-bottom-color:rgba(193,115,79,.35);}
+.mars-data-grid dd{overflow-wrap:anywhere;}
+.mars-story{margin:32px 0;padding:24px 0;border-color:#b96947;}
+.mars-story h2{font-size:clamp(1.35rem,3vw,2rem);}
+.mars-story-lead{max-width:850px;color:#ffe1ce!important;font-family:Georgia,serif;font-size:clamp(1.25rem,2.8vw,1.8rem)!important;line-height:1.5!important;}
+.mars-story-copy{max-width:850px;color:#e5c7b6!important;font-family:Georgia,serif;font-size:1.02rem!important;line-height:1.85!important;}
+.mars-actions{margin:28px 0;}
+.mars-primary{border-color:#f19a72;background:#a84d2f;color:#fff0e8;min-height:56px;font-weight:700;}
+.mars-secondary{border-color:#a55e40;color:#efc2a7;}
+.mars-timeline{padding:22px;border-color:rgba(204,119,81,.45);background:rgba(25,12,8,.86);}
+.mars-timeline-help,.mars-flight-help{color:#d3a48d;font-size:.8rem;line-height:1.65;}
+.mars-events{grid-template-columns:repeat(3,minmax(0,1fr));}
+.mars-event{border-color:#75432f;background:#2a1710;font-size:.74rem;}
+.mars-event:disabled{opacity:.5;cursor:not-allowed;}
+.mars-event.is-selected{border-color:#efa078;background:#69321e;}
+.mars-event-detail{margin:10px 0 0;color:#f0d0bf;font-size:.78rem;line-height:1.65;}
+.mars-storm-gate{margin-top:20px;padding:18px;border:1px solid #a94d30;background:rgba(110,41,23,.23);}
+.mars-storm-gate>p:not(.mars-overline){color:#f1c9b6;line-height:1.7;}
+.mars-signal-sequence{margin:28px 0 14px;padding:26px 20px;text-align:center;border:1px solid #a64a30;background:radial-gradient(ellipse,#210e09,#090504);}
+.mars-signal-sequence h2{margin:8px 0 16px;color:#ffded0;font-family:Orbitron,sans-serif;font-size:clamp(2rem,6vw,3.8rem);letter-spacing:.16em;}
+.mars-signal-sequence>p:last-child{color:#e7b49a;line-height:1.8;}
+.mars-silence-countdown{margin:18px 0;text-align:center;color:#dda184;font-size:.7rem;letter-spacing:.2em;}
+.mars-lost-data{margin:20px 0;padding:17px;border:1px solid rgba(124,196,130,.4);background:rgba(17,41,24,.3);}
+.mars-lost-data[hidden]{display:none;}
+.mars-abandoned{text-align:center;color:#f2b18e;font-family:Orbitron,sans-serif;font-size:clamp(1.15rem,3.6vw,2rem);letter-spacing:.13em;}
+.mars-flight{padding:22px;border-color:rgba(204,119,81,.45);background:rgba(25,12,8,.86);}
+.mars-flight h2{color:#ffe0ce;font-family:Orbitron,sans-serif;font-size:clamp(1.2rem,3vw,2rem);}
+.mars-flight-range{height:26px;accent-color:#f18a5d;cursor:pointer;}
+.mars-flight-dots{grid-template-columns:repeat(18,minmax(0,1fr));gap:6px;}
+.mars-flight-dot{height:7px;background:#573022;border:1px solid rgba(238,152,113,.12);}
+.mars-flight-dot.is-passed{background:#ed966c;box-shadow:0 0 6px rgba(241,139,96,.35);}
+.mars-flight-final{margin-top:20px;padding-top:20px;border-top:1px solid rgba(196,113,77,.4);}
+.mars-flight-final[hidden]{display:none;}
+.mars-flight-final .mars-evidence img{max-height:480px;object-fit:contain;}
+.mars-map-frame.is-zooming .mars-marker{opacity:0;transition:opacity .6s ease;}
+.mars-map-layout:has(.mars-map-frame.is-zooming) .mars-expedition-list{opacity:.3;transition:opacity .6s ease;}
+.mars-open-completion{display:flex;margin:24px auto;}
+.mars-completion{margin-top:60px;}
+.mars-completion .mars-primary,.mars-completion .mars-secondary{min-width:min(360px,100%);}
+@media(max-width:900px){
+  .mars-map-layout{grid-template-columns:minmax(0,1.35fr) minmax(230px,.85fr);gap:14px;}
+  .mars-expedition-list{padding:20px 16px;}
+  .mars-expedition-row{grid-template-columns:30px minmax(0,1fr);gap:8px;}
+  .mars-expedition-status{grid-column:2;}
+  .mars-map-frame{aspect-ratio:4/3;}
+}
+@media(max-width:700px){
+  .tha-mars-screen{padding:14px;padding-top:14px;}
+  .mars-header{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;padding:76px 0 14px;}
+  .mars-brand{font-size:.8rem;}
+  .mars-header-chapter,.mars-header-mark{font-size:.56rem;}
+  body:has(.tha-mars-screen) .tha-global-identity-badge{top:10px;right:10px;max-width:210px;padding:6px 8px;}
+  .mars-map-intro{margin:30px auto 18px;}
+  .mars-map-intro h1{font-size:clamp(2rem,10vw,3.5rem);line-height:1.12;}
+  .mars-recovery-counter{align-items:flex-start;flex-direction:column;gap:6px;padding:12px;}
+  .mars-map-layout{grid-template-columns:minmax(0,1fr);gap:14px;}
+  .mars-map-frame{aspect-ratio:4/3;min-height:260px;}
+  .mars-marker{width:46px;height:46px;}
+  .mars-marker-symbol{width:30px;height:30px;font-size:.64rem;}
+  .mars-marker.is-current .mars-marker-symbol{width:23px;height:23px;}
+  .mars-marker-halo{width:40px;height:40px;}
+  .mars-marker-caption{top:37px;font-size:.47rem;padding:3px 4px;}
+  .mars-expedition-list{padding:17px 15px;}
+  .mars-expedition-row{grid-template-columns:34px minmax(0,1fr) auto;min-height:60px;}
+  .mars-expedition-status{grid-column:auto;font-size:.5rem;}
+  .mars-footer{margin:40px -14px -14px;padding:14px;flex-wrap:wrap;font-size:.52rem;}
+  .mars-footer .mars-secondary{width:auto;min-height:42px;padding:10px 12px;font-size:.57rem;}
+  .mars-record-top{padding-top:76px;}
+  .mars-record-top h1{font-size:clamp(2.2rem,11vw,3.6rem);}
+  .mars-record-subtitle{font-size:.92rem;}
+  .mars-image-gallery{grid-template-columns:minmax(0,1fr);gap:12px;}
+  .mars-image-gallery .mars-evidence img{height:auto;max-height:340px;min-height:180px;object-fit:contain;}
+  .mars-trace-sequence,.mars-timeline,.mars-flight{padding:14px;}
+  .mars-trace-item{grid-template-columns:30px minmax(0,1fr);gap:7px;padding:8px;}
+  .mars-trace-number{font-size:.66rem;}
+  .mars-trace-trigger{font-size:.7rem;min-height:54px;padding:11px 10px;}
+  .mars-trace-copy{font-size:.88rem;}
+  .mars-tabs{position:static;}
+  .mars-tab{flex:1;min-width:0;padding:14px 8px;font-size:.67rem;}
+  .mars-layer{padding:14px;}
+  .mars-answers{grid-template-columns:minmax(0,1fr);}
+  .mars-data-grid{grid-template-columns:minmax(0,1fr);}
+  .mars-data-grid dt{padding:10px 7px 2px;font-size:.64rem;}
+  .mars-data-grid dd{padding:2px 7px 11px;font-size:.84rem;}
+  .mars-events{grid-template-columns:minmax(0,1fr);}
+  .mars-event{min-height:56px;text-align:left;}
+  .mars-flight-dots{grid-template-columns:repeat(12,minmax(0,1fr));gap:5px;}
+  .mars-flight-value{font-size:1.05rem;}
+  .mars-primary,.mars-secondary{width:100%;min-height:54px;margin:9px 0 0;font-size:.7rem;}
+  .mars-signal-sequence{padding:20px 12px;}
+  .mars-audio-provenance,.mars-map-footnote{font-size:.57rem;line-height:1.65;}
+}
+@media(max-width:380px){
+  .mars-map-frame{min-height:238px;}
+  .mars-marker-caption{font-size:.42rem;letter-spacing:.035em;}
+  .mars-expedition-row{grid-template-columns:28px minmax(0,1fr) auto;gap:6px;}
+  .mars-expedition-copy strong{font-size:.65rem;}
+  .mars-expedition-status{font-size:.44rem;}
+  .mars-trace-trigger{font-size:.66rem;}
+}
+
+/* Keep waypoint numerals upright inside the rotated diamond markers. */
+.mars-marker-number{display:block;transform:rotate(-45deg);font-family:Orbitron,sans-serif;font-size:.68rem;line-height:1;}
+.mars-marker.is-current .mars-marker-number,.mars-marker.is-complete .mars-marker-number{transform:none;}
+@media(max-width:700px){.mars-marker-number{font-size:.62rem;}}
+
+/* MARS MAP HEADER — same fixed archive bar as the Moon, with the Mars rust palette. */
+.tha-mars-screen:not(.is-record):not(.mars-completion){padding-top:88px;}
+.tha-mars-screen>.mars-header{position:fixed;inset:0 0 auto;z-index:80;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:68px;padding:max(8px,env(safe-area-inset-top)) clamp(11px,3vw,32px) 8px;border-bottom:1px solid rgba(224,137,101,.24);background:rgba(19,8,5,.95);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:0 10px 30px rgba(0,0,0,.24);}
+.tha-mars-screen>.mars-header .tha-moon-brand-mark{border-color:rgba(239,139,99,.62);color:#ef9a73;box-shadow:inset 0 0 16px rgba(239,139,99,.08),0 0 18px rgba(239,139,99,.05);}
+.tha-mars-screen>.mars-header .tha-moon-brand-copy strong{color:#ffe0cf;}
+.tha-mars-screen>.mars-header .tha-moon-brand-copy small{color:#c18469;}
+.tha-mars-screen>.mars-header .tha-moon-live{color:#d69a7c;}
+.tha-mars-screen>.mars-header .tha-moon-live i{background:#f0a078;box-shadow:0 0 10px #f0a078;}
+.tha-mars-screen>.mars-header .tha-global-identity-badge.is-in-menu-header{max-width:245px;padding:5px 8px;gap:7px;border-color:rgba(239,139,99,.65);background:rgba(43,15,9,.96);color:#ffe0cf;}
+.tha-mars-screen>.mars-header .tha-global-identity-badge .tha-global-badge-icon{border-color:rgba(239,139,99,.74);}
+.tha-mars-screen>.mars-header .tha-global-identity-badge .tha-global-badge-copy small{color:#dc8565;}
+
+/* Opportunity is a panoramic record: keep the image edge-to-edge in its content column. */
+.mars-record-content>.mars-image-gallery:has(.mars-evidence:only-child){display:block;width:100%;margin:0 0 30px;}
+.mars-record-content>.mars-image-gallery:has(.mars-evidence:only-child) .mars-evidence{width:100%;}
+.mars-record-content>.mars-image-gallery:has(.mars-evidence:only-child) .mars-evidence img{display:block;width:100%;height:auto;max-height:none;min-height:0;object-fit:contain;}
+
+/* Opportunity's chronological sequence: vertical mission line, one activated stop at a time. */
+.mars-timeline{position:relative;overflow:hidden;}
+.mars-timeline.is-appearing{animation:marsTimelineArrive 1.4s cubic-bezier(.2,.7,.2,1) both;}
+.mars-events{display:grid;grid-template-columns:minmax(0,1fr);gap:0;margin:24px 0 0 8px;padding:0 0 0 27px;border-left:1px solid rgba(239,153,113,.48);}
+.mars-event-item{position:relative;min-width:0;padding:0 0 22px;list-style:none;}
+.mars-event-item:last-child{padding-bottom:0;}
+.mars-event-item:before{content:"";position:absolute;left:-33px;top:17px;width:10px;height:10px;border:1px solid #d98b69;border-radius:50%;background:#2a140d;box-shadow:0 0 0 4px rgba(217,139,105,.08);}
+.mars-event-item:has(.mars-event.is-selected):before{background:#ffc09d;box-shadow:0 0 0 5px rgba(241,153,111,.15),0 0 16px rgba(241,153,111,.6);}
+.mars-event{display:flex;width:100%;align-items:center;gap:14px;min-height:58px;padding:13px 15px;text-align:left;border:1px solid rgba(192,109,76,.36);background:rgba(46,22,14,.66);color:#e9b79e;font-size:.8rem;letter-spacing:.06em;}
+.mars-event:disabled:not(.is-selected){opacity:.42;}
+.mars-event.is-selected{border-color:#e59a76;background:linear-gradient(90deg,rgba(143,58,34,.65),rgba(54,24,15,.82));color:#fff0e8;}
+.mars-event-index{display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;border:1px solid rgba(225,143,106,.48);color:#e99a75;font-family:Orbitron,sans-serif;font-size:.62rem;}
+.mars-event-prompt{line-height:1.45;}
+.mars-event-year{color:#ffbf9c;font-family:Orbitron,sans-serif;font-size:.78rem;letter-spacing:.08em;}
+.mars-event-title{color:#fff0e8;font-size:.82rem;letter-spacing:.06em;}
+.mars-event-detail{margin:10px 0 0;padding:12px 15px;border-left:2px solid #c76b47;background:rgba(9,5,4,.38);color:#f0d0bf;font-size:.86rem;line-height:1.75;animation:marsDNAIn .45s ease both;}
+.mars-storm-gate{position:relative;overflow:hidden;text-align:center;animation:marsStormReveal 1.2s ease both;}
+.mars-storm-gate h2{margin:12px 0;color:#ffe1d1;font-family:Orbitron,sans-serif;font-size:clamp(1.45rem,4vw,2.6rem);letter-spacing:.08em;}
+.mars-storm-gate.is-storm-dark{background:radial-gradient(ellipse at 50% 50%,rgba(9,5,4,.98),rgba(3,2,2,1));border-color:#4a241a;}
+.mars-signal-sequence{animation:marsSignalBlackout 1.2s ease both;}
+.mars-story-legacy{display:grid;gap:7px;margin:18px 0 22px;padding:17px 20px;border-left:2px solid #e28c65;background:rgba(91,39,22,.25);}
+.mars-story-legacy p{margin:0;color:#ffd4bd;font-family:Georgia,serif;font-size:clamp(1rem,2.2vw,1.28rem);line-height:1.6;}
+
+/* Deliberate final archive card: recovered route, count, and next signal. */
+.mars-completion{width:min(1120px,100%);margin:clamp(24px,6vh,70px) auto;padding:0;border:0;background:transparent;text-align:center;}
+.mars-completion-hero{position:relative;overflow:hidden;padding:clamp(28px,6vw,76px) clamp(16px,5vw,58px);border:1px solid rgba(219,126,85,.58);background:radial-gradient(ellipse at 50% 8%,rgba(178,73,42,.33),transparent 50%),linear-gradient(150deg,#32170f 0%,#160b08 58%,#090504 100%);box-shadow:0 28px 90px rgba(0,0,0,.48),inset 0 0 70px rgba(223,112,72,.06);}
+.mars-completion-hero:before,.mars-completion-hero:after{content:"";position:absolute;pointer-events:none;border:1px solid rgba(230,145,108,.13);border-radius:50%;}
+.mars-completion-hero:before{width:460px;height:460px;top:-310px;left:calc(50% - 230px);}
+.mars-completion-hero:after{width:620px;height:620px;bottom:-530px;left:calc(50% - 310px);}
+.mars-completion-hero>*{position:relative;z-index:1;}
+.mars-completion-hero h1{max-width:900px;margin:10px auto 20px;font-size:clamp(2.2rem,7vw,5.4rem);line-height:1.12;}
+.mars-completion-emblem{display:grid;place-content:center;gap:4px;width:clamp(112px,18vw,164px);aspect-ratio:1;margin:24px auto 28px;border:1px solid rgba(240,155,117,.7);background:radial-gradient(circle,rgba(211,89,52,.28),rgba(20,8,5,.9));box-shadow:0 0 0 9px rgba(207,98,58,.06),0 0 48px rgba(220,103,64,.2);transform:rotate(45deg);}
+.mars-completion-emblem span,.mars-completion-emblem small{transform:rotate(-45deg);}
+.mars-completion-emblem span{color:#ffe0cf;font-family:Orbitron,sans-serif;font-size:2.6rem;line-height:1;}
+.mars-completion-emblem small{color:#e99b78;font-size:.48rem;letter-spacing:.14em;}
+.mars-complete-copy{max-width:650px;margin:0 auto;color:#f1d1c0;font-family:Georgia,serif;font-size:clamp(1.15rem,2.7vw,1.6rem);line-height:1.7;}
+.mars-completion-hero .mars-abandoned{margin:28px 0 34px;color:#ffbd99;}
+.mars-completion-route{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;max-width:850px;margin:0 auto 34px;border-top:1px solid rgba(220,133,95,.35);border-bottom:1px solid rgba(220,133,95,.35);}
+.mars-completion-stop{display:grid;gap:7px;padding:16px 7px;border-right:1px solid rgba(220,133,95,.2);}
+.mars-completion-stop:last-child{border-right:0;}
+.mars-completion-stop i{color:#e68e69;font-family:Orbitron,sans-serif;font-size:.68rem;font-style:normal;}
+.mars-completion-stop b{color:#f5c2a8;font-size:.62rem;letter-spacing:.08em;}
+.mars-completion-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;max-width:760px;margin:0 auto;}
+.mars-completion-actions .mars-primary,.mars-completion-actions .mars-secondary{width:auto;min-width:min(230px,100%);min-height:56px;margin:0;padding:15px 18px;}
+@keyframes marsTimelineArrive{from{opacity:0;transform:translateY(22px);filter:blur(3px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
+@keyframes marsStormReveal{from{opacity:0;filter:brightness(1.6)}to{opacity:1;filter:brightness(.65)}}
+@keyframes marsSignalBlackout{0%{opacity:0;filter:brightness(2)}100%{opacity:1;filter:brightness(.48)}}
+@media(max-width:700px){
+  .tha-mars-screen:not(.is-record):not(.mars-completion){padding-top:76px;}
+  .tha-mars-screen>.mars-header{display:flex;align-items:center;flex-direction:row;gap:6px;min-height:60px;padding:max(6px,env(safe-area-inset-top)) 9px 6px;}
+  .tha-mars-screen>.mars-header .tha-moon-brand{gap:6px;}
+  .tha-mars-screen>.mars-header .tha-moon-brand-mark{flex-basis:30px;width:30px;height:30px;font-size:.58rem;}
+  .tha-mars-screen>.mars-header .tha-moon-brand-copy{gap:3px;}
+  .tha-mars-screen>.mars-header .tha-moon-brand-copy strong{font-size:.49rem;letter-spacing:.045em;}
+  .tha-mars-screen>.mars-header .tha-moon-brand-copy small{font-size:.42rem;letter-spacing:.05em;}
+  .tha-mars-screen>.mars-header .tha-moon-header-right{gap:5px;}
+  .tha-mars-screen>.mars-header .tha-moon-live{display:none;}
+  .tha-mars-screen>.mars-header .tha-global-identity-badge.is-in-menu-header{max-width:156px;gap:5px;padding:4px 5px;}
+  .tha-mars-screen>.mars-header .tha-global-identity-badge .tha-global-badge-icon{flex-basis:21px;width:21px;height:21px;}
+  .tha-mars-screen>.mars-header .tha-global-identity-badge .tha-global-badge-icon svg{width:18px;height:18px;}
+  .tha-mars-screen>.mars-header .tha-global-identity-badge .tha-global-badge-copy{font-size:.37rem;letter-spacing:.045em;}
+  .mars-completion{margin:20px auto;padding:0;}
+  .mars-completion-hero{padding:30px 14px;}
+  .mars-completion-hero h1{font-size:clamp(2rem,10vw,3.2rem);}
+  .mars-completion-route{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .mars-completion-stop:nth-child(2){border-right:0;}
+  .mars-completion-stop:nth-child(-n+2){border-bottom:1px solid rgba(220,133,95,.2);}
+  .mars-completion-actions{display:grid;grid-template-columns:1fr;}
+  .mars-completion-actions .mars-primary,.mars-completion-actions .mars-secondary{width:100%;}
+  .mars-event{gap:9px;padding:11px 10px;font-size:.72rem;}
+  .mars-event-detail{font-size:.82rem;}
+}
+.tha-mars-screen.is-signal-blackout{background:#030202;transition:background 1.1s ease;}
+.tha-mars-screen.is-signal-blackout .mars-record-top,.tha-mars-screen.is-signal-blackout .mars-footer{opacity:.12;transition:opacity 1s ease;}
+.mars-event-item{animation:marsTimelineArrive .7s cubic-bezier(.2,.7,.2,1) var(--event-delay,0ms) both;}
+@media(max-width:700px){.tha-moon-screen .tha-laser-hero-evidence .tha-image-credit{justify-content:space-between;}}
+.mars-audio-cue-label{margin:12px 0 0;color:#d99a7c;font-size:.58rem;letter-spacing:.12em;}
+.mars-lost-data.is-revealing{animation:marsTimelineArrive 1.2s ease both;}
+
+/* FINAL STORY + HEADER POLISH */
+.tha-mars-screen{padding-top:88px;}
+.tha-mars-screen>.mars-header{position:fixed;inset:0 0 auto;z-index:80;}
+.mars-record-top{padding-top:12px;}
+.mars-story{padding:22px 0;border-color:rgba(217,135,99,.35);}
+.mars-story .mars-story-lead{max-width:850px;margin:12px 0;color:#ffe1ce!important;font-family:'Fira Code',monospace;font-size:clamp(.98rem,1.5vw,1.08rem)!important;font-weight:600;line-height:1.68!important;letter-spacing:0;}
+.mars-story .mars-story-copy,.mars-story-legacy p{max-width:850px;margin:12px 0;color:#e5c7b6!important;font-family:'Fira Code',monospace;font-size:clamp(.82rem,1.15vw,.9rem)!important;font-weight:400;line-height:1.72!important;letter-spacing:0;}
+.mars-story-legacy{display:block;gap:0;margin:12px 0 18px;padding:0;border:0;background:transparent;}
+.mars-story-legacy p{margin:0 0 5px;}
+.mars-signal-sequence{min-height:220px;display:grid;place-items:center;background:#030202;border:1px solid rgba(180,82,53,.22);}
+.mars-signal-sequence h2{margin:0;font-size:clamp(2.2rem,7vw,4.4rem);}
+.mars-storm-gate{min-height:190px;display:grid;align-content:center;justify-items:center;gap:10px;background:rgba(95,35,20,.3);}
+.mars-storm-gate h2{max-width:720px;margin:0;font-size:clamp(1.3rem,4vw,2.5rem);line-height:1.35;}
+.mars-storm-gate.is-storm-dark{background:#030202;border-color:#21100b;}
+.mars-event-item{animation-delay:var(--event-delay,0ms);}
+.mars-event-detail{display:none!important;}
+.mars-complete-subline{margin:0 0 24px;color:#d9b09c;font-family:Georgia,serif;font-size:clamp(1rem,2.4vw,1.35rem);line-height:1.6;}
+.mars-complete-copy{max-width:38ch;margin:18px auto 0;color:#f0d8ca;font-family:'Fira Code',monospace;font-size:clamp(.9rem,1.35vw,1rem);font-weight:500;line-height:1.75;white-space:pre-line;text-wrap:balance;}
+@media(max-width:700px){
+  .tha-mars-screen{padding-top:76px;}
+  .mars-record-top{padding-top:10px;}
+  .mars-story .mars-story-lead,.mars-story .mars-story-copy,.mars-story-legacy p{font-size:1.08rem!important;line-height:1.78!important;}
+  .mars-signal-sequence{min-height:190px;}
+  .mars-completion-hero{padding-top:26px;}
+}
+
+/* Mars completion: restrained archive summary, not oversized title artwork. */
+.mars-completion{max-width:1040px;margin:clamp(18px,4vh,42px) auto 24px;}
+.mars-completion-hero{padding:clamp(24px,4vw,48px) clamp(16px,4vw,42px);}
+.mars-completion-hero h1{max-width:700px;margin:6px auto 10px;font-size:clamp(1.35rem,3vw,2.15rem);line-height:1.25;letter-spacing:.12em;}
+.mars-completion-emblem{width:clamp(104px,13vw,132px);margin:18px auto 18px;transform:none;aspect-ratio:1;border-radius:50%;}
+.mars-completion-emblem span,.mars-completion-emblem small{transform:none;}
+.mars-completion-emblem span{font-size:1.9rem;}
+.mars-completion-emblem small{font-size:.42rem;}
+.mars-complete-subline{margin:0 0 18px;font-size:clamp(.88rem,1.35vw,1rem);}
+.mars-completion-route{margin-bottom:24px;}
+.mars-completion-actions{gap:10px;}
+.mars-completion-actions .mars-primary,.mars-completion-actions .mars-secondary{min-height:48px;padding:12px 16px;font-size:.66rem;}
+.mars-story .mars-story-lead{white-space:normal;}
+.tha-mars-screen.is-ingenuity-tremor{animation:marsWholeScreenTremor .13s linear 8;}
+@keyframes marsWholeScreenTremor{0%,100%{transform:translate3d(0,0,0)}20%{transform:translate3d(-3px,1px,0)}40%{transform:translate3d(3px,-1px,0)}60%{transform:translate3d(-2px,-1px,0)}80%{transform:translate3d(2px,1px,0)}}
+@media(max-width:700px){
+ .mars-story .mars-story-lead{font-size:.94rem!important;line-height:1.62!important;}
+ .mars-story .mars-story-copy,.mars-story-legacy p{font-size:.82rem!important;line-height:1.62!important;}
+ .mars-completion-hero{padding:24px 14px;}
+ .mars-completion-hero h1{font-size:clamp(1.2rem,6vw,1.65rem);}
+ .mars-complete-copy{font-size:.88rem;line-height:1.7;}
+ .mars-completion-emblem{width:104px;}
+}
+
+/* MARS COMPLETION — a fresh, quiet end-card for desktop and mobile.
+   Keep only the replay action and the archive-menu exit. */
+.tha-mars-screen.mars-completion{
+  display:flex;
+  min-height:100svh;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:clamp(90px,13vh,132px) clamp(14px,4vw,44px) clamp(32px,6vh,64px);
+  overflow:hidden;
+  background:
+    radial-gradient(ellipse at 50% 34%,rgba(157,63,37,.22),transparent 47%),
+    linear-gradient(180deg,#160b08 0%,#0d0706 58%,#050403 100%);
+}
+.tha-mars-screen.mars-completion:before{
+  opacity:.11;
+  background:radial-gradient(circle at 50% 43%,transparent 0 230px,rgba(225,139,103,.18) 231px,transparent 232px),
+    repeating-linear-gradient(0deg,transparent 0 5px,rgba(255,185,145,.05) 6px);
+}
+.mars-completion .mars-header{flex:0 0 auto;}
+.mars-completion-hero{
+  width:min(760px,100%);
+  margin:clamp(12px,3vh,28px) auto 0;
+  padding:clamp(26px,5vw,54px) clamp(16px,5vw,54px);
+  border:0;
+  border-top:1px solid rgba(216,132,96,.56);
+  border-bottom:1px solid rgba(216,132,96,.38);
+  background:linear-gradient(145deg,rgba(55,25,17,.64),rgba(12,7,6,.34));
+  box-shadow:0 25px 80px rgba(0,0,0,.24),inset 0 1px rgba(255,217,195,.035);
+  text-align:center;
+  animation:marsCompletionReveal .7s cubic-bezier(.2,.7,.2,1) both;
+}
+.mars-completion-hero:before{
+  content:"";
+  position:absolute;
+  top:-100px;
+  left:50%;
+  width:min(62vw,430px);
+  aspect-ratio:1;
+  border:1px solid rgba(228,145,108,.12);
+  border-radius:50%;
+  transform:translateX(-50%);
+  pointer-events:none;
+}
+.mars-completion-hero:after{display:none;}
+.mars-completion-hero>.mars-overline{margin:0 0 14px;color:#d98a68;font-size:.62rem;letter-spacing:.2em;}
+.mars-completion-hero h1{
+  max-width:100%;
+  margin:0 auto;
+  color:#ffe0cf;
+  font-size:clamp(1.25rem,3.2vw,2rem);
+  line-height:1.3;
+  letter-spacing:.105em;
+}
+.mars-completion-status{
+  display:flex;
+  align-items:baseline;
+  justify-content:center;
+  gap:12px;
+  margin:22px auto 8px;
+}
+.mars-completion-status strong{color:#f5b08c;font-family:Orbitron,sans-serif;font-size:clamp(1.7rem,4vw,2.45rem);font-weight:500;letter-spacing:.04em;}
+.mars-completion-status span{color:#c98a70;font-size:.57rem;letter-spacing:.16em;}
+.mars-complete-subline{
+  margin:0 auto;
+  color:#d9b6a3;
+  font-family:var(--tha-font-display,Georgia,serif);
+  font-size:clamp(.95rem,1.7vw,1.15rem);
+  line-height:1.5;
+}
+.mars-completion-divider{
+  width:min(180px,42%);
+  height:1px;
+  margin:23px auto 20px;
+  background:linear-gradient(90deg,transparent,rgba(226,139,100,.68),transparent);
+}
+.mars-complete-copy{
+  max-width:36ch;
+  margin:0 auto;
+  color:#f0d5c7;
+  font-family:var(--tha-font-display,Georgia,serif);
+  font-size:clamp(1.22rem,2.25vw,1.72rem);
+  font-weight:500;
+  line-height:1.55;
+  letter-spacing:.005em;
+  white-space:pre-line;
+  text-wrap:balance;
+}
+.mars-completion-actions{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  width:min(560px,100%);
+  max-width:560px;
+  margin:clamp(24px,4vh,36px) auto 0;
+}
+.mars-completion-actions .mars-primary,
+.mars-completion-actions .mars-secondary{
+  width:100%;
+  min-width:0;
+  min-height:50px;
+  margin:0;
+  padding:12px 14px;
+  font-size:.64rem;
+  letter-spacing:.07em;
+}
+.mars-completion-actions .mars-secondary{background:rgba(5,7,7,.28);}
+@keyframes marsCompletionReveal{
+  from{opacity:0;transform:translateY(12px);filter:blur(2px);}
+  to{opacity:1;transform:translateY(0);filter:blur(0);}
+}
+@media(max-width:700px){
+  .tha-mars-screen.mars-completion{justify-content:flex-start;padding:94px 13px 34px;}
+  .mars-completion-hero{width:100%;margin:clamp(18px,5vh,42px) auto 0;padding:28px 15px 25px;}
+  .mars-completion-hero>.mars-overline{font-size:.54rem;letter-spacing:.14em;}
+  .mars-completion-hero h1{font-size:clamp(1.12rem,5.8vw,1.55rem);letter-spacing:.07em;}
+  .mars-completion-status{gap:9px;margin:18px auto 7px;}
+  .mars-completion-status strong{font-size:1.8rem;}
+  .mars-completion-status span{font-size:.49rem;}
+  .mars-complete-subline{font-size:.96rem;}
+  .mars-completion-divider{margin:18px auto 16px;}
+  .mars-complete-copy{max-width:34ch;font-size:clamp(1.05rem,4.6vw,1.25rem);line-height:1.58;}
+  .mars-completion-actions{grid-template-columns:minmax(0,1fr);gap:10px;width:100%;margin:24px auto 0;}
+  .mars-completion-actions .mars-primary,
+  .mars-completion-actions .mars-secondary{min-height:50px;padding:12px 10px;font-size:.62rem;}
+}
+@media(prefers-reduced-motion:reduce){.mars-completion-hero{animation:none;}}
+/* Match the shorter map-marker handoff delay with its visual camera zoom. */
+.mars-terrain-svg,
+.mars-map-frame>svg{transition-duration:.62s!important;}
+.mars-abandoned.is-revealing{animation:marsTimelineArrive .8s ease both;}
+
+/* MARS ARCHIVE COMPLETE — compact, two-state closing card. */
+.tha-mars-screen.mars-completion{
+  min-height:100svh;display:flex;align-items:center;justify-content:center;
+  padding:clamp(88px,12vh,120px) clamp(14px,4vw,48px) 48px;
+  background:radial-gradient(ellipse at 50% 42%,rgba(145,61,38,.19),transparent 48%),
+    linear-gradient(180deg,#130a08 0%,#0b0706 72%,#050403 100%);
+}
+.tha-mars-screen.mars-completion:before{opacity:.08;}
+.mars-completion .mars-completion-hero{
+  width:min(760px,100%);margin:0 auto;padding:clamp(28px,5vw,58px) clamp(18px,5vw,56px);
+  border:1px solid rgba(205,119,84,.48);
+  background:linear-gradient(145deg,rgba(45,21,15,.86),rgba(13,8,7,.94));
+  box-shadow:0 24px 70px rgba(0,0,0,.34);text-align:center;
+}
+.mars-completion-label{margin:0 0 18px;color:#e89a78;font-family:'Fira Code',monospace;
+  font-size:clamp(.68rem,1.2vw,.82rem);font-weight:600;letter-spacing:.17em;}
+.mars-completion-count{display:block;margin:0 auto 12px;color:#ffe0cf;font-family:Orbitron,sans-serif;
+  font-size:clamp(2.1rem,5vw,3.2rem);font-weight:600;letter-spacing:.06em;}
+.mars-completion .mars-complete-subline{margin:0 0 clamp(20px,3vh,30px);color:#d5ae9b;
+  font-family:Georgia,serif;font-size:clamp(1rem,1.8vw,1.25rem);line-height:1.5;}
+.mars-completion .mars-complete-copy{max-width:620px;margin:0 auto;color:#f0d1c1;
+  font-family:Georgia,serif;font-size:clamp(1.25rem,2.5vw,1.85rem);font-weight:400;
+  line-height:1.55;white-space:pre-line;text-wrap:balance;}
+.mars-completion .mars-completion-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  width:min(620px,100%);max-width:620px;gap:12px;margin:clamp(26px,4vh,38px) auto 0;}
+.mars-completion .mars-completion-actions .mars-primary,
+.mars-completion .mars-completion-actions .mars-secondary{
+  box-sizing:border-box;width:100%;min-width:0;min-height:54px;height:54px;margin:0;
+  padding:12px 14px;font-size:.64rem;letter-spacing:.065em;
+  transition:background-color .2s ease,border-color .2s ease,color .2s ease,transform .2s ease;
+}
+.mars-completion .mars-completion-actions .mars-secondary:hover,
+.mars-completion .mars-completion-actions .mars-secondary:focus-visible{
+  color:#ffe3d3;border-color:rgba(232,154,120,.82);background:rgba(111,49,31,.32);transform:translateY(-1px);
+}
+@media(max-width:700px){
+  .tha-mars-screen.mars-completion{padding:88px 14px 32px;}
+  .mars-completion .mars-completion-hero{padding:30px 17px 26px;}
+  .mars-completion-label{font-size:.58rem;letter-spacing:.12em;}
+  .mars-completion-count{font-size:2.1rem;}
+  .mars-completion .mars-complete-subline{font-size:1rem;}
+  .mars-completion .mars-complete-copy{font-size:clamp(1.12rem,5vw,1.38rem);line-height:1.58;}
+  .mars-completion .mars-completion-actions{grid-template-columns:1fr;gap:10px;margin-top:24px;}
+  .mars-completion .mars-completion-actions .mars-primary,
+  .mars-completion .mars-completion-actions .mars-secondary{height:52px;min-height:52px;font-size:.62rem;}
+  .mars-footer{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+    margin:30px -14px -14px;padding:18px 14px;text-align:center;}
+  .mars-footer .mars-secondary{display:inline-flex;align-items:center;justify-content:center;
+    width:min(100%,280px)!important;min-width:0;min-height:46px;height:46px;margin:0 auto;padding:10px 14px;}
+}
+
+
+/* OPPORTUNITY ENDING — five seconds of true silence, then reveal the footer last. */
+.tha-mars-screen.is-signal-blackout .mars-record-top{opacity:.12;transition:opacity 1s ease;}
+.tha-mars-screen.is-signal-blackout .mars-footer{
+  opacity:0;visibility:hidden;transform:translateY(12px);pointer-events:none;
+  transition:opacity .8s ease,transform .8s ease,visibility 0s linear .8s;
+}
+.tha-mars-screen.is-signal-blackout .mars-footer.is-restored{
+  opacity:1;visibility:visible;transform:translateY(0);pointer-events:auto;
+  transition-delay:0s;
+}
+.mars-lost-data.is-revealing,.mars-story.is-revealing{animation:marsTimelineArrive 1.2s ease both;}
+.mars-abandoned.is-revealing{animation:marsTimelineArrive .8s ease both;}
+.mars-footer.is-restored{color:#d8aa93;border-top-color:rgba(228,123,80,.55);}
+.mars-footer.is-restored .mars-secondary{font-size:.78rem;min-height:48px;padding:12px 17px;}
+
+/* MARS COMPLETION — new expedition-debrief layout, distinct from the old centered card. */
+.tha-mars-screen.mars-completion{
+  display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;
+  min-height:100svh;overflow:visible;
+  padding:clamp(86px,11vh,118px) clamp(16px,4vw,58px) 24px;
+  background:
+    radial-gradient(ellipse at 15% 48%,rgba(176,76,43,.19),transparent 42%),
+    radial-gradient(ellipse at 88% 12%,rgba(211,129,87,.12),transparent 32%),
+    linear-gradient(135deg,#170b08 0%,#0d0807 52%,#050404 100%);
+}
+.tha-mars-screen.mars-completion:before{opacity:.09;pointer-events:none;}
+.mars-completion-layout{
+  position:relative;z-index:1;display:grid;
+  grid-template-columns:minmax(0,1.05fr) minmax(340px,.95fr);
+  gap:clamp(22px,4vw,58px);align-items:stretch;
+  width:min(1160px,100%);margin:clamp(24px,5vh,54px) auto 30px;
+}
+.mars-completion-primary{
+  display:flex;flex-direction:column;justify-content:center;align-items:flex-start;
+  min-width:0;padding:clamp(22px,4vw,48px) 0;
+}
+.mars-completion-primary>.mars-overline{color:#e39a76;font-size:.67rem;letter-spacing:.2em;}
+.mars-completion-kicker{margin:clamp(25px,5vh,52px) 0 12px;color:#f0b18c;
+  font-size:.68rem;font-weight:600;letter-spacing:.19em;}
+.mars-completion-score{display:flex;align-items:baseline;gap:13px;margin:0 0 14px;}
+.mars-completion-score strong{color:#ffe1ce;font-family:Orbitron,sans-serif;
+  font-size:clamp(4.5rem,10vw,8.5rem);font-weight:500;line-height:.92;letter-spacing:-.06em;
+  text-shadow:0 0 42px rgba(222,121,78,.2);}
+.mars-completion-score span{color:#d08d70;font-size:.65rem;letter-spacing:.14em;}
+.mars-completion-primary h1{max-width:660px;margin:0;color:#fff0e7;
+  font-family:Orbitron,sans-serif;font-size:clamp(1.8rem,4.2vw,3.55rem);
+  line-height:1.18;letter-spacing:.075em;}
+.mars-completion-lead{max-width:54ch;margin:18px 0 0;color:#d9b8a7;
+  font-size:clamp(.9rem,1.2vw,1.05rem);line-height:1.75;}
+.mars-completion-statement{max-width:34ch;margin:clamp(30px,5vh,54px) 0 0;padding:18px 0 0;
+  border-top:1px solid rgba(218,128,91,.42);color:#f3d2c1;
+  font-family:Georgia,serif;font-size:clamp(1.3rem,2.6vw,2rem);
+  line-height:1.55;white-space:pre-line;}
+.mars-completion-side{display:flex;flex-direction:column;justify-content:center;min-width:0;
+  padding:clamp(20px,3vw,34px);border:1px solid rgba(206,119,82,.43);
+  background:linear-gradient(155deg,rgba(54,25,17,.82),rgba(13,8,7,.93));
+  box-shadow:0 26px 75px rgba(0,0,0,.32),inset 0 1px rgba(255,221,202,.045);}
+.mars-completion-side>.mars-overline{margin-bottom:16px;color:#df9875;font-size:.62rem;}
+.mars-completion-track{list-style:none;margin:0;padding:0;border-top:1px solid rgba(197,120,87,.28);}
+.mars-completion-record{display:grid;grid-template-columns:36px minmax(0,1fr) auto;
+  align-items:center;gap:9px;min-height:65px;padding:12px 0;
+  border-bottom:1px solid rgba(197,120,87,.28);}
+.mars-completion-record-no{color:#d98a66;font-family:Orbitron,sans-serif;font-size:.72rem;}
+.mars-completion-record-copy{color:#ffe1d0;font-size:.76rem;font-weight:600;letter-spacing:.08em;}
+.mars-completion-record-state{color:#b8d8a8;font-size:.53rem;letter-spacing:.09em;white-space:nowrap;}
+.mars-completion-actions{display:grid;grid-template-columns:1fr;gap:10px;width:100%;max-width:none;margin:clamp(22px,4vh,34px) 0 0;}
+.mars-completion-actions .mars-primary,.mars-completion-actions .mars-secondary{
+  width:100%;min-width:0;min-height:56px;height:auto;margin:0;padding:15px 14px;
+  font-size:clamp(.78rem,1vw,.9rem);font-weight:700;letter-spacing:.075em;line-height:1.4;text-align:center;}
+.mars-completion-actions .mars-secondary{background:rgba(5,7,7,.3);}
+.mars-completion-footer{position:relative;z-index:1;display:flex;justify-content:space-between;
+  gap:16px;width:min(1160px,100%);margin:auto auto 0;padding:18px 0 4px;
+  border-top:1px solid rgba(190,104,68,.3);color:#b98b76;
+  font-size:.6rem;letter-spacing:.13em;}
+@media(max-width:800px){
+  .tha-mars-screen.mars-completion{padding:88px 14px 24px;}
+  .mars-completion-layout{grid-template-columns:minmax(0,1fr);gap:22px;margin:22px auto 26px;}
+  .mars-completion-primary{padding:12px 2px 4px;}
+  .mars-completion-kicker{margin:24px 0 10px;font-size:.61rem;}
+  .mars-completion-score strong{font-size:clamp(4rem,18vw,6rem);}
+  .mars-completion-primary h1{font-size:clamp(1.65rem,7vw,2.55rem);}
+  .mars-completion-statement{margin-top:24px;font-size:clamp(1.25rem,5.3vw,1.65rem);}
+  .mars-completion-side{padding:20px 16px;}
+  .mars-completion-record{grid-template-columns:30px minmax(0,1fr) auto;min-height:60px;gap:7px;}
+  .mars-completion-record-copy{font-size:.69rem;}
+  .mars-completion-record-state{font-size:.47rem;}
+  .mars-completion-actions{margin-top:22px;}
+  .mars-completion-footer{flex-direction:column;gap:7px;font-size:.52rem;text-align:center;}
+}
+@media(max-width:380px){
+  .mars-completion-record{grid-template-columns:25px minmax(0,1fr);}
+  .mars-completion-record-state{grid-column:2;}
+}
+@media(prefers-reduced-motion:reduce){
+  .mars-lost-data.is-revealing,.mars-story.is-revealing,.mars-abandoned.is-revealing{animation:none;}
+  .tha-mars-screen.is-signal-blackout .mars-footer{transition:none;}
+}
+
+
+/* MARS COMPLETION LAPTOP FIT: keep every action label on one line.
+   Mobile keeps its established stacked layout and sizing. */
+@media(min-width:801px){
+  .tha-mars-screen.mars-completion .mars-completion-actions{
+    grid-template-columns:minmax(0,1fr);
+  }
+  .tha-mars-screen.mars-completion .mars-completion-actions .mars-primary,
+  .tha-mars-screen.mars-completion .mars-completion-actions .mars-secondary{
+    box-sizing:border-box;min-width:0;width:100%;
+    min-height:52px;height:52px;padding:10px 8px;
+    font-size:.74rem;line-height:1.1;letter-spacing:.025em;
+    white-space:nowrap;word-break:normal;overflow-wrap:normal;
+  }
+}

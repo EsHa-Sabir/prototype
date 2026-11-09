@@ -9,6 +9,7 @@
   const AUDIO = Object.freeze({
     ping: "assets/audio/electronic-ping.mp3",
     piano: "assets/audio/single-piano-note.mp3",
+    completionChord: "assets/audio/piano.mp3",
     laser: "assets/audio/laser-whirr.wav",
     click: "assets/audio/click.mp3"
   });
@@ -65,6 +66,7 @@
   let activeRoot = null;
   let pingAudio = null;
   let pianoAudio = null;
+  let completionChordAudio = null;
   let laserAudio = null;
   let clickAudio = null;
   let pingTimer = null;
@@ -247,33 +249,27 @@
   }
 
   function playCompletionChord() {
-    const context = primeCompletionAudioContext();
-    if (!context || isMuted()) return Promise.resolve(false);
-    try {
-      const now = context.currentTime;
-      const master = context.createGain();
-      master.gain.setValueAtTime(0.0001, now);
-      master.gain.exponentialRampToValueAtTime(0.035, now + 0.055);
-      master.gain.exponentialRampToValueAtTime(0.0001, now + 0.72);
-      master.connect(context.destination);
-      // A gentle, original three-note completion chord. This is team sound
-      // design (not a NASA recording), used because no chord asset was supplied.
-      [261.63, 329.63, 392.00].forEach((frequency, index) => {
-        const oscillator = context.createOscillator();
-        const voice = context.createGain();
-        oscillator.type = "sine";
-        oscillator.frequency.setValueAtTime(frequency, now);
-        voice.gain.setValueAtTime(index === 0 ? 0.42 : 0.30, now);
-        oscillator.connect(voice);
-        voice.connect(master);
-        oscillator.start(now);
-        oscillator.stop(now + 0.74);
+    if (isMuted()) return Promise.resolve(false);
+    completionChordAudio = completionChordAudio || makeAudio(AUDIO.completionChord, 0.3);
+    if (!completionChordAudio) return Promise.resolve(false);
+    stopTrack(completionChordAudio);
+    completionChordAudio.volume = 0.3;
+    return new Promise((resolve) => {
+      let finished = false;
+      const finish = (played) => {
+        if (finished) return;
+        finished = true;
+        completionChordAudio.removeEventListener("ended", onEnded);
+        window.clearTimeout(fallback);
+        resolve(played);
+      };
+      const onEnded = () => finish(true);
+      completionChordAudio.addEventListener("ended", onEnded, { once: true });
+      const fallback = window.setTimeout(() => finish(true), 2600);
+      playTrack(completionChordAudio).then((played) => {
+        if (!played) finish(false);
       });
-      return new Promise((resolve) => window.setTimeout(() => resolve(true), 820));
-    } catch (error) {
-      console.info("THE HUMAN ARCHIVE: completion chord is unavailable in this browser.", error);
-      return Promise.resolve(false);
-    }
+    });
   }
 
   function primePianoPlaybackFromGesture() {
@@ -383,6 +379,7 @@
     if (activePianoCancel) activePianoCancel();
     stopPings();
     stopTrack(pianoAudio);
+    stopTrack(completionChordAudio);
     stopTrack(laserAudio);
     stopTrack(clickAudio);
   }
@@ -495,7 +492,7 @@
   }
 
   function subtitleFor(record) {
-    if (record?.id === "laser-retroreflectors") return "Apollo crews left mirrors that still help measure lunar distance.";
+    if (record?.id === "laser-retroreflectors") return "Apollo crews left mirrors that\nstill help measure lunar distance.";
     if (record?.id === "fallen-astronaut") return "An 8.5 cm figure remembers 14 astronauts and cosmonauts.";
     if (record?.id === "apollo-11") return "Apollo 11's descent stage stayed at Mare Tranquillitatis.";
     return "Three lunar traces. Three different stories of exploration.";
@@ -592,6 +589,50 @@
       externalLink("VIEW OFFICIAL NASA SOURCE ↗", record?.nasaData?.source || "https://www.nasa.gov/", "tha-moon-source-link")
     );
     return card;
+  }
+
+  function makeMoonLayerTabs(record, discoverContent, exploreContent) {
+    const wrap = el("section", "tha-moon-layers");
+    const tabs = el("div", "tha-moon-layer-tabs");
+    const discover = button("DISCOVER", "tha-moon-layer-tab is-active", () => select("discover"));
+    const explore = button("EXPLORE", "tha-moon-layer-tab", () => select("explore"));
+    discover.setAttribute("aria-pressed", "true");
+    explore.setAttribute("aria-pressed", "false");
+    const discoverPanel = el("div", "tha-moon-layer-panel tha-moon-discover");
+    const explorePanel = el("div", "tha-moon-layer-panel tha-moon-explore");
+    discoverPanel.append(discoverContent);
+    explorePanel.append(exploreContent);
+    explorePanel.hidden = true;
+    tabs.append(discover, explore);
+    wrap.append(tabs, discoverPanel, explorePanel);
+    function select(which) {
+      const showDiscover = which === "discover";
+      discoverPanel.hidden = !showDiscover;
+      explorePanel.hidden = showDiscover;
+      discover.classList.toggle("is-active", showDiscover);
+      explore.classList.toggle("is-active", !showDiscover);
+      discover.setAttribute("aria-pressed", String(showDiscover));
+      explore.setAttribute("aria-pressed", String(!showDiscover));
+    }
+    return wrap;
+  }
+
+  function makeDiscoverExplanation(record, imageNode, explanation, purpose, happened, importance) {
+    const panel = el("section", "tha-discover-explanation");
+    panel.append(el("p", "tha-moon-eyebrow", "DISCOVER // THE OBJECT"), imageNode,
+      el("h3", "", "WHAT WAS IT?"), el("p", "", explanation),
+      el("h3", "", "WHAT WAS ITS PURPOSE?"), el("p", "", purpose),
+      el("h3", "", "WHAT HAPPENED TO IT?"), el("p", "", happened),
+      el("h3", "", "WHY DOES IT MATTER TO SPACE EXPLORATION?"),
+      el("p", "", importance || record?.learning?.importance || "It helps explain what human exploration made possible and what remained behind."));
+    return panel;
+  }
+
+  function makeMoonExploreContent(record) {
+    const panel = el("div", "tha-explore-content");
+    panel.append(el("p", "tha-moon-eyebrow", "EXPLORE // VERIFIED MISSION RECORD"),
+      makeNASADataCard(record), makeObjectDNACard(record));
+    return panel;
   }
 
   function makeStoryCard(record) {
@@ -727,7 +768,16 @@
       const count = markProgress(1);
       showMapForNextRecord(root, root.querySelector(".tha-moon-stage"), count);
     }));
-    container.append(header, makeNASADataCard(record), makeObjectDNACard(record), makeStoryCard(record), why, actions);
+    const discover = makeDiscoverExplanation(record,
+      makeImageEvidence({ src: IMAGE.apolloLro, alt: "NASA Lunar Reconnaissance Orbiter view of the Apollo 11 landing site", credit: "NASA/Goddard Space Flight Center/Arizona State University", link: SOURCE.apolloLroImage, linkLabel: "NASA IMAGE SOURCE ↗" }),
+      "The Apollo 11 Lunar Module descent stage was the lower section of the spacecraft that carried the astronauts down to the Moon.",
+      "It provided the landing platform and remained behind while the ascent stage carried the astronauts back toward lunar orbit.",
+      "The ascent stage departed with the astronauts. The descent stage stayed on the lunar surface at Mare Tranquillitatis.",
+      "It was part of the first crewed lunar landing and helped the astronauts return safely to lunar orbit.");
+    discover.append(why);
+    const story = makeStoryCard(record);
+    const layers = makeMoonLayerTabs(record, discover, makeMoonExploreContent(record));
+    container.append(header, layers, story, actions);
     markProgress(1);
     // The optimized 7-second MP3 preserves the supplied note without the oversized WAV download.
     primeCompletionAudioContext();
@@ -768,6 +818,37 @@
       <text x="668" y="177" fill="#e0e2d7" text-anchor="middle" font-size="13" letter-spacing="2">MOON</text>
       <text x="380" y="70" fill="#e8a0a0" text-anchor="middle" font-size="11" letter-spacing="2" class="tha-beam-label-out">OUTBOUND // RED</text>
       <text x="380" y="151" fill="#b9f2c3" text-anchor="middle" font-size="11" letter-spacing="2" class="tha-beam-label-return">RETURN // GREEN</text>`;
+    const desktopMarkup = svg.innerHTML;
+    const mobileMarkup = `
+      <defs>
+        <radialGradient id="thaEarthGlowMobile"><stop offset="0" stop-color="#70b8df"/><stop offset="1" stop-color="#1d5068"/></radialGradient>
+        <radialGradient id="thaMoonGlowMobile"><stop offset="0" stop-color="#d8d9cd"/><stop offset="1" stop-color="#6c7775"/></radialGradient>
+        <filter id="thaLaserGlowMobile"><feGaussianBlur stdDeviation="3"/></filter>
+      </defs>
+      <path d="M78 82H314" stroke="#879993" stroke-width="1.5" stroke-dasharray="3 7" opacity=".42"/>
+      <circle cx="48" cy="88" r="28" fill="url(#thaEarthGlowMobile)" stroke="#a5d5e8" stroke-width="2"/>
+      <path d="M29 83Q48 66 66 83T66 100Q47 117 29 96Z" fill="#5f9972" opacity=".85"/>
+      <circle cx="340" cy="88" r="24" fill="url(#thaMoonGlowMobile)" stroke="#e7e9db" stroke-width="2"/>
+      <ellipse cx="333" cy="81" rx="5" ry="3" fill="#7b8580" opacity=".65"/><ellipse cx="348" cy="97" rx="4" ry="3" fill="#7b8580" opacity=".58"/>
+      <path class="tha-laser-beam tha-laser-outbound-glow" d="M80 78H315" filter="url(#thaLaserGlowMobile)"/>
+      <path class="tha-laser-beam tha-laser-outbound" d="M80 78H315"/>
+      <path class="tha-laser-beam tha-laser-return-glow" d="M315 101H80" filter="url(#thaLaserGlowMobile)"/>
+      <path class="tha-laser-beam tha-laser-return" d="M315 101H80"/>
+      <text x="48" y="139" fill="#bcd7e4" text-anchor="middle" font-size="10" letter-spacing="1.4">EARTH</text>
+      <text x="340" y="139" fill="#e0e2d7" text-anchor="middle" font-size="10" letter-spacing="1.4">MOON</text>
+      <text x="195" y="49" fill="#e8a0a0" text-anchor="middle" font-size="9" letter-spacing="1.5" class="tha-beam-label-out">OUTBOUND // RED</text>
+      <text x="195" y="124" fill="#b9f2c3" text-anchor="middle" font-size="9" letter-spacing="1.5" class="tha-beam-label-return">RETURN // GREEN</text>`;
+    const adaptSimulationToViewport = () => {
+      const compact = window.matchMedia && window.matchMedia("(max-width: 700px)").matches;
+      svg.setAttribute("viewBox", compact ? "0 0 390 180" : "0 0 760 230");
+      svg.innerHTML = compact ? mobileMarkup : desktopMarkup;
+    };
+    adaptSimulationToViewport();
+    const resizeSimulation = () => {
+      if (!svg.isConnected) { window.removeEventListener("resize", resizeSimulation); return; }
+      adaptSimulationToViewport();
+    };
+    window.addEventListener("resize", resizeSimulation, { passive: true });
     view.append(svg);
     const status = el("p", "tha-laser-status", "READY // START THE SIMULATION TO TRACE THE SIGNAL.");
     const start = button("▶ START SIMULATION", "tha-next-button tha-laser-start", () => {
@@ -840,15 +921,15 @@
       const count = markProgress(2);
       showMapForNextRecord(root, root.querySelector(".tha-moon-stage"), count);
     }));
-    container.append(
-      stats,
-      disclaimer,
-      makeNASADataCard(record),
-      makeObjectDNACard(record),
-      makeStoryCard(record),
-      nextPrompt,
-      actions
-    );
+    const discover = makeDiscoverExplanation(record,
+      makeImageEvidence({ src: IMAGE.retroreflector, alt: "Apollo lunar laser retroreflector array on the lunar surface", credit: "NASA", link: SOURCE.retroreflectorNasa, linkLabel: "NASA IMAGE SOURCE ↗" }),
+      "A laser retroreflector is a scientific instrument made of small corner-cube mirrors that return a laser pulse toward its source.",
+      "Apollo crews placed the arrays on the Moon so scientists on Earth could measure the Earth–Moon distance with great precision.",
+      "The reflectors were left at the Apollo landing sites and are still used in scientific measurements today.",
+      "They let scientists measure the Earth–Moon distance with centimeter-level precision, decades after the Apollo missions.");
+    discover.append(stats, disclaimer);
+    const story = makeStoryCard(record);
+    container.append(makeMoonLayerTabs(record, discover, makeMoonExploreContent(record)), story, nextPrompt, actions);
     markProgress(2);
     setHUD(root, "SIGNAL RETURNED // LASER REFLECTOR VERIFIED", 2);
     // Belge 1: reveal the science first, hold a long, absolute silence,
@@ -870,46 +951,26 @@
     const status = el("div", "tha-object-status");
     status.append(el("span", "tha-status-dot"), el("span", "", "OBJECT DETECTED"), el("strong", "", "SCIENTIFIC INSTRUMENT"));
     const intro = makeRecordIntro("AN UNEXPECTED ANSWER // TRACE 02", "THE MOON'S MIRROR", "A tiny instrument. A signal that travels both ways.");
-    const image = makeImageEvidence({
-      src: IMAGE.retroreflectorHero,
-      alt: "Close-up view of the Apollo 14 Laser Ranging Retro-Reflector (LR3), photographed on February 5, 1971; NASA image AS14-67-9386.",
-      credit: "NASA",
-      link: SOURCE.retroreflectorNasa,
-      linkLabel: "NASA OFFICIAL PHOTO ↗"
-    });
-    const imageCaption = image.querySelector(".tha-image-credit");
-    if (imageCaption) {
-      imageCaption.append(
-        document.createTextNode(" · "),
-        externalLink("JPL EXPERIMENT STORY ↗", SOURCE.retroreflectorJpl, "tha-image-source")
-      );
-    }
-    const explanation = el("p", "tha-record-explanation", "This is a measuring instrument. Scientists send laser pulses from Earth and detect the light that returns from the Moon.");
     let simulation = null;
-    const clues = window.THATemplates.TemplateA.createClueSequence({
-      record,
-      imagePaths: { retroreflector: IMAGE.retroreflector },
-      official: { retroreflector: SOURCE.retroreflectorNasa },
-      onComplete: () => {
-        const start = simulation?.querySelector(".tha-laser-start");
-        const laserStatus = simulation?.querySelector(".tha-laser-status");
-        if (start) {
-          start.disabled = false;
-          start.textContent = "▶ START SIMULATION";
-          start.classList.add("is-unlocked");
-        }
-        if (laserStatus) laserStatus.textContent = "ALL FOUR CLUES DECODED // RUN THE TWO-WAY SIGNAL SIMULATION.";
-      }
-    });
     simulation = makeLaserBeamSimulation(record, root);
     const simulationStart = simulation.querySelector(".tha-laser-start");
     const simulationStatus = simulation.querySelector(".tha-laser-status");
     if (simulationStart) {
-      simulationStart.disabled = true;
-      simulationStart.textContent = "DECODE ALL 4 CLUES TO UNLOCK";
+      simulationStart.disabled = false;
+      simulationStart.textContent = "▶ START SIMULATION";
     }
-    if (simulationStatus) simulationStatus.textContent = "LOCKED // RECOVER ALL FOUR CLUES TO UNLOCK THE SIGNAL.";
-    section.append(status, intro, image, explanation, clues.element, simulation);
+    if (simulationStatus) simulationStatus.textContent = "READY // START THE TWO-WAY SIGNAL SIMULATION.";
+    // The Apollo 14 close-up is shown before the two-way laser simulation.
+    // DISCOVER keeps the separate wide-angle reflector-array photograph.
+    const hero = makeImageEvidence({
+      src: IMAGE.retroreflectorHero,
+      alt: "Close view of the Apollo 14 lunar laser retroreflector array on the Moon",
+      credit: "NASA",
+      link: SOURCE.retroreflectorJpl,
+      linkLabel: "JPL EXPERIMENT STORY ↗"
+    });
+    hero.classList.add("tha-laser-hero-evidence");
+    section.append(status, intro, hero, simulation);
     return section;
   }
 
@@ -928,6 +989,7 @@
     try {
       const saved = JSON.parse(window.localStorage.getItem(PROGRESS_KEY) || "{}");
       saved.moon = 0;
+      window.localStorage.removeItem("thaMoonCompletionSeen");
       window.localStorage.setItem(PROGRESS_KEY, JSON.stringify(saved));
       window.localStorage.removeItem(LEGACY_APOLLO_KEY);
     } catch (error) {
@@ -948,14 +1010,18 @@
     const motto = el("h2", "", "ABANDONED ≠ FORGOTTEN.");
     const label = el("p", "tha-completion-label", "🌙 MOON ARCHIVE COMPLETE");
     const count = el("strong", "tha-completion-count", "3 / 3 RECORDS RECOVERED");
-    const summary = el("p", "tha-completion-story", "Three traces recovered: a launch platform, mirrors for lunar ranging, and a memorial to fourteen lost space explorers.");
+    const summary = el("p", "tha-completion-story", "Three traces. One human story left on the Moon.");
     const handoff = el("div", "tha-mars-handoff");
     handoff.hidden = true;
     handoff.append(
       el("span", "tha-mars-handoff-kicker", "NEXT ARCHIVE // MARS"),
       el("p", "", "A new signal waits beyond the Moon.")
     );
+    const alreadyCompleted = (() => { try { return window.localStorage.getItem("thaMoonCompletionSeen") === "true"; } catch (_) { return false; } })();
     const replay = button("REPLAY MOON CHAPTER ↺", "tha-next-button tha-replay-button", () => replayMoonChapter(root));
+    const nextMars = button("CONTINUE TO MARS →", "tha-secondary-button tha-mars-next-button", () => window.THANavigation?.goTo("marsMap"));
+    nextMars.hidden = !alreadyCompleted;
+    replay.hidden = alreadyCompleted;
     const menu = button("RETURN TO ARCHIVE MENU", "tha-secondary-button", () => {
       stopAllMoonAudio();
       window.THANavigation?.goTo("menu");
@@ -965,7 +1031,7 @@
       menu.disabled = true;
       complete.classList.add("is-transitioning");
     }
-    complete.append(kicker, motto, label, count, summary, handoff, replay, menu);
+    complete.append(kicker, motto, label, count, summary, handoff, replay, nextMars, menu);
     setHUD(root, "MOON ARCHIVE COMPLETE // 3 OF 3 RECOVERED", 3);
     return complete;
   }
@@ -991,6 +1057,7 @@
     flash.classList.add("is-fading");
     later(() => flash.remove(), 720);
     completion.querySelectorAll("button").forEach((control) => { control.disabled = false; });
+    try { window.localStorage.setItem("thaMoonCompletionSeen", "true"); } catch (_) {}
     completion.classList.remove("is-transitioning");
   }
 
@@ -1004,7 +1071,14 @@
     markProgress(3);
     setHUD(root, "FINAL TRACE RECOVERED // 3 OF 3", 3);
     stopPings();
-    slot.append(makeNASADataCard(record), makeObjectDNACard(record), makeStoryCard(record));
+    const discover = makeDiscoverExplanation(record,
+      el("div", "tha-fallen-discover-visual", "8.5 CM // ALUMINUM MEMORIAL FIGURE"),
+      "The Fallen Astronaut is a small aluminum sculpture placed on the Moon beside a plaque.",
+      "It was left by the Apollo 15 crew as a memorial to astronauts and cosmonauts who died in the pursuit of space exploration.",
+      "The small figure and plaque were left at Hadley Rille in 1971, where the memorial remains.",
+      "It makes the human cost of exploration visible and preserves the memory of 14 fallen space explorers.");
+    const story = makeStoryCard(record);
+    slot.append(makeMoonLayerTabs(record, discover, makeMoonExploreContent(record)), story);
     slot.append(el("p", "tha-memorial-silence", "SILENCE // REMEMBER THE PEOPLE BEHIND THE EXPLORATION."));
     slot.scrollIntoView({ behavior: "smooth", block: "start" });
     later(() => {
@@ -1028,18 +1102,9 @@
     const status = el("div", "tha-object-status");
     status.append(el("span", "tha-status-dot"), el("span", "", "OBJECT DETECTED"), el("strong", "", "UNIDENTIFIED MEMORIAL"));
     const intro = makeRecordIntro("A DECISION // TRACE 03", "A MEMORIAL ON THE MOON", "A small figure. Four clues. One question to consider.");
-    const image = makeImageEvidence({
-      src: IMAGE.fallenAstronaut,
-      alt: "Fallen Astronaut aluminum figure and commemorative plaque at the Apollo 15 site",
-      credit: "NASA / JSC",
-      link: SOURCE.fallenImage,
-      linkLabel: "NASA IMAGE AS15-88-11894 ↗"
-    });
     const clues = window.THATemplates.TemplateC.createClueSequence({
       record,
-      imagePath: IMAGE.fallenAstronaut,
-      imageSource: SOURCE.fallenImage,
-      imageCredit: "NASA / JSC",
+      // Use a symbolic clue visual here; the NASA photograph appears once in DISCOVER.
       onComplete: () => {
         choiceSlot.hidden = false;
         const interaction = record?.interaction || {};
@@ -1056,7 +1121,15 @@
     const choiceSlot = el("div", "tha-fallen-choice-slot");
     choiceSlot.hidden = true;
     const revealSlot = el("div", "tha-fallen-reveal-slot");
-    section.append(status, intro, image, clues.element, choiceSlot, revealSlot);
+    const figure = makeImageEvidence({
+      src: IMAGE.fallenAstronaut,
+      alt: "Fallen Astronaut aluminum memorial figure beside its plaque on the lunar surface",
+      credit: "NASA / JSC",
+      link: SOURCE.fallenImage,
+      linkLabel: "NASA IMAGE SOURCE ↗"
+    });
+    figure.classList.add("tha-fallen-hero-evidence");
+    section.append(status, intro, figure, clues.element, choiceSlot, revealSlot);
     return section;
   }
 
@@ -1105,6 +1178,11 @@
   }
 
   function showMoonCompletion(root, stage) {
+    const returningToCompletedMoon = (() => {
+      try { return window.localStorage.getItem("thaMoonCompletionSeen") === "true"; }
+      catch (_) { return false; }
+    })();
+    if (returningToCompletedMoon) playCompletionChord();
     stage.classList.add("is-record-view");
     stage.replaceChildren();
     root.classList.add("is-red-shift");
@@ -1124,6 +1202,7 @@
     // Fetch chapter images and audio cues in parallel with the map transition.
     void preloadMoonImages();
     preloadMoonAudioAssets();
+    completionChordAudio = completionChordAudio || makeAudio(AUDIO.completionChord, 0.3);
     // Pre-fetch/decode the compact piano MP3 while the map is open; resume the context
     // only from an actual student interaction to respect browser audio policy.
     try { preloadPianoBuffer(primeCompletionAudioContext()); } catch (_) { /* optional audio */ }

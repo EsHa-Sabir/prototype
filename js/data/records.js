@@ -253,7 +253,7 @@
                 ["dryWeight", "DRY WEIGHT"],
                 ["identifier", "IDENTIFIER"]
             ]),
-            storyLead: "Humans landed on the Moon. A piece of their mission remained. On purpose. Because they had not gone thereto bring everything back to Earth.",
+            storyLead: "Humans landed on the Moon.\nA piece of their mission remained.\nOn purpose.\nBecause they had not gone there\nto bring everything back to Earth.",
             story: "Eagle’s descent stage stayed at Tranquility Base. It served as the launch platform while the ascent stage carried Armstrong and Aldrin back to lunar orbit. Its later fate is not confirmed.",
             verifiedSourceNote: "NASA NSSDCA — Apollo 11 Lunar Module / EASEP.",
             clues: [
@@ -488,11 +488,15 @@
                 traceCount: 3,
                 completionSound: "short wheel sound"
             },
-            media: makeMedia(
+            media: Object.assign(makeMedia(
                 "sojourner-rover",
                 "Sojourner rover on the Martian surface",
                 "Rover + Mars surface"
-            ),
+            ), {
+                filename: "sojourner-rover-mars-surface.webp",
+                src: "assets/images/sojourner-rover-mars-surface.webp",
+                assetStatus: "NASA/JPL PIA01122 image is included in assets/images/."
+            }),
             soundCue: "A short wheel sound. Then the Martian ambient sound returns."
         },
         {
@@ -549,11 +553,15 @@
                 markerLabel: "TRACE 2",
                 focus: "Evidence of past water activity and hydrothermal processes"
             },
-            media: makeMedia(
+            media: Object.assign(makeMedia(
                 "spirit-rover",
                 "Spirit Mars Exploration Rover at Gusev Crater",
                 "Rover + Gusev Crater"
-            ),
+            ), {
+                filename: "spirit-rover-gusev-crater.webp",
+                src: "assets/images/spirit-rover-gusev-crater.webp",
+                assetStatus: "NASA/JPL-Caltech/Cornell PIA04413 image is included in assets/images/."
+            }),
             soundCue: "The ambient sound grows slightly melancholic. Then it fades away."
         },
         {
@@ -632,11 +640,15 @@
                     storyLead: "Then it fell silent."
                 }
             },
-            media: makeMedia(
+            media: Object.assign(makeMedia(
                 "opportunity-rover",
                 "Opportunity rover with Martian terrain panorama",
                 "Rover + panorama"
-            ),
+            ), {
+                filename: "opportunity-rover-greeley-panorama.webp",
+                src: "assets/images/opportunity-rover-greeley-panorama.webp",
+                assetStatus: "NASA/JPL-Caltech/Cornell/Arizona State University PIA15689 image is included in assets/images/."
+            }),
             soundCue: "Ambient sound → silence for 5 seconds → single long piano note. No wind, clicks, or notes during the 5-second SIGNAL LOST state."
         },
         {
@@ -695,11 +707,15 @@
                 dotCountAtFinalValue: 72,
                 finalState: "One of the rotor blades is damaged. The screen trembles slightly."
             },
-            media: makeMedia(
+            media: Object.assign(makeMedia(
                 "ingenuity-helicopter",
                 "Ingenuity Mars Helicopter and its flight path",
                 "Helicopter + flight path"
-            ),
+            ), {
+                filename: "ingenuity-mars-helicopter.webp",
+                src: "assets/images/ingenuity-mars-helicopter.webp",
+                assetStatus: "NASA/JPL-Caltech PIA23882 image is included in assets/images/."
+            }),
             soundCue: "A brief whirr. Then a cracking/damage sound. Then silence."
         },
 

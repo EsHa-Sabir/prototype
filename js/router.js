@@ -125,7 +125,10 @@ const router = {
             if (token !== thaRouteNavigationToken) return false;
 
             // Stop audio owned by the screen being left before the new renderer starts.
-            if (this.currentScreen !== screenName) window.THAMoonAudio?.stopAll();
+            if (this.currentScreen !== screenName) {
+                window.THAMoonAudio?.stopAll();
+                window.THAMarsAudio?.stop();
+            }
 
             document.documentElement.classList.remove("splash-no-scroll", "tha-terminal-active");
             document.body.classList.remove("splash-no-scroll", "tha-terminal-active");
