@@ -1291,3 +1291,11 @@
     letter-spacing:.015em!important;
   }
 }
+/* MOBILE-ONLY MOON MAP LABEL POSITION */
+@media (max-width: 700px) {
+  .tha-moon-screen .tha-mobile-map-notes {
+    inset: auto auto 9px 9px !important;
+    z-index: 2;
+    max-width: calc(100% - 18px);
+  }
+}
