@@ -128,6 +128,10 @@ const router = {
             if (this.currentScreen !== screenName) {
                 window.THAMoonAudio?.stopAll();
                 window.THAMarsAudio?.stop();
+                // Stop Other Traces audio only when leaving that chapter. The
+                // unlock cue is started directly inside the Archive Map tap and
+                // must survive the route transition into the chapter.
+                if (this.currentScreen === 'otherTraces') window.THAOtherAudio?.stop();
             }
 
             document.documentElement.classList.remove("splash-no-scroll", "tha-terminal-active");

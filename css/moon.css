@@ -1299,3 +1299,5 @@
     max-width: calc(100% - 18px);
   }
 }
+/* Mobile learning tabs stay visible while their own Discover/Explore panel scrolls. */
+@media(max-width:700px){.tha-moon-layer-tabs{position:sticky;top:calc(60px + env(safe-area-inset-top,0px));z-index:40;background:rgba(5,14,10,.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}}

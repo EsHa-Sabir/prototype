@@ -66,7 +66,7 @@
 .mars-complete-count{margin:24px 0;color:#f3a47e;letter-spacing:.2em}
 .mars-complete-copy{color:#f2d4c3;font-family:Georgia,serif;font-size:1.35rem;line-height:1.7}
 @keyframes marsPulse{0%{opacity:1;transform:scale(.5)}100%{opacity:0;transform:scale(2.5)}}
-@media(max-width:700px){.tha-mars-screen{padding:14px}.mars-header{align-items:flex-start;flex-direction:column}.mars-map-frame{aspect-ratio:4/3;min-height:280px}.mars-map-legend{grid-template-columns:repeat(2,minmax(0,1fr))}.mars-marker{width:48px;height:48px}.mars-marker-label{left:34px;font-size:.6rem}.mars-answers{grid-template-columns:1fr}.mars-data-grid{grid-template-columns:112px minmax(0,1fr)}.mars-data-grid dt{font-size:.6rem}.mars-data-grid dd{font-size:.75rem;overflow-wrap:anywhere}.mars-events{grid-template-columns:repeat(2,minmax(0,1fr))}.mars-tabs{position:sticky;top:0;z-index:5;background:#1b100c}.mars-tab{flex:1;min-width:0;padding:13px 8px;font-size:.68rem}.mars-layer{padding:15px}.mars-primary,.mars-secondary{width:100%;margin:10px 0 0}.mars-flight-dots{grid-template-columns:repeat(12,1fr)}}
+@media(max-width:700px){.tha-mars-screen{padding:14px}.mars-header{align-items:flex-start;flex-direction:column}.mars-map-frame{aspect-ratio:4/3;min-height:280px}.mars-map-legend{grid-template-columns:repeat(2,minmax(0,1fr))}.mars-marker{width:48px;height:48px}.mars-marker-label{left:34px;font-size:.6rem}.mars-answers{grid-template-columns:1fr}.mars-data-grid{grid-template-columns:112px minmax(0,1fr)}.mars-data-grid dt{font-size:.6rem}.mars-data-grid dd{font-size:.75rem;overflow-wrap:anywhere}.mars-events{grid-template-columns:repeat(2,minmax(0,1fr))}.mars-tabs{position:sticky;top:calc(60px + env(safe-area-inset-top,0px));z-index:40;background:rgba(27,16,12,.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}.mars-tab{flex:1;min-width:0;padding:13px 8px;font-size:.68rem}.mars-layer{padding:15px}.mars-primary,.mars-secondary{width:100%;margin:10px 0 0}.mars-flight-dots{grid-template-columns:repeat(12,1fr)}}
 @media(max-width:380px){.mars-map-intro h1,.mars-record-top h1,.mars-completion h1{font-size:1.8rem}.mars-map-frame{min-height:250px}.mars-map-record{font-size:.61rem;padding:9px 7px}.mars-data-grid{grid-template-columns:94px minmax(0,1fr)}}
 @media(prefers-reduced-motion:reduce){.mars-marker-pulse{animation:none;opacity:.65}}
 .mars-audio-provenance{position:relative;max-width:1120px;margin:8px auto;color:#bd8b73;font-size:.58rem;line-height:1.6;letter-spacing:.05em}
@@ -255,7 +255,7 @@ body:has(.tha-mars-screen) .tha-global-identity-badge .tha-global-badge-copy sma
   .mars-trace-number{font-size:.66rem;}
   .mars-trace-trigger{font-size:.7rem;min-height:54px;padding:11px 10px;}
   .mars-trace-copy{font-size:.88rem;}
-  .mars-tabs{position:static;}
+  .mars-tabs{position:sticky;top:calc(60px + env(safe-area-inset-top,0px));z-index:50;background:rgba(27,16,12,.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
   .mars-tab{flex:1;min-width:0;padding:14px 8px;font-size:.67rem;}
   .mars-layer{padding:14px;}
   .mars-answers{grid-template-columns:minmax(0,1fr);}
@@ -419,8 +419,18 @@ body:has(.tha-mars-screen) .tha-global-identity-badge .tha-global-badge-copy sma
 .mars-completion-actions{gap:10px;}
 .mars-completion-actions .mars-primary,.mars-completion-actions .mars-secondary{min-height:48px;padding:12px 16px;font-size:.66rem;}
 .mars-story .mars-story-lead{white-space:normal;}
-.tha-mars-screen.is-ingenuity-tremor{animation:marsWholeScreenTremor .13s linear 8;}
+/* Flight 72: vibrate the complete flight-control card during rotor whirr;
+   then tremble the complete archive screen only while the damage sound plays. */
+.mars-flight.is-flight-vibration{transform-origin:center center;will-change:transform;animation:marsFlightBoxVibration .16s ease-in-out infinite;}
+@keyframes marsFlightBoxVibration{
+  0%,100%{transform:translate3d(0,0,0) rotate(0deg)}
+  20%{transform:translate3d(-2px,1px,0) rotate(-.11deg)}
+  40%{transform:translate3d(2px,-1px,0) rotate(.11deg)}
+  60%{transform:translate3d(-1.5px,-1px,0) rotate(-.08deg)}
+  80%{transform:translate3d(1.5px,1px,0) rotate(.08deg)}
+}
 @keyframes marsWholeScreenTremor{0%,100%{transform:translate3d(0,0,0)}20%{transform:translate3d(-3px,1px,0)}40%{transform:translate3d(3px,-1px,0)}60%{transform:translate3d(-2px,-1px,0)}80%{transform:translate3d(2px,1px,0)}}
+.tha-mars-screen.is-damage-tremor{animation:marsWholeScreenTremor .13s linear infinite;}
 @media(max-width:700px){
  .mars-story .mars-story-lead{font-size:.94rem!important;line-height:1.62!important;}
  .mars-story .mars-story-copy,.mars-story-legacy p{font-size:.82rem!important;line-height:1.62!important;}
@@ -726,4 +736,14 @@ body:has(.tha-mars-screen) .tha-global-identity-badge .tha-global-badge-copy sma
     font-size:.74rem;line-height:1.1;letter-spacing:.025em;
     white-space:nowrap;word-break:normal;overflow-wrap:normal;
   }
+}
+.mars-flight.is-final-flight:not(.is-flight-vibration){animation:none!important}
+
+/* Mobile Mars learning tabs mirror the fixed Moon / Other Traces learning bar. */
+@media(max-width:700px){
+  .tha-mars-screen{overflow:visible;padding-top:60px;}
+  .mars-header{display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:60px;padding:max(6px,env(safe-area-inset-top)) 9px 6px;}
+  .mars-header .tha-moon-live{display:none;}
+  .mars-tabs{position:sticky;top:calc(60px + env(safe-area-inset-top,0px));z-index:50;width:100%;background:rgba(27,16,12,.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);}
+  .mars-layers{scroll-margin-top:calc(68px + env(safe-area-inset-top,0px));}
 }

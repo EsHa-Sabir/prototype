@@ -741,20 +741,18 @@
             },
             nasaData: makeNASAData({
                 launch: "September 5, 1977",
-                location: "Deep Interstellar space (over 25 billion kilometers away)",
+                location: "Interstellar space — beyond the heliopause",
                 heliopause: "August 25, 2012",
-                distanceEstimate: "~25.9 billion km",
-                distanceEstimateDate: "November 2026 estimate",
+                distanceMethod: "Runtime estimate derived from NASA/JPL's November 18, 2026 one-light-day milestone and reported spacecraft speed; not live telemetry.",
                 sourceOrganization: "NASA / JPL",
                 sourceName: "NASA / JPL — Voyager 1 Interstellar Mission",
                 source: "https://www.jpl.nasa.gov/missions/voyager-1/",
-                sourceStatus: "Marked verified in Belge 1"
+                sourceStatus: "Mission status snapshot checked November 10, 2026; follow the live NASA/JPL page for later changes."
             }, [
                 ["launch", "LAUNCH"],
                 ["location", "LOCATION"],
-                ["heliopause", "HELIOPAUSE"],
-                ["distanceEstimate", "DISTANCE ESTIMATE"],
-                ["distanceEstimateDate", "ESTIMATE DATE"]
+                ["heliopause", "HELIOPAUSE CROSSING"],
+                ["distanceMethod", "DISTANCE ESTIMATE METHOD"]
             ]),
             sourceNotes: [
                 "Belge 1 explicitly says Voyager 1's current communication status and distance change over time and must be checked live against NASA/JPL sources. Do not present the November 2026 estimate as a permanent current value.",
@@ -816,11 +814,18 @@
                 signalIntervalMs: 3000,
                 specialTimelineEvent: "1990 — Pale Blue Dot — silence"
             },
-            media: makeMedia(
+            media: Object.assign(makeMedia(
                 "voyager-1",
-                "Voyager 1 spacecraft and the Golden Record",
+                "Voyager spacecraft with the Golden Record and its engraved cover",
                 "Spacecraft + Golden Record"
-            ),
+            ), {
+                filename: "voyager-spacecraft-golden-record.webp",
+                src: "assets/images/voyager-spacecraft-golden-record.webp",
+                credit: "NASA / JPL-Caltech",
+                sourceUrl: "https://images.nasa.gov/details/PIA14113",
+                sourceLabel: "NASA Image and Video Library — PIA14113",
+                assetStatus: "Included WebP asset; NASA image PIA14113."
+            }),
             soundCue: "A very faint signal every 3 seconds; a short musical passage when the Golden Record opens; then silence."
         },
         {
@@ -832,7 +837,7 @@
             title: "Pioneer Plaque",
             screenTitle: "PIONEER PLAQUE",
             template: "B",
-            templateName: "Chrono Slider",
+            templateName: "Plaque Story",
             priority: "important",
             objectType: "Gold-anodized aluminum message plaque",
             location: {
@@ -843,11 +848,11 @@
             nasaData: makeNASAData({
                 pioneer10Launch: "March 2, 1972",
                 pioneer11Launch: "April 5, 1973",
-                status: "Both spacecraft are now completely silent",
-                design: "Carl Sagan and Frank Drake",
-                plaqueSize: "6 × 9 inches",
+                status: "Both Pioneer spacecraft are now silent",
+                design: "Carl Sagan and Frank Drake; artwork by Linda Salzman Sagan",
+                plaqueSize: "6 × 9 inches (about 15 × 23 cm)",
                 material: "Gold-anodized aluminum",
-                sourceOrganization: "NASA / Smithsonian",
+                sourceOrganization: "NASA / NASA Ames Research Center",
                 sourceName: "NASA — Pioneer Plaque",
                 source: "https://science.nasa.gov/resource/pioneer-plaque/",
                 sourceStatus: "Marked verified in Belge 1"
@@ -859,26 +864,22 @@
                 ["plaqueSize", "PLAQUE SIZE"],
                 ["material", "MATERIAL"]
             ]),
-            storyLead: "A MESSAGE. NO GUARANTEE OF A REPLY.",
             story: "Gold-anodized metal sheets safely bolted to the outside of the old Pioneer spacecraft. Engraved with drawings of humans and a cosmic map pointing back to Earth—humanity's ultimate message in a bottle floating through the dark ocean of space.",
             verifiedSourceNote: "Smithsonian / NASA (Pioneer 10 launched March 2, 1972; Pioneer 11 launched April 5, 1973. The plaques were designed by Carl Sagan and Frank Drake. Each plaque is a 6 × 9-inch gold-anodized aluminum plate.)",
             clues: [],
-            timeline: [
-                { date: "March 2, 1972", label: "Pioneer 10 launch" },
-                { date: "April 5, 1973", label: "Pioneer 11 launch" }
-            ],
-            mechanic: "timeline",
-            interaction: {
-                type: "chrono-slider",
-                sliderMode: "launch-dates",
-                closingMessage: "A MESSAGE. NO GUARANTEE OF A REPLY."
-            },
-            media: makeMedia(
+            media: Object.assign(makeMedia(
                 "pioneer-plaque",
-                "Detailed Pioneer Plaque showing human figures and a diagram locating Earth",
-                "Detailed plaque images"
-            ),
-            soundCue: "Deep silence."
+                "Pioneer plaque artwork showing human figures, a pulsar map, and the Solar System diagram",
+                "Detailed Pioneer Plaque artwork"
+            ), {
+                filename: "pioneer-plaque-artwork.webp",
+                src: "assets/images/pioneer-plaque-artwork.webp",
+                credit: "NASA / NASA Ames Research Center",
+                sourceUrl: "https://science.nasa.gov/resource/pioneer-plaque/",
+                sourceLabel: "NASA Science — Pioneer Plaque",
+                assetStatus: "Included WebP asset; source page contains the detailed Pioneer plaque image."
+            }),
+            soundCue: "No added audio cue."
         },
 
         // =====================================================================
@@ -1076,7 +1077,7 @@
     // User-supplied filenames for the Moon chapter's existing documented cues.
     const MOON_AUDIO_ASSETS = Object.freeze({
         chapterPing: "assets/audio/electronic-ping.mp3",
-        laserWhirr: "assets/audio/laser-whirr.wav",
+        laserWhirr: "assets/audio/laser-whirr.mp3",
         laserClick: "assets/audio/click.mp3",
         pianoNote: "assets/audio/single-piano-note.mp3"
     });

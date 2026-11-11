@@ -310,6 +310,9 @@ function renderMenu() {
             if (button.dataset.thaMenuRoute === "moon") {
                 window.THAMoonAudio?.primeFromGesture?.();
             }
+            if (button.dataset.thaMenuRoute === "other") {
+                window.THAOtherAudio?.playUnlockCueFromGesture?.();
+            }
             const navigated = navigateTHAMenuRoute(button.dataset.thaMenuRoute);
             if (navigated) button.disabled = true;
             else button.classList.remove("is-selected");

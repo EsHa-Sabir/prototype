@@ -501,8 +501,7 @@ function stopTerminalTypingAudioAndWaitForSilence() {
 
 /**
  * Get the production two-thump cue. The full uploaded source repeated the same
- * beat cycle; assets/audio/heartbeat.mp3 contains only one authored cycle, while
- * assets/audio/source/heartbeat-original-full.mp3 preserves the supplied source.
+ * beat cycle; the optimized assets/audio/heartbeat.mp3 contains one clean cycle.
  */
 function getTerminalHeartbeatCue() {
     if (!window.THA.heartbeatCueAudio) {

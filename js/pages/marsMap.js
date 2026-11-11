@@ -98,7 +98,7 @@
   function stopEffects(){effects.forEach(a=>{try{a.pause();a.currentTime=0;}catch(_){}});effects=[];}
   function stopAll(){clearTimers();stopEffects();stopWhirr();try{ambient?.pause();if(ambient)ambient.currentTime=0;}catch(_){}}
   function audio(file,volume=.3){if(window.THA?.audioMuted)return null;try{const a=new Audio(AUDIO+file);a.preload='auto';a.volume=volume;a.load();effects.push(a);return a;}catch(_){return null;}}
-  function play(file,volume){const a=audio(file,volume);if(a)a.play().catch(()=>{});return a;}
+  function play(file,volume,onFailure=null){const a=audio(file,volume);if(!a)return null;if(typeof onFailure==='function')a.addEventListener('error',onFailure,{once:true});const request=a.play();if(request&&typeof request.catch==='function')request.catch(()=>{if(typeof onFailure==='function')onFailure();});return a;}
   function startAmbient(){if(!ambient||window.THA?.audioMuted)return;if(ambient.volume<.05||ambient.volume>.90)ambient.volume=.78;ambient.play().catch(()=>{});}
   function pauseAmbient(){try{ambient?.pause();if(ambient)ambient.currentTime=0;}catch(_){}}
   function fadeMedia(media,target,duration,onDone){if(!media){onDone?.();return;}const token=(media.__thaFadeToken||0)+1;media.__thaFadeToken=token;const start=media.volume,steps=Math.max(1,Math.ceil(duration/60));let i=0;const tick=()=>{if(media.__thaFadeToken!==token)return;i++;media.volume=start+(target-start)*(i/steps);if(i>=steps){if(target===0&&media===ambient)pauseAmbient();onDone?.();return;}const t=setTimeout(tick,duration/steps);timers.push(t);};tick();}
@@ -118,7 +118,7 @@
   function tabs(r){const wrap=$('section','mars-layers');const bar=$('div','mars-tabs');const discover=btn('DISCOVER','mars-tab is-active',()=>select(true));const explore=btn('EXPLORE','mars-tab',()=>select(false));discover.setAttribute('aria-pressed','true');explore.setAttribute('aria-pressed','false');const d=$('div','mars-layer');const e=$('div','mars-layer');d.append(learningLayer(r));e.append(exploreLayer(r));e.hidden=true;bar.append(discover,explore);wrap.append(bar,d,e);function select(show){d.hidden=!show;e.hidden=show;discover.classList.toggle('is-active',show);explore.classList.toggle('is-active',!show);discover.setAttribute('aria-pressed',String(show));explore.setAttribute('aria-pressed',String(!show));}return wrap;}
   function storyCard(r){
     const s=$('section','mars-story');
-    s.append($('p','mars-overline','STORY // 2126 ARCHIVE'));
+    s.append($('p','mars-overline','THE STORY // 2126 ARCHIVE'));
     s.append($('p','mars-story-lead',r.storyLead));
     if(r.legacy){const legacy=$('div','mars-story-legacy');r.legacy.forEach(line=>legacy.append($('p','',line)));s.append(legacy);}
     if(r.story)s.append($('p','mars-story-copy',r.story));
@@ -126,16 +126,34 @@
   }
   function recordHeader(r){const header=$('header','mars-record-top');const back=btn('← ARCHIVE MAP','mars-back',()=>window.THANavigation?.goTo('menu'));header.append(back,$('p','mars-overline',`CHAPTER THREE // RECORD ${r.number}`),$('p','mars-eyebrow',r.eyebrow),$('h1','',r.title),$('p','mars-record-subtitle',r.subtitle),$('p','mars-location','FIELD SITE // '+r.location));return header;}
   function footer(){const f=$('footer','mars-footer');f.append($('span','','MARS SURFACE SURVEY // ARCHIVE 2126'),btn('← ARCHIVE MENU','mars-secondary',()=>window.THANavigation?.goTo('menu')));return f;}
+  function playSojournerWheelThenAmbient(){
+    // The wheel cue is intentionally isolated: do not restart the Martian bed
+    // until the complete wheel-roll clip has ended (or failed to load).
+    pauseAmbient();
+    const wheel=play('wheel-roll.mp3',.34);
+    let resumed=false;
+    const resume=()=>{
+      if(resumed)return;
+      resumed=true;
+      if(wheel){wheel.removeEventListener('ended',resume);wheel.removeEventListener('error',resume);}
+      if(rootIsMarsMap())startAmbient();
+    };
+    function rootIsMarsMap(){return Boolean(document.querySelector('.tha-mars-screen') && document.querySelector('.tha-mars-screen .mars-map-intro'));}
+    if(wheel){
+      wheel.addEventListener('ended',resume,{once:true});
+      wheel.addEventListener('error',resume,{once:true});
+      const fallback=setTimeout(resume,5000);
+      timers.push(fallback);
+    }else resume();
+  }
   function addContinue(root,r){
     const actions=$('div','mars-actions');
     const label=r.number===7?'MARS ARCHIVE COMPLETE →':`RETURN TO MARS MAP // TRACE ${r.number+1} →`;
     actions.append(btn(label,'mars-primary',()=>{
       saveProgress(r.step);
       if(r.id==='sojourner'){
-        // Keep the short wheel cue, but never block the map hand-off on audio.
-        pauseAmbient();
-        renderMarsMapInto(root);
-        play('wheel-roll.mp3',.36);
+        renderMarsMapInto(root,false);
+        playSojournerWheelThenAmbient();
         return;
       }
       if(r.id==='spirit'){
@@ -171,6 +189,9 @@
           const storm=$('section','mars-storm-gate');
           storm.append($('p','mars-overline','2018'),$('h2','','A MASSIVE DUST STORM ON MARS'));
           timeline.append(storm);
+          // Bring the newly revealed 2018 dust-storm card into view before
+          // the signal-loss sequence follows it.
+          requestAnimationFrame(() => storm.scrollIntoView({ behavior: 'smooth', block: 'center' }));
           const t=setTimeout(()=>signalLost(root,r,content,storm),1100);timers.push(t);
         }
       });
@@ -212,6 +233,9 @@
       stopWhirr();
       // SIGNAL LOST appears only after the storm audio has cut off.
       content.append(lost);
+      // Bring the newly-created SIGNAL LOST scene into view so users who are
+      // reading higher on the record never miss the critical ending.
+      requestAnimationFrame(() => lost.scrollIntoView({ behavior: 'smooth', block: 'center' }));
 
       // Start the five-second clock only after every sound source is stopped.
       const reveal=setTimeout(()=>{
@@ -224,6 +248,7 @@
         const story=storyCard(r);
         story.classList.add('is-revealing');
         content.append(nasa,story);
+        requestAnimationFrame(() => nasa.scrollIntoView({ behavior: 'smooth', block: 'start' }));
         const piano=play('single-piano-note.mp3',.62);
         if(piano){
           piano.volume=.62;
@@ -283,25 +308,61 @@
     timers.push(cut);
   }
   function buildIngenuity(root,r,content){
-    content.append(gallery(r),tabs(r));const slider=$('section','mars-flight');
-    slider.append($('p','mars-overline','FLIGHT SLIDER // 5 PLANNED · 72 COMPLETED'),$('h2','','FOLLOW THE FLIGHT PATH'),$('p','mars-flight-help','Move from flight 1 to flight 72. Every completed flight leaves a trace.'));
+    content.append(gallery(r),tabs(r));const flightBox=$('section','mars-flight');
+    flightBox.append($('p','mars-overline','FLIGHT SLIDER // 5 PLANNED · 72 COMPLETED'),$('h2','','FOLLOW THE FLIGHT PATH'),$('p','mars-flight-help','Move from flight 1 to flight 72. Every completed flight leaves a trace.'));
     const output=$('output','mars-flight-value','FLIGHT 1 / 72');const range=$('input','mars-flight-range');range.type='range';range.min='1';range.max='72';range.value='1';range.setAttribute('aria-label','Ingenuity flight number, 1 to 72');
     const dots=$('div','mars-flight-dots');for(let i=0;i<72;i++)dots.append($('span','mars-flight-dot'));
     const reveal=$('div','mars-flight-final');reveal.hidden=true;
     range.addEventListener('input',()=>{
       const n=Number(range.value);output.textContent=`FLIGHT ${n} / 72`;dots.querySelectorAll('.mars-flight-dot').forEach((d,i)=>d.classList.toggle('is-passed',i<n));
-      if(n!==72||slider.dataset.final)return;slider.dataset.final='true';slider.classList.add('is-final-flight');
-      let damageStarted=false;const damageSequence=()=>{
-        if(damageStarted||!slider.isConnected)return;damageStarted=true;stopWhirr();pauseAmbient();root.classList.add('is-ingenuity-tremor');const tremorEnd=setTimeout(()=>root.classList.remove('is-ingenuity-tremor'),1500);timers.push(tremorEnd);const damage=play('damage-sound.mp3',.58);
-        reveal.append($('p','mars-overline','FLIGHT 72 // ROTOR DAMAGE DETECTED'));
-        addImageCard(reveal,{src:'ingenuity-flight-72-damaged.webp',alt:'NASA image of Ingenuity after flight 72, showing rotor blade damage',credit:'NASA / JPL-Caltech',url:'https://images.nasa.gov/details/PIA26243'},0);reveal.hidden=false;
-        const showStory=()=>{if(!reveal.isConnected||reveal.dataset.storyShown)return;reveal.dataset.storyShown='true';reveal.append(storyCard(r),addContinue(root,r));};
-        if(damage){damage.addEventListener('ended',showStory,{once:true});const fallback=setTimeout(showStory,Math.max(2200,(damage.duration||1.8)*1000+250));timers.push(fallback);}else showStory();
+      if(n!==72||flightBox.dataset.final)return;flightBox.dataset.final='true';flightBox.classList.add('is-final-flight');
+      let damageStarted=false;
+      let whirrSafety=null;
+      let damageSafety=null;
+      const stopFlightBoxMotion=()=>flightBox.classList.remove('is-flight-vibration');
+      const startFlightBoxMotion=()=>flightBox.classList.add('is-flight-vibration');
+      const showStory=()=>{
+        if(!reveal.isConnected||reveal.dataset.storyShown)return;
+        reveal.dataset.storyShown='true';
+        if(damageSafety)clearTimeout(damageSafety);
+        root.classList.remove('is-damage-tremor');
+        stopFlightBoxMotion();
+        reveal.append(storyCard(r),addContinue(root,r));
       };
-      activeWhirr=play('helicopter-whirr.mp3',.58);
-      if(activeWhirr){activeWhirr.addEventListener('ended',damageSequence,{once:true});const fallback=setTimeout(damageSequence,Math.max(3000,(activeWhirr.duration||2.8)*1000+250));timers.push(fallback);}else damageSequence();
+      const damageSequence=()=>{
+        if(damageStarted||!flightBox.isConnected)return;
+        damageStarted=true;
+        if(whirrSafety)clearTimeout(whirrSafety);
+        stopFlightBoxMotion();
+        stopWhirr();
+        pauseAmbient();
+        // The screen trembles for the damage audio only; the flight-control
+        // card has already stopped vibrating when the helicopter whirr ends.
+        root.classList.add('is-damage-tremor');
+        reveal.append($('p','mars-overline','FLIGHT 72 // ROTOR DAMAGE DETECTED'));
+        addImageCard(reveal,{src:'ingenuity-flight-72-damaged.webp',alt:'NASA image of Ingenuity after flight 72, showing rotor blade damage',credit:'NASA / JPL-Caltech',url:'https://images.nasa.gov/details/PIA26243'},0);
+        reveal.hidden=false;
+        const damage=play('damage-sound.mp3',.82,showStory);
+        if(damage){
+          damage.addEventListener('ended',showStory,{once:true});
+          // Safety net only: the actual media ended/error event controls the
+          // sequence in normal playback; this is deliberately longer than the clip.
+          damageSafety=setTimeout(showStory,8000);
+          timers.push(damageSafety);
+        }else showStory();
+      };
+      startFlightBoxMotion();
+      activeWhirr=play('helicopter-whirr.mp3',.78,damageSequence);
+      if(activeWhirr){
+        activeWhirr.addEventListener('ended',damageSequence,{once:true});
+        // Cut the rotor whirr short so the helicopter is heard lifting briefly,
+        // the flight-control box shakes, then damage interrupts the flight.
+        // The forced hand-off stops the longer source clip before its natural end.
+        whirrSafety=setTimeout(damageSequence,2500);
+        timers.push(whirrSafety);
+      }else damageSequence();
     });
-    slider.append(output,range,dots,reveal);content.append(slider);
+    flightBox.append(output,range,dots,reveal);content.append(flightBox);
   }
   function renderRecordInto(root,r){stopEffects();clearTimers();root.className='tha-mars-screen is-record';root.replaceChildren();root.append(fieldHeader(),recordHeader(r));const content=$('main','mars-record-content');content.append($('p','mars-progress-line',`MARS ARCHIVE // ${getProgress()} OF 04 RECORDS RECOVERED`));if(r.id==='sojourner'||r.id==='spirit')buildTemplateA(root,r,content);else if(r.id==='opportunity')buildOpportunity(root,r,content);else buildIngenuity(root,r,content);const pageFooter=footer();pageFooter.setAttribute('aria-hidden','false');root.append(content,pageFooter);if(ambient){ambient.volume=r.id==='opportunity'?.50:.78;}startAmbient();window.THAIdentity?.mountInMenu?.();window.scrollTo({top:0,behavior:'smooth'});}
 
@@ -317,7 +378,7 @@
     const identity=$('div','tha-moon-identity-slot');identity.id='thaMenuIdentitySlot';
     right.append(status,identity);header.append(brand,right);return header;
   }
-  function renderMarsMapInto(root){stopEffects();clearTimers();root.className='tha-mars-screen';root.replaceChildren();const header=fieldHeader();const intro=$('section','mars-map-intro');intro.append($('p','mars-overline','A NEW WORLD // MARS EXPEDITION'),$('h1','','MARS / LOST OBJECT MAP'),$('p','mars-map-subtitle','A red world. Four traces. Follow the rover years.'),$('p','mars-map-intro-copy','A new atmosphere. A new surface. A route marked by the machines humanity left behind.'));const count=$('div','mars-recovery-counter');const next=DATA[Math.min(getProgress(),3)];count.append($('span','mars-counter-label',getProgress()===4?'MARS ARCHIVE COMPLETE':'RECORD DETECTED: '+String(next.number)),$('strong','',`${getProgress()} / 4 RECOVERED`));intro.append(count);const layout=$('section','mars-map-layout');const frame=$('div','mars-map-frame');frame.innerHTML=mapSVG();const coords=[[17,75],[42,55],[70,36],[86,15]];DATA.forEach((r,i)=>{const [x,y]=coords[i];r.x=x;r.y=y;const complete=r.step<=getProgress();const available=r.step===getProgress()+1;const mark=btn('',`mars-marker ${complete?'is-complete':''} ${available?'is-current':'is-locked'}`,()=>openRecordFromMap(r));mark.style.left=x+'%';mark.style.top=y+'%';mark.disabled=!available;mark.setAttribute('aria-label',`${r.number} ${r.title} ${complete?'recovered':available?'ready to open':'locked'}`);const symbol=$('span','mars-marker-symbol');symbol.append($('span','mars-marker-number',String(r.number).padStart(2,'0')));mark.append($('span','mars-marker-halo'),symbol,$('span','mars-marker-caption',r.title));frame.append(mark);});layout.append(frame,mapRecordList());intro.append();root.append(header,intro,layout);const provenance=$('p','mars-audio-provenance','NASA DATA // PERSEVERANCE SUPERCAM MICROPHONE RECORDING · SOL 001 · LOW-FREQUENCY PLAYBACK · ');const source=$('a','','NASA AUDIO SOURCE ↗');source.href='https://www.nasa.gov/wp-content/uploads/2024/05/scam-mic-sol001-run001.wav';source.target='_blank';source.rel='noopener noreferrer';provenance.append(source);root.append(provenance,$('p','mars-map-footnote','THE HUMAN ARCHIVE // FOUR MARS RECORDS · ONE EXPEDITION PATH'),footer());window.THAIdentity?.mountInMenu?.();if(getProgress()===4){root.append(btn('MARS ARCHIVE COMPLETE // OPEN SUMMARY →','mars-primary mars-open-completion',()=>renderCompletion(root,true)));}startAmbient();}
+  function renderMarsMapInto(root, startAudio=true){stopEffects();clearTimers();root.className='tha-mars-screen';root.replaceChildren();const header=fieldHeader();const intro=$('section','mars-map-intro');intro.append($('p','mars-overline','A NEW WORLD // MARS EXPEDITION'),$('h1','','MARS / LOST OBJECT MAP'),$('p','mars-map-subtitle','A red world. Four traces. Follow the rover years.'),$('p','mars-map-intro-copy','A new atmosphere. A new surface. A route marked by the machines humanity left behind.'));const count=$('div','mars-recovery-counter');const next=DATA[Math.min(getProgress(),3)];count.append($('span','mars-counter-label',getProgress()===4?'MARS ARCHIVE COMPLETE':'RECORD DETECTED: '+String(next.number)),$('strong','',`${getProgress()} / 4 RECOVERED`));intro.append(count);const layout=$('section','mars-map-layout');const frame=$('div','mars-map-frame');frame.innerHTML=mapSVG();const coords=[[17,75],[42,55],[70,36],[86,15]];DATA.forEach((r,i)=>{const [x,y]=coords[i];r.x=x;r.y=y;const complete=r.step<=getProgress();const available=r.step===getProgress()+1;const mark=btn('',`mars-marker ${complete?'is-complete':''} ${available?'is-current':'is-locked'}`,()=>openRecordFromMap(r));mark.style.left=x+'%';mark.style.top=y+'%';mark.disabled=!available;mark.setAttribute('aria-label',`${r.number} ${r.title} ${complete?'recovered':available?'ready to open':'locked'}`);const symbol=$('span','mars-marker-symbol');symbol.append($('span','mars-marker-number',String(r.number).padStart(2,'0')));mark.append($('span','mars-marker-halo'),symbol,$('span','mars-marker-caption',r.title));frame.append(mark);});layout.append(frame,mapRecordList());intro.append();root.append(header,intro,layout);const provenance=$('p','mars-audio-provenance','NASA DATA // PERSEVERANCE SUPERCAM MICROPHONE RECORDING · SOL 001 · LOW-FREQUENCY PLAYBACK · ');const source=$('a','','NASA AUDIO SOURCE ↗');source.href='https://www.nasa.gov/wp-content/uploads/2024/05/scam-mic-sol001-run001.wav';source.target='_blank';source.rel='noopener noreferrer';provenance.append(source);root.append(provenance,$('p','mars-map-footnote','THE HUMAN ARCHIVE // FOUR MARS RECORDS · ONE EXPEDITION PATH'),footer());window.THAIdentity?.mountInMenu?.();if(getProgress()===4){root.append(btn('MARS ARCHIVE COMPLETE // OPEN SUMMARY →','mars-primary mars-open-completion',()=>renderCompletion(root,true)));}if(startAudio)startAmbient();}
   function renderCompletion(root,returnVisit=false){
     stopAll();
     try{localStorage.setItem('thaMarsCompletionSeen','true');}catch(_){}
@@ -384,7 +445,7 @@
     const distant=()=>{if(pingScheduled)return;pingScheduled=true;const t=setTimeout(()=>play('electronic-ping.mp3',.12),1500);timers.push(t);};
     if(chord){chord.addEventListener('ended',distant,{once:true});const fallback=setTimeout(distant,1800);timers.push(fallback);}else distant();
   }
-  function renderMarsMap(){stopAll();void warmImages();try{ambient=new Audio(AUDIO+'low-frequency-ambient.mp3');ambient.preload='auto';ambient.volume=.78;ambient.loop=true;ambient.dataset.provenance='NASA Perseverance SuperCam microphone sample, converted from supplied WAV to MP3 for efficient local playback.';ambient.load();window.THAMarsAmbient=ambient;}catch(_){ambient=null;}const root=$('main','tha-mars-screen');let seen=false;try{seen=localStorage.getItem('thaMarsCompletionSeen')==='true';}catch(_){}if(getProgress()===4&&seen)renderCompletion(root,true);else renderMarsMapInto(root);return root;}
+  function renderMarsMap(){stopAll();void warmImages();try{ambient=new Audio(AUDIO+'low-frequency-ambient.mp3');ambient.preload='auto';ambient.volume=.78;ambient.loop=true;ambient.setAttribute('fetchpriority','high');ambient.dataset.provenance='NASA Perseverance SuperCam microphone sample, converted from supplied WAV to MP3 for efficient local playback.';ambient.load();window.THAMarsAmbient=ambient;}catch(_){ambient=null;}const root=$('main','tha-mars-screen');let seen=false;try{seen=localStorage.getItem('thaMarsCompletionSeen')==='true';}catch(_){}if(getProgress()===4&&seen)renderCompletion(root,true);else renderMarsMapInto(root);return root;}
 
   window.THAMarsAudio={stop:stopAll};
   window.renderMarsMap=renderMarsMap;

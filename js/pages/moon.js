@@ -10,7 +10,7 @@
     ping: "assets/audio/electronic-ping.mp3",
     piano: "assets/audio/single-piano-note.mp3",
     completionChord: "assets/audio/piano.mp3",
-    laser: "assets/audio/laser-whirr.wav",
+    laser: "assets/audio/laser-whirr.mp3",
     click: "assets/audio/click.mp3"
   });
   const IMAGE = Object.freeze({
@@ -1018,20 +1018,22 @@
       el("p", "", "A new signal waits beyond the Moon.")
     );
     const alreadyCompleted = (() => { try { return window.localStorage.getItem("thaMoonCompletionSeen") === "true"; } catch (_) { return false; } })();
-    const replay = button("REPLAY MOON CHAPTER ↺", "tha-next-button tha-replay-button", () => replayMoonChapter(root));
-    const nextMars = button("CONTINUE TO MARS →", "tha-secondary-button tha-mars-next-button", () => window.THANavigation?.goTo("marsMap"));
-    nextMars.hidden = !alreadyCompleted;
-    replay.hidden = alreadyCompleted;
+    // Render exactly two actions for each state (rather than hiding the unused
+    // action). First completion: Replay + Return. Re-entry after completion:
+    // Continue to Mars + Return.
+    const primaryAction = alreadyCompleted
+      ? button("CONTINUE TO MARS →", "tha-secondary-button tha-mars-next-button", () => window.THANavigation?.goTo("marsMap"))
+      : button("REPLAY MOON CHAPTER ↺", "tha-next-button tha-replay-button", () => replayMoonChapter(root));
     const menu = button("RETURN TO ARCHIVE MENU", "tha-secondary-button", () => {
       stopAllMoonAudio();
       window.THANavigation?.goTo("menu");
     });
     if (holdControls) {
-      replay.disabled = true;
+      primaryAction.disabled = true;
       menu.disabled = true;
       complete.classList.add("is-transitioning");
     }
-    complete.append(kicker, motto, label, count, summary, handoff, replay, nextMars, menu);
+    complete.append(kicker, motto, label, count, summary, handoff, primaryAction, menu);
     setHUD(root, "MOON ARCHIVE COMPLETE // 3 OF 3 RECOVERED", 3);
     return complete;
   }
